@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="private">
+      <UniqueIdentifier>{e19df111-cab5-48ba-93aa-4a63504f23e8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\private\tensor_value.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid.h" />
+    <ClInclude Include="..\private\shape.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\shared_array.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\span.h" />
+    <ClInclude Include="..\public\pointer_iterator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\private\tensor_value.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\shape.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\liquid.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
