@@ -1,3 +1,9 @@
+
+//   Copyright Giuseppe Campana (giu.campana@gmail.com) 2020.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #pragma once
 #include <cstdint>
 #include <string>
@@ -10,6 +16,7 @@ namespace liquid
     using Real = double;
     using Integer = int64_t;
     using Bool = bool;
+    enum class ScalarType { Any, Real, Integer, Bool };
 
     template <typename... TYPE>
         std::string ToString(const TYPE & ... i_object)
@@ -42,3 +49,5 @@ namespace liquid
         return result;
     }
 }
+
+#include "tensor.h"

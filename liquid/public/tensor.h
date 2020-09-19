@@ -4,18 +4,17 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid.h"
-#ifdef _WIN32
-    #include <Windows.h>
-#endif
+#pragma once
+#include <memory>
 
 namespace liquid
 {
-    void DbgBreak()
+    class Tensor
     {
-        #ifdef _WIN32
-            if(IsDebuggerPresent())
-                DebugBreak();
-        #endif
-    }
+    public:
+
+
+    private:
+        std::shared_ptr<class Expression> m_expression;
+    };
 }

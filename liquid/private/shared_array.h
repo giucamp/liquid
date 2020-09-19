@@ -1,3 +1,9 @@
+
+//   Copyright Giuseppe Campana (giu.campana@gmail.com) 2020.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #pragma once
 
 #include "liquid.h"
@@ -5,6 +11,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <algorithm>
+#include <type_traits>
 
 namespace liquid
 {
@@ -47,6 +54,12 @@ namespace liquid
             return *this;
         }
 
+        SharedArray(size_t i_size)
+            : m_elements(new TYPE[i_size]), m_size(i_size)
+        {
+
+        }
+
         SharedArray(std::initializer_list<TYPE> i_initializer_list)
             : m_elements(new TYPE[i_initializer_list.size()]), m_size(i_initializer_list.size())
         {
@@ -60,10 +73,12 @@ namespace liquid
             SharedArray(const SOURCE_CONTAINER & i_source)
         {
             m_size = NumericCast<size_t>(std::distance(i_source.begin(), i_source.end()));
-            m_elements = std::shared_ptr<TYPE[]>(new TYPE[m_size]);
+
+            auto const elements = new std::remove_const_t<TYPE>[m_size];
+            m_elements = std::shared_ptr<TYPE[]>(elements);
             size_t index = 0;
             for(const auto & source_element : i_source)
-                m_elements[index++] = source_element;
+                elements[index++] = source_element;
         }
 
         bool empty() const { return m_size == 0; }

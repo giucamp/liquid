@@ -1,3 +1,9 @@
+
+//   Copyright Giuseppe Campana (giu.campana@gmail.com) 2020.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #pragma once
 
 namespace liquid
@@ -49,17 +55,17 @@ namespace liquid
     template <typename CONTAINER, typename ELEMENT_TYPE, typename = std::void_t<>>
         struct IsContainer : std::false_type { };
     template <typename CONTAINER, typename ELEMENT_TYPE>
-        struct IsContainer < CONTAINER, ELEMENT_TYPE, std::void_t< 
+        struct IsContainer < CONTAINER, ELEMENT_TYPE, std::void_t<
 
             decltype(std::begin(std::declval<CONTAINER>()) != std::end(std::declval<CONTAINER>())),
 
             std::enable_if_t<std::is_same_v<
-            
+
                 std::decay_t<ELEMENT_TYPE>,
                 std::decay_t<decltype(*std::begin(std::declval<CONTAINER>()))>
-            
+
             >>
-            
+
 
     > > : std::true_type{ };
     template <typename CONTAINER, typename ELEMENT_TYPE>

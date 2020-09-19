@@ -19,17 +19,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\private\expression.cpp" />
     <ClCompile Include="..\private\liquid.cpp" />
+    <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\shape.cpp" />
+    <ClCompile Include="..\private\tensor_type.cpp" />
     <ClCompile Include="..\private\tensor_value.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\private\expression.h" />
+    <ClInclude Include="..\private\operator.h" />
     <ClInclude Include="..\private\shape.h" />
     <ClInclude Include="..\private\shared_array.h" />
+    <ClInclude Include="..\private\tensor_type.h" />
     <ClInclude Include="..\private\tensor_value.h" />
     <ClInclude Include="..\public\liquid.h" />
     <ClInclude Include="..\public\pointer_iterator.h" />
     <ClInclude Include="..\public\span.h" />
+    <ClInclude Include="..\public\tensor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

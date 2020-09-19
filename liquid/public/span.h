@@ -1,3 +1,9 @@
+
+//   Copyright Giuseppe Campana (giu.campana@gmail.com) 2020.
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
 #pragma once
 #include <iterator>
 #include <utility>
@@ -29,9 +35,9 @@ namespace liquid
         Span(TYPE * i_data, size_t i_size)
             : m_data(i_data), m_size(i_size) { }
 
-        template <typename SOURCE_CONTAINER, typename = std::enable_if_t<IsContigousContainerV<SOURCE_CONTAINER, TYPE>>> 
+        template <typename SOURCE_CONTAINER, typename = std::enable_if_t<IsContigousContainerV<SOURCE_CONTAINER, TYPE>>>
             Span(SOURCE_CONTAINER && i_source_container)
-                : m_data(std::data(i_source_container)), 
+                : m_data(std::data(i_source_container)),
                     m_size(std::size(i_source_container))
                         { }
 
@@ -47,10 +53,10 @@ namespace liquid
             return m_data[i_index];
         }
 
-        TYPE & operator[](size_t i_index) 
+        TYPE & operator[](size_t i_index)
         {
             LIQUID_ASSERT(i_index < m_size);
-            return m_data[i_index]; 
+            return m_data[i_index];
         }
 
         Span subspan(size_t i_offset, size_t i_size) const

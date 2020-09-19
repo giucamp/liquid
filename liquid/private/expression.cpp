@@ -4,18 +4,9 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid.h"
-#ifdef _WIN32
-    #include <Windows.h>
-#endif
+#include "expression.h"
 
 namespace liquid
 {
-    void DbgBreak()
-    {
-        #ifdef _WIN32
-            if(IsDebuggerPresent())
-                DebugBreak();
-        #endif
-    }
+
 }

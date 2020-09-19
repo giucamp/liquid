@@ -18,6 +18,16 @@
     </ClInclude>
     <ClInclude Include="..\public\span.h" />
     <ClInclude Include="..\public\pointer_iterator.h" />
+    <ClInclude Include="..\public\tensor.h" />
+    <ClInclude Include="..\private\expression.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\tensor_type.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\operator.h">
+      <Filter>private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
@@ -27,6 +37,15 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\private\liquid.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\expression.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tensor_type.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operator.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>
