@@ -25,6 +25,10 @@ namespace liquid
 
         Integer GetRank() const { return m_dimensions.size(); }
 
+        Integer GetLinearSize() const { return m_strides[0]; }
+
+        Integer GetPhysicalLinearIndex(Span<const Integer> i_indices) const;
+
         Integer GetDimension(Integer i_index) const { return m_dimensions[static_cast<size_t>(i_index)]; }
 
         Span<const Integer> GetDimensions() const { return m_dimensions; }
@@ -49,7 +53,7 @@ namespace liquid
         The length of i_indices can be greater than the length of i_dimensions, in
         which case broadcasting is applied. If the length of i_indices is less than the
         length of i_dimensions, an error is raised. */
-    Integer LinearIndex(Span<const Integer> i_indices,
+    Integer GetPhysicalLinearIndex(Span<const Integer> i_indices,
         Span<const Integer> i_dimensions,
         Span<const Integer> i_strides);
 

@@ -47,7 +47,7 @@ namespace liquid
         o_strides[0] = product;
     }
 
-    Integer LinearIndex(Span<const Integer> i_indices,
+    Integer GetPhysicalLinearIndex(Span<const Integer> i_indices,
         Span<const Integer> i_dimensions,
         Span<const Integer> i_strides)
     {
@@ -120,5 +120,10 @@ namespace liquid
         : m_dimensions(i_initializer_list), m_strides(i_initializer_list.size() + 1)
     {
         ComputeStrides(m_dimensions, m_strides);
+    }
+
+    Integer Shape::GetPhysicalLinearIndex(Span<const Integer> i_indices) const
+    {
+        return liquid::GetPhysicalLinearIndex(i_indices, m_dimensions, m_strides);
     }
 }

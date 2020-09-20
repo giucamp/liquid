@@ -4,6 +4,9 @@
     <Filter Include="private">
       <UniqueIdentifier>{e19df111-cab5-48ba-93aa-4a63504f23e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="private\operators">
+      <UniqueIdentifier>{5c22c8b1-28a1-46d1-a9fc-e22926054fa6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\tensor_value.h">
@@ -28,6 +31,9 @@
     <ClInclude Include="..\private\operator.h">
       <Filter>private</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\indices.h">
+      <Filter>private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
@@ -46,6 +52,12 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\private\operator.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\add.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\indices.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

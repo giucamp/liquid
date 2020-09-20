@@ -20,14 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\expression.cpp" />
+    <ClCompile Include="..\private\indices.cpp" />
     <ClCompile Include="..\private\liquid.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
+    <ClCompile Include="..\private\operators\add.cpp" />
     <ClCompile Include="..\private\shape.cpp" />
     <ClCompile Include="..\private\tensor_type.cpp" />
     <ClCompile Include="..\private\tensor_value.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\expression.h" />
+    <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\operator.h" />
     <ClInclude Include="..\private\shape.h" />
     <ClInclude Include="..\private\shared_array.h" />
@@ -92,25 +95,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\liquid\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\liquid\public;$(SolutionDir)..\liquid\private;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)_$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Configuration)_$(PlatformTarget)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\liquid\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\liquid\public;$(SolutionDir)..\liquid\private;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)_$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Configuration)_$(PlatformTarget)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\liquid\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\liquid\public;$(SolutionDir)..\liquid\private;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)_$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Configuration)_$(PlatformTarget)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\liquid\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\liquid\public;$(SolutionDir)..\liquid\private;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\$(Configuration)_$(PlatformTarget)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Configuration)_$(PlatformTarget)\</IntDir>
   </PropertyGroup>
