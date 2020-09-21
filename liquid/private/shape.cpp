@@ -38,7 +38,7 @@ namespace liquid
 
         Integer product = 1;
         size_t stride_index = i_dimensions.size();
-        for (auto dim_it = i_dimensions.rbegin(); dim_it != i_dimensions.crend(); dim_it++)
+        for (auto dim_it = i_dimensions.rbegin(); dim_it != i_dimensions.rend(); dim_it++)
         {
             o_strides[stride_index] = product;
             stride_index--;
@@ -67,7 +67,7 @@ namespace liquid
         for (size_t i = 0; i < i_indices.size(); i++)
         {
             Integer const index = i_indices[i];
-            Integer const stride = i_strides[i];
+            Integer const stride = i_strides[i + 1];
             Integer const dimension = i_dimensions[i];
 
             if (index < dimension)

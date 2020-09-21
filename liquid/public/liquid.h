@@ -26,11 +26,12 @@ namespace liquid
         return stream.str();
     }
 
+    void DbgBreak();
+
     template <typename... TYPE>
         [[noreturn]] void Panic(const TYPE & ... i_object)
     {
         std::string message = ToString(i_object...);
-        void DbgBreak();
         DbgBreak();
         throw std::exception(message.c_str());
     }

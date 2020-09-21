@@ -73,16 +73,16 @@ namespace liquid
         iterator begin() { return { m_data }; }
         const_iterator begin() const { return { m_data }; }
         const_iterator cbegin() const { return { m_data }; }
-        reverse_iterator rbegin() { return std::make_reverse_iterator(begin()); }
-        const_reverse_iterator rbegin() const { return std::make_reverse_iterator(begin()); }
-        const_reverse_iterator crbegin() const { return std::make_reverse_iterator(begin()); }
+        reverse_iterator rbegin() { return std::make_reverse_iterator(end()); }
+        const_reverse_iterator rbegin() const { return std::make_reverse_iterator(end()); }
+        const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
 
         iterator end() { return { m_data + m_size }; }
         const_iterator end() const { return { m_data + m_size }; }
         const_iterator cend() const { return { m_data + m_size }; }
-        reverse_iterator rend() { return std::make_reverse_iterator(end()); }
-        const_reverse_iterator rend() const { return std::make_reverse_iterator(end()); }
-        const_reverse_iterator crend() const { return std::make_reverse_iterator(end()); }
+        reverse_iterator rend() { return std::make_reverse_iterator(begin()); }
+        const_reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
+        const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
 
     private:
         TYPE * m_data{};

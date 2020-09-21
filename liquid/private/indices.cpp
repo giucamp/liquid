@@ -12,12 +12,13 @@ namespace liquid
     {
         #ifndef NDEBUG
             size_t const rank = m_shape.GetDimensions().size();
-            Span<Integer const> strides = m_shape.GetStrides().subspan(0);
+            Span<Integer const> strides = m_shape.GetStrides().subspan(1);
             Integer logical_linear_index = 0;
             for (size_t i = 0; i < rank; i++)
                 logical_linear_index += m_indices[i] * strides[i];
-            if (logical_linear_index != m_logical_linear_index)
-                Panic("Indices - internal error- logical_linear_index != m_logical_linear_index");
+            auto const logical_index_modulo = m_logical_linear_index% m_shape.GetLinearSize();
+            if (logical_linear_index != logical_index_modulo)
+                Panic("Indices - internal error- logical_linear_index != logical_index_modulo");
         #endif
     }
 
@@ -67,7 +68,7 @@ namespace liquid
             if (m_indices[dim_index] < this_dim)
                 break;
             
-            m_indices[dim_index] += this_dim;
+            m_indices[dim_index] -= this_dim;
         }
 
         DbgCheck();

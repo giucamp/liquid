@@ -7,6 +7,9 @@
     <Filter Include="private\operators">
       <UniqueIdentifier>{5c22c8b1-28a1-46d1-a9fc-e22926054fa6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="private\tests">
+      <UniqueIdentifier>{e182cde7-c353-48ca-a767-b4a5eed2f554}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\tensor_value.h">
@@ -59,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="..\private\indices.cpp">
       <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\tests.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\test_indices.cpp">
+      <Filter>private\tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

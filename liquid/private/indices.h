@@ -44,7 +44,13 @@ namespace liquid
             SCALAR_TYPE & operator[](Span<SCALAR_TYPE> i_scalars)
         {
             Integer const physical_linear_index = m_shape.GetPhysicalLinearIndex(m_indices);
-            return i_scalars[physical_linear_index];
+            return i_scalars[static_cast<size_t>(physical_linear_index)];
+        }
+
+        template <typename CONTAINER>
+            typename CONTAINER::value_type & operator[](CONTAINER & i_scalars)
+        {
+            return operator[](Span<typename CONTAINER::value_type>(i_scalars));
         }
 
         void Increment();
@@ -53,7 +59,11 @@ namespace liquid
 
         bool IsInBounds() const;
 
-    private:
+        Integer GetLogicalLinearIndex() const { return m_logical_linear_index; }
+
+        Span<const Integer> GetIndices() const { return m_indices; }
+
+    private: 
         void DbgCheck();
 
     private:
