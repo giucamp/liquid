@@ -14,7 +14,13 @@ namespace liquid
 
     }
 
-    Operator & Operator::SetSimplifyFunction(const SimplifyFunction& i_func)
+    Operator & Operator::SetDeduceType(DeduceTypeFunction i_func)
+    {
+        m_deduce_type_func = i_func;
+        return *this;
+    }
+
+    Operator & Operator::SetSimplify(const SimplifyFunction& i_func)
     {
         m_simpily_func = i_func;
         return *this;
@@ -23,6 +29,18 @@ namespace liquid
     Operator & Operator::AddFlags(Flags i_flags)
     {
         m_flags = m_flags | i_flags;
+        return *this;
+    }
+
+    Operator & Operator::AddOverload(const Overload& i_overload)
+    {
+        m_overloads.push_back(i_overload);
+        return *this;
+    }
+
+    Operator & Operator::SetGradientOfOperand(GradientOfOperandFunction i_func)
+    {
+        m_gradient_of_input_func = i_func;
         return *this;
     }
 }

@@ -7,11 +7,14 @@
 #include "liquid.h"
 #include "indices.h"
 #include <numeric>
+#include <iostream>
 
 namespace liquid
 {
     void TestIndices()
     {
+        std::cout << "TestIndices...";
+
         Shape const shape{ 3, 4, 6 };
         Real values[3][4][6];
 
@@ -50,5 +53,9 @@ namespace liquid
             LIQUID_ASSERT(first == second);
         }
         LIQUID_ASSERT(linear_index == 72);
+
+        LIQUID_ASSERT(GetScalarType<Real>() == ScalarType::Real);
+
+        std::cout << "done" << std::endl;
     }
 }

@@ -16,7 +16,26 @@ namespace liquid
     using Real = double;
     using Integer = int64_t;
     using Bool = bool;
+
     enum class ScalarType { Any, Real, Integer, Bool };
+
+    template <typename TYPE>
+        constexpr ScalarType GetScalarType()
+    {
+        if constexpr (std::is_same_v<TYPE, Real>)
+            return ScalarType::Real;
+        else if constexpr (std::is_same_v<TYPE, Integer>)
+            return ScalarType::Integer;
+        else if constexpr (std::is_same_v<TYPE, Bool>)
+            return ScalarType::Bool;
+    }
+
+    template <ScalarType> struct FromScalarTypeImpl;
+    template <> struct FromScalarTypeImpl<ScalarType::Real> { using type = Real; };
+    template <> struct FromScalarTypeImpl<ScalarType::Integer> { using type = Integer; };
+    template <> struct FromScalarTypeImpl<ScalarType::Bool> { using type = Bool; };
+    template <ScalarType SCALAR_TYPE>
+        using FromScalarType = typename FromScalarTypeImpl<SCALAR_TYPE>::type;
 
     template <typename... TYPE>
         std::string ToString(const TYPE & ... i_object)

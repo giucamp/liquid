@@ -9,9 +9,11 @@
 namespace liquid
 {
     void TestIndices();
+    void TestScalarType();
 
     void TestLiquid()
     {
+        TestScalarType();
         TestIndices();
     }
 }

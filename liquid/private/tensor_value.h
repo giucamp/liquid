@@ -14,42 +14,21 @@
 
 namespace liquid
 {
-    using Scalars = std::variant<
-        SharedArray<const Real>,
-        SharedArray<const Integer>,
-        SharedArray<const Bool>
-    >;
-
     class TensorValue
     {
     public:
 
-        TensorValue(const Shape & i_shape, Span<const Real> i_reals)
-            : m_shape(i_shape), m_scalars(i_reals)
-        {
-        }
-
-        TensorValue(const Shape& i_shape, SharedArray<const Real> && i_reals)
+        TensorValue(const Shape & i_shape, SharedArray<const Real> && i_reals)
             : m_shape(i_shape), m_scalars(std::move(i_reals))
         {
         }
 
-        TensorValue(const Shape& i_shape, Span<const Integer> i_integers)
-            : m_shape(i_shape), m_scalars(i_integers)
-        {
-        }
-
-        TensorValue(const Shape& i_shape, SharedArray<const Integer> && i_integers)
+        TensorValue(const Shape & i_shape, SharedArray<const Integer> && i_integers)
             : m_shape(i_shape), m_scalars(std::move(i_integers))
         {
         }
 
-        TensorValue(const Shape& i_shape, Span<const Bool> i_bools)
-            : m_shape(i_shape), m_scalars(i_bools)
-        {
-        }
-
-        TensorValue(const Shape& i_shape, SharedArray<const Bool> && i_bools)
+        TensorValue(const Shape & i_shape, SharedArray<const Bool> && i_bools)
             : m_shape(i_shape), m_scalars(std::move(i_bools))
         {
         }

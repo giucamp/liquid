@@ -69,5 +69,8 @@
     <ClCompile Include="..\private\tests\test_indices.cpp">
       <Filter>private\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\tests\test_scalar_type.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

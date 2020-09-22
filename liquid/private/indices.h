@@ -9,6 +9,7 @@
 #include <vector>
 #include "liquid.h"
 #include "shape.h"
+#include "tensor_value.h"
 
 namespace liquid
 {
@@ -62,6 +63,20 @@ namespace liquid
         Integer GetLogicalLinearIndex() const { return m_logical_linear_index; }
 
         Span<const Integer> GetIndices() const { return m_indices; }
+
+        template <typename SCALAR_TYPE>
+            SCALAR_TYPE & At(TensorValue& i_tensor_value) const
+        {
+            Integer const physical_linear_index = i_tensor_value.GetShape().GetPhysicalLinearIndex(m_indices);
+            return i_tensor_value.GetAs<SCALAR_TYPE>()[static_cast<size_t>(physical_linear_index)];
+        }
+
+        template <typename SCALAR_TYPE>
+            const SCALAR_TYPE & At(const TensorValue& i_tensor_value) const
+        {
+            Integer const physical_linear_index = i_tensor_value.GetShape().GetPhysicalLinearIndex(m_indices);
+            return i_tensor_value.GetAs<SCALAR_TYPE>()[static_cast<size_t>(physical_linear_index)];
+        }
 
     private: 
         void DbgCheck();

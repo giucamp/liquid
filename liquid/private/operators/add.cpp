@@ -15,21 +15,32 @@ namespace liquid
     template <typename SCALAR_TYPE>
         TensorValue AddEvaluate(const TensorType & i_result_type, Span<const TensorValue> i_operands)
     {
-        SharedArray<SCALAR_TYPE> result(i_result_type.GetConstantShape().GetLinearSize());
-        for (Indices indices(i_result_type); indices; indices++)
+        const Shape & result_shape = i_result_type.GetConstantShape();
+        SharedArray<SCALAR_TYPE> result(static_cast<size_t>(result_shape.GetLinearSize()));
+
+        for (Indices indices(result_shape); indices; indices++)
         {
             SCALAR_TYPE element = {};
             for(const TensorValue & operand : i_operands)
-                element += indices[operand];
+                element += indices.At<SCALAR_TYPE>(operand);
             indices[result] = element;
         }
-        return TensorValue(i_result_type, result);
+
+        return TensorValue(result_shape, std::move(result));
+    }
+
+    Tensor AddGradient([[maybe_unused]] const Tensor& i_self, const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
+    {
+        return i_self_gradient;
     }
 
     extern const Operator & GetOperatorAdd()
     {
-        static auto op = Operator("Add").
-            AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative);
+        static auto const op = Operator("Add")
+            .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
+            .AddOverload({ AddEvaluate<Real>, { GetScalarType<Real>() }, { "Addend" }, 1 })
+            .AddOverload({ AddEvaluate<Integer>, { GetScalarType<Integer>() }, { "Addend" }, 1 })
+            .SetGradientOfOperand(AddGradient);
         return op;
     }
 }
