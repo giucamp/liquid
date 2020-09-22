@@ -4,14 +4,18 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#pragma once
-
 #include "liquid.h"
+#include "expression.h"
 
 namespace liquid
 {
-    class Expression
+    bool Always(const Tensor& i_bool_tensor)
     {
+        return AlwaysEqual(i_bool_tensor, constant_values::True);
+    }
 
-    };
+    bool Never(const Tensor& i_bool_tensor)
+    {
+        return AlwaysEqual(i_bool_tensor, constant_values::False);
+    }
 }

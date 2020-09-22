@@ -78,36 +78,43 @@ namespace liquid
         return linear_index;
     }
 
-    Shape Broadcast(Span<const Shape> i_shapes)
+    std::optional<Shape> TryBroadcast(Span<const Shape> i_shapes)
     {
         Integer rank = 0;
-        for(const Shape & shape: i_shapes)
-            if(shape.GetRank() > rank)
+        for (const Shape& shape : i_shapes)
+            if (shape.GetRank() > rank)
                 rank = shape.GetRank();
 
         std::vector<Integer> dimensions(static_cast<size_t>(rank), 1);
 
         for (Integer dim_index = 0; dim_index < rank; dim_index++)
         {
-            Integer & this_dim = dimensions[static_cast<size_t>(dim_index)];
+            Integer& this_dim = dimensions[static_cast<size_t>(dim_index)];
             for (size_t shape_index = 0; shape_index < i_shapes.size(); shape_index++)
             {
-                Shape const & shape = i_shapes[shape_index];
+                Shape const& shape = i_shapes[shape_index];
                 Integer const rank_offset = rank - shape.GetRank();
-                if(dim_index >= rank_offset)
+                if (dim_index >= rank_offset)
                 {
                     Integer const source_dim = shape.GetDimension(dim_index - rank_offset);
                     if (source_dim != 1)
                     {
-                        if(this_dim != 1 && this_dim != source_dim)
-                            Panic("Broadcast failure for ", dim_index, "-th dimension");
+                        if (this_dim != 1 && this_dim != source_dim)
+                            return {};
                         this_dim = source_dim;
                     }
                 }
             }
         }
 
-        return { dimensions };
+        return Shape{ dimensions };
+    }
+
+    Shape Broadcast(Span<const Shape> i_shapes)
+    {
+        if(auto result = TryBroadcast(i_shapes))
+            return *result;
+        Panic("Broadcast failure");
     }
 
     Shape::Shape(std::initializer_list<Integer> i_initializer_list)

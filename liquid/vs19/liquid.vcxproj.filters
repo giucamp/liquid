@@ -72,5 +72,20 @@
     <ClCompile Include="..\private\tests\test_scalar_type.cpp">
       <Filter>private\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\operators\if.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\equal.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tensor.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\constant.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\variable.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

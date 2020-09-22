@@ -41,6 +41,11 @@ namespace liquid
                     m_size(std::size(i_source_container))
                         { }
 
+        Span(std::initializer_list<TYPE> && i_initializer_list)
+            : m_data(i_initializer_list.begin()),
+                m_size(i_initializer_list.size())
+                { }
+
         bool empty() const { return m_size == 0; }
 
         TYPE * data() const { return m_data; }
@@ -70,16 +75,16 @@ namespace liquid
             return subspan(i_offset, m_size - i_offset);
         }
 
-        iterator begin() { return { m_data }; }
-        const_iterator begin() const { return { m_data }; }
-        const_iterator cbegin() const { return { m_data }; }
+        iterator begin() { return iterator{ m_data }; }
+        const_iterator begin() const { return const_iterator{ m_data }; }
+        const_iterator cbegin() const { return const_iterator{ m_data }; }
         reverse_iterator rbegin() { return std::make_reverse_iterator(end()); }
         const_reverse_iterator rbegin() const { return std::make_reverse_iterator(end()); }
         const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
 
-        iterator end() { return { m_data + m_size }; }
-        const_iterator end() const { return { m_data + m_size }; }
-        const_iterator cend() const { return { m_data + m_size }; }
+        iterator end() { return iterator{ m_data + m_size }; }
+        const_iterator end() const { return const_iterator{ m_data + m_size }; }
+        const_iterator cend() const { return const_iterator{ m_data + m_size }; }
         reverse_iterator rend() { return std::make_reverse_iterator(begin()); }
         const_reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
         const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }

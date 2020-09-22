@@ -15,7 +15,7 @@ namespace liquid
     template <typename SCALAR_TYPE>
         TensorValue AddEvaluate(const TensorType & i_result_type, Span<const TensorValue> i_operands)
     {
-        const Shape & result_shape = i_result_type.GetConstantShape();
+        const Shape & result_shape = i_result_type.GetFixedShape();
         SharedArray<SCALAR_TYPE> result(static_cast<size_t>(result_shape.GetLinearSize()));
 
         for (Indices indices(result_shape); indices; indices++)
@@ -29,7 +29,8 @@ namespace liquid
         return TensorValue(result_shape, std::move(result));
     }
 
-    Tensor AddGradient([[maybe_unused]] const Tensor& i_self, const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
+    Tensor AddGradient([[maybe_unused]] const Tensor& i_self,
+        const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
     {
         return i_self_gradient;
     }
@@ -42,5 +43,20 @@ namespace liquid
             .AddOverload({ AddEvaluate<Integer>, { GetScalarType<Integer>() }, { "Addend" }, 1 })
             .SetGradientOfOperand(AddGradient);
         return op;
+    }
+
+    Tensor Add(Span<Tensor const> i_addends)
+    {
+        return GetOperatorAdd().Invoke(i_addends);
+    }
+
+    Tensor operator + (const Tensor & i_operand)
+    {
+        return i_operand;
+    }
+
+    Tensor operator + (const Tensor & i_first, const Tensor& i_second)
+    {
+        return Add({i_first, i_second });
     }
 }

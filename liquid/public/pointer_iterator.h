@@ -20,7 +20,7 @@ namespace liquid
         using size_type = size_t;
         using iterator_category = std::random_access_iterator_tag;
 
-        PointerIterator(IT_TYPE* i_pointer)
+        explicit PointerIterator(IT_TYPE* i_pointer)
             : m_pointer(i_pointer) {}
 
         bool operator == (const PointerIterator& i_other) const { return m_pointer == i_other.m_pointer; }
@@ -45,6 +45,18 @@ namespace liquid
         friend difference_type operator - (const PointerIterator& i_first, const PointerIterator& i_second)
         {
             return i_first.m_pointer - i_second.m_pointer;
+        }
+
+        template <typename INTEGER, typename = std::enable_if_t<std::is_integral_v<INTEGER> && !std::is_same_v<INTEGER, bool>>>
+            friend PointerIterator operator + (const PointerIterator& i_it, INTEGER i_offset)
+        {
+            return PointerIterator{ i_it.m_pointer + i_offset };
+        }
+
+        template <typename INTEGER, typename = std::enable_if_t<std::is_integral_v<INTEGER> && !std::is_same_v<INTEGER, bool>>>
+            friend PointerIterator operator + (INTEGER i_offset, const PointerIterator& i_it)
+        {
+            return PointerIterator{ i_it.m_pointer + i_offset };
         }
 
     private:

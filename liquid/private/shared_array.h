@@ -36,7 +36,7 @@ namespace liquid
 
         SharedArray(const SharedArray & i_source) = default;
 
-        SharedArray(SharedArray && i_source)
+        SharedArray(SharedArray && i_source) noexcept
             : m_elements(std::move(i_source.m_elements)), m_size(i_source.m_size)
         {
             i_source.m_size = 0;
@@ -55,7 +55,7 @@ namespace liquid
         }
 
         SharedArray(size_t i_size)
-            : m_elements(new TYPE[i_size]), m_size(i_size)
+            : m_elements(new TYPE[i_size]()), m_size(i_size)
         {
 
         }
@@ -89,21 +89,21 @@ namespace liquid
         bool operator == (const SharedArray & i_other) const
         {
             return m_size == i_other.m_size &&
-                std::equal(m_elements.begin(), m_elements.end(), i_other.m_elements.begin());
+                std::equal(begin(), end(), i_other.begin());
         }
 
         bool operator != (const SharedArray& i_other) const { return !(*this == i_other); }
 
-        iterator begin() { return { m_elements.get() }; }
-        const_iterator begin() const { return { m_elements.get() }; }
-        const_iterator cbegin() const { return { m_elements.get() }; }
+        iterator begin() { return iterator{ m_elements.get() }; }
+        const_iterator begin() const { return const_iterator{ m_elements.get() }; }
+        const_iterator cbegin() const { return const_iterator{ m_elements.get() }; }
         reverse_iterator rbegin() { return std::make_reverse_iterator(end()); }
         const_reverse_iterator rbegin() const { return std::make_reverse_iterator(end()); }
         const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
 
-        iterator end() { return { m_elements.get() + m_size }; }
-        const_iterator end() const { return { m_elements.get() + m_size }; }
-        const_iterator cend() const { return { m_elements.get() + m_size }; }
+        iterator end() { return iterator{ m_elements.get() + m_size }; }
+        const_iterator end() const { return const_iterator{ m_elements.get() + m_size }; }
+        const_iterator cend() const { return const_iterator{ m_elements.get() + m_size }; }
         reverse_iterator rend() { return std::make_reverse_iterator(begin()); }
         const_reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
         const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
@@ -118,6 +118,22 @@ namespace liquid
         {
             LIQUID_ASSERT(i_index < m_size);
             return m_elements.get()[i_index];
+        }
+
+        [[nodiscard]] SharedArray<TYPE> Resize(size_t i_new_size) const
+        {
+            if (i_new_size <= m_size)
+                return Span<TYPE>(begin(), begin() + i_new_size);
+            else
+            {
+                auto const new_elements = new std::remove_const_t<TYPE>[i_new_size];
+                SharedArray<TYPE> result;
+                result.m_elements = new_elements;
+                result.m_size = i_new_size;
+                for (size_t i = 0; i < m_size; i++)
+                    new_elements[i] = *(m_elements.get() + i);
+                return result;
+            }
         }
 
     private:

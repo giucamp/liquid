@@ -24,12 +24,24 @@ namespace liquid
 
         bool HasShape() const { return !std::holds_alternative<std::monostate>(m_shape); }
 
+        bool HasFixedShape() const { return std::holds_alternative<Shape>(m_shape); }
+
+        bool HasVariableShape() const { return std::holds_alternative<Tensor>(m_shape); }
+
         const std::variant<std::monostate, Shape, Tensor> & GetShape() const { return m_shape; }
-        const Shape & GetConstantShape() const { return std::get<Shape>(m_shape); }
+        const Shape & GetFixedShape() const { return std::get<Shape>(m_shape); }
         const Tensor& GetVariableShape() const { return std::get<Tensor>(m_shape); }
+
+        bool operator == (const TensorType & i_other) const;
+
+        bool operator != (const TensorType & i_other) const { return !operator == (i_other); }
 
     private:
         ScalarType m_scalar_type;
         std::variant<std::monostate, Shape, Tensor> m_shape;
     };
+
+    ScalarType DeduceScalarType(Span<const ScalarType> i_operand_types);
+
+    TensorType DeduceType(Span<const TensorType> i_operand_types);
 }

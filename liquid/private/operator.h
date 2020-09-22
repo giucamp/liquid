@@ -9,6 +9,8 @@
 #include "tensor_value.h"
 #include "tensor_type.h"
 #include <optional>
+#include <any>
+#include <variant>
 #include <string_view>
 
 namespace liquid
@@ -29,9 +31,11 @@ namespace liquid
             return static_cast<Flags>(static_cast<int>(i_first) | static_cast<int>(i_second));
         }
 
-        using DeduceTypeFunction = TensorType(*)(Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+        using DeduceTypeFunction = TensorType(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
 
         using EvaluateFunction = TensorValue(*)(const TensorType& i_result_type, Span<const TensorValue> i_operands);
+
+        using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment, const TensorType & i_result_type, Span<const TensorValue> i_operands);
 
         using SimplifyFunction = std::optional<Tensor>(*)(const Tensor & );
 
@@ -39,7 +43,7 @@ namespace liquid
 
         struct Overload
         {
-            EvaluateFunction m_evaluate = {};
+            std::variant<EvaluateFunction, EvaluateWithAttachmentFunction> m_evaluate = {};
             std::vector<TensorType> m_parameter_types;
             std::vector<std::string> m_parameter_names;
             size_t m_variadic_parameters_count = {};
@@ -56,6 +60,18 @@ namespace liquid
         Operator & SetSimplify(const SimplifyFunction & i_func);
 
         Operator & SetGradientOfOperand(GradientOfOperandFunction i_func);
+
+        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {}, 
+            const std::any & i_attachment = {} ) const;
+
+    private:
+
+        static TensorType DefaultDeduceType(const std::any & i_attachment,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+
+        const Overload * FindOverload(Span<const Tensor> i_operands) const;
+
+        const Overload * FindOverloadWithPromotion(Span<const Tensor> i_operands) const;
 
     private:
         std::string const m_name;

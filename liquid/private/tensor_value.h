@@ -10,7 +10,7 @@
 #include "liquid.h"
 #include "span.h"
 #include "shared_array.h"
-#include "shape.h"
+#include "tensor_type.h"
 
 namespace liquid
 {
@@ -18,22 +18,17 @@ namespace liquid
     {
     public:
 
-        TensorValue(const Shape & i_shape, SharedArray<const Real> && i_reals)
-            : m_shape(i_shape), m_scalars(std::move(i_reals))
-        {
-        }
+        TensorValue(const Shape & i_shape, SharedArray<const Real> && i_reals);
 
-        TensorValue(const Shape & i_shape, SharedArray<const Integer> && i_integers)
-            : m_shape(i_shape), m_scalars(std::move(i_integers))
-        {
-        }
+        TensorValue(const Shape & i_shape, SharedArray<const Integer> && i_integers);
 
-        TensorValue(const Shape & i_shape, SharedArray<const Bool> && i_bools)
-            : m_shape(i_shape), m_scalars(std::move(i_bools))
-        {
-        }
+        TensorValue(const Shape & i_shape, SharedArray<const Bool> && i_bools);
 
-        const Shape & GetShape() const { return m_shape; }
+        const TensorType & GetType() const { return m_type; }
+
+        const Shape & GetShape() const { return m_type.GetFixedShape(); }
+
+        ScalarType GetScalarType() const { return m_type.GetScalarType(); }
 
         template <typename SCALAR_TYPE> bool Is() const
         {
@@ -55,12 +50,31 @@ namespace liquid
                 return {};
         }
 
+        friend bool operator == (const TensorValue & i_first, const TensorValue& i_second);
+
+        friend bool operator != (const TensorValue& i_first, const TensorValue& i_second)
+        {
+            return !(i_first == i_second);
+        }
+
     private:
-        Shape m_shape;
+        template <typename SCALAR_TYPE>
+            static size_t ConstantReduction(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars);
+
+    private:
+        TensorType m_type;
         std::variant<
             SharedArray<const Real>,
             SharedArray<const Integer>,
             SharedArray<const Bool>
         > m_scalars;
     };
+
+    namespace constant_values
+    {
+        extern TensorValue RealZero;
+        extern TensorValue IntegerZero;
+        extern TensorValue True;
+        extern TensorValue False;
+    }
 }

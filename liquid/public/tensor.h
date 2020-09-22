@@ -6,6 +6,7 @@
 
 #pragma once
 #include <memory>
+#include "span.h"
 
 namespace liquid
 {
@@ -13,8 +14,26 @@ namespace liquid
     {
     public:
 
+        Tensor(std::shared_ptr<const class Expression> && i_expression)
+            : m_expression(std::move(i_expression))
+        {
+        }
+
+        const std::shared_ptr<const Expression> & GetExpression() const { return m_expression;}
 
     private:
-        std::shared_ptr<class Expression> m_expression;
+        std::shared_ptr<const Expression> m_expression;
     };
+
+    bool Always(const Tensor & i_bool_tensor);
+
+    bool Never(const Tensor& i_bool_tensor);
+
+    Tensor operator == (const Tensor & i_first, const Tensor& i_second);
+
+    Tensor Add(Span<Tensor const> i_addends);
+
+    Tensor operator + (const Tensor& i_operand);
+
+    Tensor operator + (const Tensor& i_first, const Tensor& i_second);
 }

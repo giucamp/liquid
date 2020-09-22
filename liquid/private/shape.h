@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 #include "liquid.h"
 #include "span.h"
 #include "shared_array.h"
@@ -31,9 +32,21 @@ namespace liquid
 
         Integer GetDimension(Integer i_index) const { return m_dimensions[static_cast<size_t>(i_index)]; }
 
+        Integer GetStride(Integer i_index) const { return m_strides[static_cast<size_t>(i_index)]; }
+
         Span<const Integer> GetDimensions() const { return m_dimensions; }
 
         Span<const Integer> GetStrides() const { return m_strides; }
+
+        bool operator == (const Shape & i_other) const
+        {
+            return m_dimensions == i_other.m_dimensions;
+        }
+
+        bool operator != (const Shape & i_other) const
+        {
+            return m_dimensions != i_other.m_dimensions;
+        }
 
     private:
         SharedArray<Integer> m_dimensions;
@@ -56,6 +69,8 @@ namespace liquid
     Integer GetPhysicalLinearIndex(Span<const Integer> i_indices,
         Span<const Integer> i_dimensions,
         Span<const Integer> i_strides);
+
+    std::optional<Shape> TryBroadcast(Span<const Shape> i_shapes);
 
     Shape Broadcast(Span<const Shape> i_shapes);
 

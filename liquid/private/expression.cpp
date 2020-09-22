@@ -8,5 +8,8 @@
 
 namespace liquid
 {
-
+    bool AlwaysEqual(const Tensor& i_tensor, const TensorValue& i_value)
+    {
+        return IsConstant(i_tensor) && GetConstantValue(i_tensor) == i_value;
+    }
 }
