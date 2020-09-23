@@ -33,9 +33,15 @@ namespace liquid
 
         using DeduceTypeFunction = TensorType(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
 
-        using EvaluateFunction = TensorValue(*)(const TensorType& i_result_type, Span<const TensorValue> i_operands);
+        using EvaluateNoAttributesFunction = TensorValue(*)(const TensorType & i_result_type,
+            Span<const TensorValue> i_operands);
 
-        using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment, const TensorType & i_result_type, Span<const TensorValue> i_operands);
+        using EvaluateFunction = TensorValue(*)(const TensorType & i_result_type,
+            Span<const TensorValue> i_operands, Span<const TensorValue> i_attributes);
+
+        using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment,
+            const TensorType & i_result_type, Span<const TensorValue> i_operands, 
+            Span<const TensorValue> i_attributes);
 
         using SimplifyFunction = std::optional<Tensor>(*)(const Tensor & );
 
@@ -43,7 +49,7 @@ namespace liquid
 
         struct Overload
         {
-            std::variant<EvaluateFunction, EvaluateWithAttachmentFunction> m_evaluate = {};
+            std::variant<EvaluateNoAttributesFunction, EvaluateFunction, EvaluateWithAttachmentFunction> m_evaluate = {};
             std::vector<TensorType> m_parameter_types;
             std::vector<std::string> m_parameter_names;
             size_t m_variadic_parameters_count = {};
@@ -61,17 +67,37 @@ namespace liquid
 
         Operator & SetGradientOfOperand(GradientOfOperandFunction i_func);
 
-        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {}, 
+        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
             const std::any & i_attachment = {} ) const;
+
+        Tensor Invoke(std::string_view i_name, std::string_view i_doc,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
+            const std::any& i_attachment = {}) const;
 
     private:
 
         static TensorType DefaultDeduceType(const std::any & i_attachment,
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
 
-        const Overload * FindOverload(Span<const Tensor> i_operands) const;
+        enum class OverloadMatchFlags
+        {
+            None,
+            AllowNumericPromotion
+        };
 
-        const Overload * FindOverloadWithPromotion(Span<const Tensor> i_operands) const;
+        static bool OverloadMatch(const Operator::Overload& i_overload, 
+            Span<const Tensor> i_operands, OverloadMatchFlags i_flags);
+
+        const Overload * TryFindOverload(Span<const Tensor> i_operands, OverloadMatchFlags i_flags) const;
+
+        const Overload & FindOverload(Span<const Tensor> i_operands) const;
+
+        std::optional<Tensor> TryConstantPropagation(
+            const Overload& i_overload, const TensorType & i_result_type,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
+            const std::any& i_attachment) const;
+
+        static std::vector<TensorValue> ToValues(Span<const Tensor> i_tensors);
 
     private:
         std::string const m_name;

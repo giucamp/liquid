@@ -20,7 +20,17 @@ namespace liquid
     {
     public:
 
+        Expression(std::string_view i_name, 
+            std::string_view i_doc,
+            const TensorType & i_type,
+            const Operator & i_operator,
+            const Operator::Overload & i_overload,
+            Span<Tensor const> i_operands,
+            Span<Tensor const> i_attributes,
+            const std::any & i_attachment);
+
         const Operator & GetOperator() const { return m_operator; }
+        const Operator::Overload & GetOverload() const { return m_overload; }
         const std::string & GetName() const { return m_name; }
         const std::string & GetDoc() const { return m_doc; }
         const TensorType & GetType() const { return m_type; }
@@ -35,8 +45,9 @@ namespace liquid
         std::string m_doc;
         TensorType m_type;
         const Operator & m_operator;
-        std::vector<Tensor> m_attributes;
+        const Operator::Overload & m_overload;
         std::vector<Tensor> m_operands;
+        std::vector<Tensor> m_attributes;
         std::any m_attachment;
     };
 

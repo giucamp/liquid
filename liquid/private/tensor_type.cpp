@@ -86,4 +86,14 @@ namespace liquid
 
         return std::visit(Visistor{*this, i_other}, m_shape);
     }
+
+    bool TensorType::IsSupercaseOf(const TensorType & i_other) const
+    {
+        if (m_scalar_type != ScalarType::Any && m_scalar_type != i_other.m_scalar_type)
+            return false;
+
+        if (HasFixedShape() && i_other.HasFixedShape())
+            return GetFixedShape() == i_other.GetFixedShape();
+        return true;
+    }
 }

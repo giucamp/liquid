@@ -59,4 +59,10 @@ namespace liquid
     {
         return Add({i_first, i_second });
     }
+
+    Tensor & operator += (Tensor& i_first, const Tensor& i_second)
+    {
+        i_first = i_first + i_second;
+        return i_first;
+    }
 }

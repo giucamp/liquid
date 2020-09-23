@@ -19,7 +19,8 @@ namespace liquid
 
     TensorValue ConstantEvaluate(const std::any & i_attachment,
         [[maybe_unused]] const TensorType & i_result_type,
-        [[maybe_unused]] Span<const TensorValue> i_operands)
+        [[maybe_unused]] Span<const TensorValue> i_operands,
+        [[maybe_unused]] Span<const TensorValue> i_attributes)
     {
         return std::any_cast<TensorValue>(i_attachment);
     }

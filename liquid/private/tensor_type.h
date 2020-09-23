@@ -36,6 +36,8 @@ namespace liquid
 
         bool operator != (const TensorType & i_other) const { return !operator == (i_other); }
 
+        bool IsSupercaseOf(const TensorType & i_other) const;
+
     private:
         ScalarType m_scalar_type;
         std::variant<std::monostate, Shape, Tensor> m_shape;

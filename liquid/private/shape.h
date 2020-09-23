@@ -15,7 +15,6 @@
 
 namespace liquid
 {
-
     class Shape
     {
     public:
