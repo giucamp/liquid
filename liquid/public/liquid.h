@@ -51,11 +51,12 @@ namespace liquid
         [[noreturn]] void Panic(const TYPE & ... i_object)
     {
         std::string message = ToString(i_object...);
+        std::cerr << message << std::endl;
         DbgBreak();
         throw std::exception(message.c_str());
     }
 
-    #define LIQUID_ASSERT(expr) if(!(expr)) Panic("Assert failure: " #expr);
+    #define LIQUID_ASSERT(expr) if(!liquid::Always(expr)) Panic("Assert failure: " #expr);
 
     template <typename DEST_TYPE, typename SOURCE_TYPE>
         DEST_TYPE NumericCast(SOURCE_TYPE i_source)

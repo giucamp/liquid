@@ -39,7 +39,7 @@ namespace liquid
     TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Real>&& i_reals)
         : m_type(ScalarType::Real, i_shape)
     {
-        size_t const reduced_size = ConstantReduction<Real>(m_type.GetFixedShape(), GetAs<Real>());
+        size_t const reduced_size = ConstantReduction<Real>(m_type.GetFixedShape(), i_reals);
         if(reduced_size == i_reals.size())
             m_scalars = std::move(i_reals);
         else
@@ -49,7 +49,7 @@ namespace liquid
     TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Integer>&& i_integers)
         : m_type(ScalarType::Integer, i_shape)
     {
-        size_t const reduced_size = ConstantReduction<Integer>(m_type.GetFixedShape(), GetAs<Integer>());
+        size_t const reduced_size = ConstantReduction<Integer>(m_type.GetFixedShape(), i_integers);
         if (reduced_size == i_integers.size())
             m_scalars = std::move(i_integers);
         else
@@ -59,7 +59,7 @@ namespace liquid
     TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Bool>&& i_bools)
         : m_type(ScalarType::Bool, i_shape)
     {
-        size_t const reduced_size = ConstantReduction<Bool>(m_type.GetFixedShape(), GetAs<Bool>());
+        size_t const reduced_size = ConstantReduction<Bool>(m_type.GetFixedShape(), i_bools);
         if (reduced_size == i_bools.size())
             m_scalars = std::move(i_bools);
         else
@@ -67,7 +67,7 @@ namespace liquid
     }
 
     template <typename SCALAR_TYPE>
-        bool EqualsImpl(const Shape & i_shape, const TensorValue& i_first, const TensorValue& i_second)
+        bool EqualsImpl(const Shape & i_shape, const TensorValue & i_first, const TensorValue & i_second)
     {
         for (Indices indices = i_shape; indices; indices++)
             if (indices.At<SCALAR_TYPE>(i_first) != indices.At<SCALAR_TYPE>(i_second))

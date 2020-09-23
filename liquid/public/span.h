@@ -54,11 +54,21 @@ namespace liquid
 
         const TYPE & operator[](size_t i_index) const
         {
+            return at(i_index);
+        }
+
+        TYPE & operator[](size_t i_index)
+        {
+            return at(i_index);
+        }
+
+        const TYPE & at(size_t i_index) const
+        {
             LIQUID_ASSERT(i_index < m_size);
             return m_data[i_index];
         }
 
-        TYPE & operator[](size_t i_index)
+        TYPE & at(size_t i_index)
         {
             LIQUID_ASSERT(i_index < m_size);
             return m_data[i_index];

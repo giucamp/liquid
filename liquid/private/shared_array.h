@@ -108,13 +108,23 @@ namespace liquid
         const_reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
         const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
 
-        const TYPE& operator[](size_t i_index) const
+        const TYPE & operator[](size_t i_index) const
+        {
+            return at(i_index);
+        }
+
+        TYPE & operator[](size_t i_index)
+        {
+            return at(i_index);
+        }
+
+        const TYPE & at(size_t i_index) const
         {
             LIQUID_ASSERT(i_index < m_size);
             return m_elements.get()[i_index];
         }
 
-        TYPE& operator[](size_t i_index)
+        TYPE & at(size_t i_index)
         {
             LIQUID_ASSERT(i_index < m_size);
             return m_elements.get()[i_index];

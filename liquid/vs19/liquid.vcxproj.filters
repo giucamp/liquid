@@ -87,5 +87,11 @@
     <ClCompile Include="..\private\operators\variable.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\tests\test_tensor.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\cast.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

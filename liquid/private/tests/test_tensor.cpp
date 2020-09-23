@@ -5,17 +5,21 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #include "liquid.h"
+#include "indices.h"
+#include <numeric>
+#include <iostream>
 
 namespace liquid
 {
-    void TestIndices();
-    void TestScalarType();
-    void TestTensor();
-
-    void TestLiquid()
+    void TestTensor()
     {
-        TestScalarType();
-        TestIndices();
-        TestTensor();
+        std::cout << "TestTensor...";
+
+        {
+            Tensor t(2.0);
+            LIQUID_ASSERT(t + 3.0 == 5.0); 
+        }
+
+        std::cout << "done" << std::endl;
     }
 }

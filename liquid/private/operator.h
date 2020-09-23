@@ -43,7 +43,7 @@ namespace liquid
             const TensorType & i_result_type, Span<const TensorValue> i_operands, 
             Span<const TensorValue> i_attributes);
 
-        using SimplifyFunction = std::optional<Tensor>(*)(const Tensor & );
+        using SimplifyFunction = std::optional<Tensor>(*)(const Tensor & i_source);
 
         using GradientOfOperandFunction = Tensor(*)(const Tensor & i_self, const Tensor & i_self_gradient, size_t i_operand_index);
 

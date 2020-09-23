@@ -9,6 +9,8 @@
 
 namespace liquid
 {
+    extern const Operator & GetOperatorConstant();
+
     Operator::Operator(std::string_view i_name)
         : m_name(i_name), m_deduce_type_func(DefaultDeduceType)
     {
@@ -154,8 +156,9 @@ namespace liquid
         Span<const Tensor> i_operands, Span<const Tensor> i_attributes, 
         const std::any & i_attachment) const
     {
-        if (std::all_of(i_operands.begin(), i_operands.end(), IsConstant)
-            && std::all_of(i_attributes.begin(), i_attributes.end(), IsConstant))
+        if (this != &GetOperatorConstant() &&
+            std::all_of(i_operands.begin(), i_operands.end(), IsConstant) &&
+            std::all_of(i_attributes.begin(), i_attributes.end(), IsConstant))
         {
             auto const operand_values = ToValues(i_operands);
             auto const attribute_values = ToValues(i_attributes);
@@ -194,9 +197,12 @@ namespace liquid
             i_name, i_doc, type, *this, overload, 
             i_operands, i_attributes, i_attachment ));
 
-        if(auto simplified = m_simpily_func(result))
-            result = *simplified;
-        
+        if(m_simpily_func != nullptr)
+        {
+            if(auto simplified = m_simpily_func(result))
+                result = *simplified;
+        }
+
         return result;
     }
 }
