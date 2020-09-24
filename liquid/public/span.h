@@ -8,8 +8,6 @@
 #include <iterator>
 #include <utility>
 #include <type_traits>
-#include <iterator>
-#include <type_traits>
 #include "pointer_iterator.h"
 
 namespace liquid
