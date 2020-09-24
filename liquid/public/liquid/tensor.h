@@ -9,7 +9,9 @@
 #include <type_traits>
 #include <optional>
 #include <any>
-#include "span.h"
+#include "liquid/liquid_common.h"
+#include "liquid/span.h"
+#include "liquid/scalars_initializer.h"
 
 namespace liquid
 {
@@ -24,8 +26,11 @@ namespace liquid
 
 
         template <typename SCALARS, typename = EnableIfNumeric<SCALARS>>
-            Tensor(const SCALARS & i_scalars, const std::optional<Span<Integer>> & i_shape = {})
-                : Tensor(CostructConstant{}, i_scalars, i_shape) { }
+            Tensor(const SCALARS & i_scalar, const std::optional<Span<Integer>> & i_shape = {})
+                : Tensor(CostructConstant{}, i_scalar, i_shape) { }
+
+        Tensor(ScalarsInitializer i_scalars, const std::optional<Span<Integer>>& i_shape = {})
+                : Tensor(CostructConstant{}, 1.0, i_shape) { }
 
     public:
 
@@ -53,19 +58,15 @@ namespace liquid
     };
 
     bool Always(const Tensor & i_bool_tensor);
-    inline bool Always(bool i_bool_tensor) { return i_bool_tensor; }
     
     bool Never(const Tensor& i_bool_tensor);
-    inline bool Never(bool i_bool_tensor) { return !i_bool_tensor; }
-
-    Tensor operator == (const Tensor & i_first, const Tensor & i_second);
-
+    
     Tensor Add(Span<Tensor const> i_addends);
 
     Tensor Cast(ScalarType i_dest_scalar_type, const Tensor & i_source);
 
     template <typename DEST_SCALAR_TYPE>
-        Tensor Cast(const Tensor& i_source)
+        Tensor Cast(const Tensor & i_source)
     {
         if constexpr(std::is_same_v<DEST_SCALAR_TYPE, Real>)
             return Cast(ScalarType::Real, i_source);
@@ -80,4 +81,8 @@ namespace liquid
     Tensor operator + (const Tensor & i_first, const Tensor& i_second);
 
     Tensor & operator += (Tensor & i_first, const Tensor& i_second);
+
+    Tensor operator == (const Tensor& i_first, const Tensor& i_second);
+
+    inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
 }

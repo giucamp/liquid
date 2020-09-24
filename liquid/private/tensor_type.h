@@ -7,7 +7,8 @@
 #pragma once
 
 #include <variant>
-#include "liquid.h"
+#include "liquid/liquid_common.h"
+#include "liquid/tensor.h"
 #include "shape.h"
 
 namespace liquid

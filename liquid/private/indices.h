@@ -7,7 +7,7 @@
 #pragma once
 
 #include <vector>
-#include "liquid.h"
+#include "liquid/liquid_common.h"
 #include "shape.h"
 #include "tensor_value.h"
 

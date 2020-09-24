@@ -7,8 +7,8 @@
 #pragma once
 
 #include <variant>
-#include "liquid.h"
-#include "span.h"
+#include "liquid/liquid_common.h"
+#include "liquid/span.h"
 #include "shared_array.h"
 #include "tensor_type.h"
 

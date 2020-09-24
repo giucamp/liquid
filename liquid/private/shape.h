@@ -9,8 +9,8 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include "liquid.h"
-#include "span.h"
+#include "liquid/liquid_common.h"
+#include "liquid/span.h"
 #include "shared_array.h"
 
 namespace liquid

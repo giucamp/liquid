@@ -4,7 +4,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid.h"
+#include "liquid/liquid_common.h"
 #include "indices.h"
 #include <numeric>
 #include <iostream>
@@ -18,6 +18,10 @@ namespace liquid
         {
             Tensor t(2.0);
             LIQUID_ASSERT(t + 3.0 == 5.0); 
+        }
+
+        {
+            Tensor t({1.0, 2.0});
         }
 
         std::cout << "done" << std::endl;

@@ -5,7 +5,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
-#include "liquid.h"
+#include "liquid/liquid_common.h"
 #include "tensor_value.h"
 #include "tensor_type.h"
 #include <optional>

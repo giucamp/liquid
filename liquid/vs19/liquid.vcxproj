@@ -46,10 +46,11 @@
     <ClInclude Include="..\private\shared_array.h" />
     <ClInclude Include="..\private\tensor_type.h" />
     <ClInclude Include="..\private\tensor_value.h" />
-    <ClInclude Include="..\public\liquid.h" />
-    <ClInclude Include="..\public\pointer_iterator.h" />
-    <ClInclude Include="..\public\span.h" />
-    <ClInclude Include="..\public\tensor.h" />
+    <ClInclude Include="..\public\liquid\liquid_common.h" />
+    <ClInclude Include="..\public\liquid\pointer_iterator.h" />
+    <ClInclude Include="..\public\liquid\scalars_initializer.h" />
+    <ClInclude Include="..\public\liquid\span.h" />
+    <ClInclude Include="..\public\liquid\tensor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

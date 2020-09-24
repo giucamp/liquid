@@ -10,21 +10,20 @@
     <Filter Include="private\tests">
       <UniqueIdentifier>{e182cde7-c353-48ca-a767-b4a5eed2f554}</UniqueIdentifier>
     </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{6a2edab1-11f5-4cef-91d7-f028bc019cc3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\tensor_value.h">
       <Filter>private</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\liquid.h" />
     <ClInclude Include="..\private\shape.h">
       <Filter>private</Filter>
     </ClInclude>
     <ClInclude Include="..\private\shared_array.h">
       <Filter>private</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\span.h" />
-    <ClInclude Include="..\public\pointer_iterator.h" />
-    <ClInclude Include="..\public\tensor.h" />
     <ClInclude Include="..\private\expression.h">
       <Filter>private</Filter>
     </ClInclude>
@@ -36,6 +35,21 @@
     </ClInclude>
     <ClInclude Include="..\private\indices.h">
       <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\liquid_common.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\pointer_iterator.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\scalars_initializer.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\span.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\tensor.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

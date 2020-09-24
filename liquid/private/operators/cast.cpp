@@ -12,7 +12,7 @@
 
 namespace liquid
 {
-    std::optional<Tensor> CastSimplify(const Tensor& i_cast)
+    std::optional<Tensor> CastSimplify(const Tensor & i_cast)
     {
         auto const & source = i_cast.GetExpression()->GetOperands().at(0);
         auto const source_type = source.GetExpression()->GetType().GetScalarType();
@@ -22,6 +22,15 @@ namespace liquid
             return source;
         else
             return {};
+    }
+
+    TensorType CastDeduceType(const std::any & i_attachment,
+        Span<const Tensor> i_operands,
+        [[maybe_unused]] Span<const Tensor> i_attributes)
+    {
+        auto const dest_scalar_type = std::any_cast<ScalarType>(i_attachment);
+        auto const & source_shape = i_operands.at(0).GetExpression()->GetType().GetShape();
+        return { dest_scalar_type, source_shape };
     }
 
     template <typename DEST_TYPE, typename SOURCE_TYPE>
@@ -38,8 +47,8 @@ namespace liquid
 
     template <typename SOURCE_TYPE>
         TensorValue CastEvaluate(const std::any & i_attachment,
-            [[maybe_unused]] const TensorType & i_result_type,
-            [[maybe_unused]] Span<const TensorValue> i_operands,
+            const TensorType & i_result_type,
+            Span<const TensorValue> i_operands,
             [[maybe_unused]] Span<const TensorValue> i_attributes)
     {
         const Shape & result_shape = i_result_type.GetFixedShape();        
@@ -63,6 +72,7 @@ namespace liquid
     extern const Operator & GetOperatorCast()
     {
         static auto const op = Operator("Add")
+            .SetDeduceType(CastDeduceType)
             .AddOverload({ CastEvaluate<Real>, { GetScalarType<Real>() }, { "Source" }, 0 })
             .AddOverload({ CastEvaluate<Integer>, { GetScalarType<Integer>() }, { "Source" }, 0 })
             .SetSimplify(CastSimplify);

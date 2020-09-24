@@ -30,12 +30,15 @@ namespace liquid
             return ScalarType::Bool;
     }
 
-    template <ScalarType> struct FromScalarTypeImpl;
-    template <> struct FromScalarTypeImpl<ScalarType::Real> { using type = Real; };
-    template <> struct FromScalarTypeImpl<ScalarType::Integer> { using type = Integer; };
-    template <> struct FromScalarTypeImpl<ScalarType::Bool> { using type = Bool; };
+    namespace detail
+    {
+        template <ScalarType> struct FromScalarTypeImpl;
+        template <> struct FromScalarTypeImpl<ScalarType::Real> { using type = Real; };
+        template <> struct FromScalarTypeImpl<ScalarType::Integer> { using type = Integer; };
+        template <> struct FromScalarTypeImpl<ScalarType::Bool> { using type = Bool; }; 
+    }
     template <ScalarType SCALAR_TYPE>
-        using FromScalarType = typename FromScalarTypeImpl<SCALAR_TYPE>::type;
+        using FromScalarType = typename detail::FromScalarTypeImpl<SCALAR_TYPE>::type;
 
     template <typename... TYPE>
         std::string ToString(const TYPE & ... i_object)
@@ -56,7 +59,8 @@ namespace liquid
         throw std::exception(message.c_str());
     }
 
-    #define LIQUID_ASSERT(expr) if(!liquid::Always(expr)) Panic("Assert failure: " #expr);
+    inline bool AssertCheck(bool i_value) { return i_value; }
+    #define LIQUID_ASSERT(expr) if(!liquid::AssertCheck(expr)) Panic("Assert failure: " #expr);
 
     template <typename DEST_TYPE, typename SOURCE_TYPE>
         DEST_TYPE NumericCast(SOURCE_TYPE i_source)
@@ -70,5 +74,3 @@ namespace liquid
         return result;
     }
 }
-
-#include "tensor.h"

@@ -1,6 +1,4 @@
 
-#include "liquid.h"
-
 namespace liquid
 {
     void TestLiquid();

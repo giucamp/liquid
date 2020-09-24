@@ -5,13 +5,14 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
-
-#include "liquid.h"
 #include <memory>
 #include <initializer_list>
 #include <iterator>
 #include <algorithm>
 #include <type_traits>
+#include "liquid/liquid_common.h"
+#include "liquid/pointer_iterator.h"
+#include "liquid/span.h"
 
 namespace liquid
 {
