@@ -22,6 +22,7 @@
     <ClCompile Include="..\private\expression.cpp" />
     <ClCompile Include="..\private\indices.cpp" />
     <ClCompile Include="..\private\liquid.cpp" />
+    <ClCompile Include="..\private\liquid_common.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\operators\add.cpp" />
     <ClCompile Include="..\private\operators\cast.cpp" />
@@ -29,6 +30,7 @@
     <ClCompile Include="..\private\operators\equal.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />
+    <ClCompile Include="..\private\scalars_initializer.cpp" />
     <ClCompile Include="..\private\shape.cpp" />
     <ClCompile Include="..\private\tensor.cpp" />
     <ClCompile Include="..\private\tensor_type.cpp" />

@@ -17,7 +17,7 @@ namespace liquid
     {
     public:
 
-        TensorType(ScalarType i_scalar_type, std::variant<std::monostate, Shape, Tensor> i_shape = {})
+        TensorType(ScalarType i_scalar_type = ScalarType::Any, std::variant<std::monostate, Shape, Tensor> i_shape = {})
             : m_scalar_type(i_scalar_type), m_shape(std::move(i_shape))
                 { }
 

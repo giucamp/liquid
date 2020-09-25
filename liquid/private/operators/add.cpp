@@ -26,7 +26,7 @@ namespace liquid
             indices[result] = element;
         }
 
-        return TensorValue(result_shape, std::move(result));
+        return TensorValue(std::move(result), result_shape);
     }
 
     Tensor AddGradient([[maybe_unused]] const Tensor& i_self,

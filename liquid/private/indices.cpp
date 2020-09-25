@@ -18,7 +18,7 @@ namespace liquid
                 logical_linear_index += m_indices[i] * strides[i];
             auto const logical_index_modulo = m_logical_linear_index% m_shape.GetLinearSize();
             if (logical_linear_index != logical_index_modulo)
-                Panic("Indices - internal error- logical_linear_index != logical_index_modulo");
+                Panic("Indices - internal error: logical_linear_index != logical_index_modulo");
         #endif
     }
 

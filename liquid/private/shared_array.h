@@ -69,7 +69,7 @@ namespace liquid
         }
 
         template <typename SOURCE_CONTAINER,
-            typename = std::enable_if_t<IsContainerV<SOURCE_CONTAINER, TYPE>>
+            typename = std::enable_if_t<IsContainerOfV<SOURCE_CONTAINER, TYPE>>
         >
             SharedArray(const SOURCE_CONTAINER & i_source)
         {

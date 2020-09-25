@@ -34,7 +34,7 @@ namespace liquid
         Span(TYPE * i_data, size_t i_size)
             : m_data(i_data), m_size(i_size) { }
 
-        template <typename SOURCE_CONTAINER, typename = std::enable_if_t<IsContigousContainerV<SOURCE_CONTAINER, TYPE>>>
+        template <typename SOURCE_CONTAINER, typename = std::enable_if_t<IsContigousContainerOfV<SOURCE_CONTAINER, TYPE>>>
             Span(SOURCE_CONTAINER && i_source_container)
                 : m_data(std::data(i_source_container)),
                     m_size(std::size(i_source_container))

@@ -24,34 +24,18 @@ namespace liquid
     {
     public:
 
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(const SCALAR & i_scalar, const std::optional<Span<Integer>> & i_shape = {})
+                : Tensor({i_scalar}, i_shape) { }
 
-        template <typename SCALARS, typename = EnableIfNumeric<SCALARS>>
-            Tensor(const SCALARS & i_scalar, const std::optional<Span<Integer>> & i_shape = {})
-                : Tensor(CostructConstant{}, i_scalar, i_shape) { }
-
-        Tensor(ScalarsInitializer i_scalars, const std::optional<Span<Integer>>& i_shape = {})
-                : Tensor(CostructConstant{}, 1.0, i_shape) { }
+        Tensor(const ScalarsInitializer & i_scalars, const std::optional<Span<Integer>> & i_shape = {});
 
     public:
 
         Tensor(std::shared_ptr<const class Expression> && i_expression)
-            : m_expression(std::move(i_expression))
-                { }
+            : m_expression(std::move(i_expression)) { }
 
-        const std::shared_ptr<const Expression> & GetExpression() const { return m_expression;}
-
-    private:
-
-        enum class CostructConstant {};
-
-        Tensor(CostructConstant, const std::any& i_scalars,
-            const std::optional<Span<Integer>>& i_shape);
-
-        enum class CostructExpression {};
-
-        Tensor(CostructExpression, std::string_view i_expression, 
-            const std::optional<Span<Integer>> & i_shape,
-            ScalarType i_scalar_type);
+        const std::shared_ptr<const Expression> & GetExpression() const { return m_expression; }
 
     private:
         std::shared_ptr<const Expression> m_expression;
@@ -80,9 +64,9 @@ namespace liquid
 
     Tensor operator + (const Tensor & i_first, const Tensor& i_second);
 
-    Tensor & operator += (Tensor & i_first, const Tensor& i_second);
+    Tensor & operator += (Tensor & i_first, const Tensor & i_second);
 
-    Tensor operator == (const Tensor& i_first, const Tensor& i_second);
+    Tensor operator == (const Tensor & i_first, const Tensor & i_second);
 
     inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
 }

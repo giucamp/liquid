@@ -9,37 +9,23 @@
 
 namespace liquid
 {
-    TensorType DeduceTypeFromScalars(const std::any & i_scalars)
+    Tensor::Tensor(const ScalarsInitializer & i_scalars, const std::optional<Span<Integer>> & i_shape)
+        : m_expression(MakeConstant(TensorValue(
+                i_scalars,  i_shape ? Shape(*i_shape) : std::optional<Shape>{}
+          )).GetExpression())
     {
-        if(std::any_cast<const Real*>(i_scalars))
-            return TensorType(ScalarType::Real, Shape({}));
-        else if (std::any_cast<const Integer *>(i_scalars))
-            return TensorType(ScalarType::Integer, Shape({}));
-        else if (std::any_cast<const Bool *>(i_scalars))
-            return TensorType(ScalarType::Bool, Shape({}));
-        Panic("Unsupported type");
-    }
-
-    Tensor::Tensor(CostructConstant, const std::any & i_scalars,
-        const std::optional<Span<Integer>>& i_shape)
-    {
-        if (auto const scalar = std::any_cast<Real>(&i_scalars))
-            m_expression = MakeConstant(TensorValue(Shape({}), Span<const Real>{*scalar})).GetExpression();
-        else if (auto const scalar = std::any_cast<Integer>(&i_scalars))
-            m_expression = MakeConstant(TensorValue(Shape({}), Span<const Integer>{*scalar})).GetExpression();
-        else if (auto const scalar = std::any_cast<Bool>(&i_scalars))
-            m_expression = MakeConstant(TensorValue(Shape({}), Span<const Bool>{*scalar})).GetExpression();
-        else
-            Panic("Unsupported type");
+    
     }
 
     bool Always(const Tensor& i_bool_tensor)
     {
-        return AlwaysEqual(i_bool_tensor, constant_values::True);
+        static const TensorValue True(true);
+        return AlwaysEqual(i_bool_tensor, True);
     }
 
     bool Never(const Tensor& i_bool_tensor)
     {
-        return AlwaysEqual(i_bool_tensor, constant_values::False);
+        static const TensorValue False(false);
+        return AlwaysEqual(i_bool_tensor, False);
     }
 }

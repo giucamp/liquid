@@ -9,6 +9,7 @@
 #include <variant>
 #include "liquid/liquid_common.h"
 #include "liquid/span.h"
+#include "liquid/scalars_initializer.h"
 #include "shared_array.h"
 #include "tensor_type.h"
 
@@ -18,11 +19,17 @@ namespace liquid
     {
     public:
 
-        TensorValue(const Shape & i_shape, SharedArray<const Real> && i_reals);
+        TensorValue(SharedArray<const Real> && i_reals, const Shape & i_shape);
 
-        TensorValue(const Shape & i_shape, SharedArray<const Integer> && i_integers);
+        TensorValue(SharedArray<const Integer> && i_integers, const Shape & i_shape);
 
-        TensorValue(const Shape & i_shape, SharedArray<const Bool> && i_bools);
+        TensorValue(SharedArray<const Bool> && i_bools, const Shape & i_shape);
+
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            TensorValue(const SCALAR& i_scalar, const std::optional<Shape> & i_shape = {})
+                : TensorValue({ i_scalar }, i_shape) { }
+
+        TensorValue(const ScalarsInitializer & i_scalars, const std::optional<Shape> & i_shape = {});
 
         const TensorType & GetType() const { return m_type; }
 
@@ -58,8 +65,11 @@ namespace liquid
         }
 
     private:
+
         template <typename SCALAR_TYPE>
             static size_t ConstantReduction(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars);
+
+        void UntypedShapedReduction();
 
     private:
         TensorType m_type;
@@ -69,12 +79,4 @@ namespace liquid
             SharedArray<const Bool>
         > m_scalars;
     };
-
-    namespace constant_values
-    {
-        extern TensorValue RealZero;
-        extern TensorValue IntegerZero;
-        extern TensorValue True;
-        extern TensorValue False;
-    }
 }

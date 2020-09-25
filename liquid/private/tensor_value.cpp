@@ -10,14 +10,6 @@
 
 namespace liquid
 {
-    namespace constant_values
-    {
-        extern TensorValue RealZero(Shape({}), Span<Real const>{0});
-        extern TensorValue IntegerZero(Shape({}), Span<Integer const>{0});
-        extern TensorValue True(Shape({}), Span<Bool const>{true});
-        extern TensorValue False(Shape({}), Span<Bool const>{false});
-    }
-
     template <typename SCALAR_TYPE>
         size_t TensorValue::ConstantReduction(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars)
     {
@@ -36,34 +28,114 @@ namespace liquid
         return i_scalars.size();
     }
 
-    TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Real>&& i_reals)
+    void TensorValue::UntypedShapedReduction()
+    {
+        switch (m_type.GetScalarType())
+        {
+            case ScalarType::Real:
+            {
+                auto const scalars = GetAs<Real>();
+                size_t const reduced_size = ConstantReduction<Real>(m_type.GetFixedShape(), scalars);
+                if(reduced_size != scalars.size())
+                    m_scalars = Span<const Real>(scalars.data(), reduced_size);
+                break;
+            }
+
+            case ScalarType::Integer:
+            {
+                auto const scalars = GetAs<Integer>();
+                size_t const reduced_size = ConstantReduction<Integer>(m_type.GetFixedShape(), scalars);
+                if (reduced_size != scalars.size())
+                    m_scalars = Span<const Integer>(scalars.data(), reduced_size);
+                break;
+            }
+
+            case ScalarType::Bool:
+            {
+                auto const scalars = GetAs<Bool>();
+                size_t const reduced_size = ConstantReduction<Bool>(m_type.GetFixedShape(), scalars);
+                if (reduced_size != scalars.size())
+                    m_scalars = Span<const Bool>(scalars.data(), reduced_size);
+                break;
+            }
+
+            case ScalarType::Any: Panic("TensorValue - ScalarType::Any canot be used for a value");
+
+            default: Panic("Unrecognized scalar type ", static_cast<int>(m_type.GetScalarType()));
+        }
+    }
+
+    TensorValue::TensorValue(SharedArray<const Real> && i_reals, const Shape& i_shape)
         : m_type(ScalarType::Real, i_shape)
     {
         size_t const reduced_size = ConstantReduction<Real>(m_type.GetFixedShape(), i_reals);
         if(reduced_size == i_reals.size())
             m_scalars = std::move(i_reals);
         else
-            m_scalars = Span<const Real>(i_reals);
+            m_scalars = Span<const Real>(i_reals.data(), reduced_size);
     }
 
-    TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Integer>&& i_integers)
+    TensorValue::TensorValue(SharedArray<const Integer> && i_integers, const Shape & i_shape)
         : m_type(ScalarType::Integer, i_shape)
     {
         size_t const reduced_size = ConstantReduction<Integer>(m_type.GetFixedShape(), i_integers);
         if (reduced_size == i_integers.size())
             m_scalars = std::move(i_integers);
         else
-            m_scalars = Span<const Integer>(i_integers);
+            m_scalars = Span<const Integer>(i_integers.data(), reduced_size);
     }
 
-    TensorValue::TensorValue(const Shape& i_shape, SharedArray<const Bool>&& i_bools)
+    TensorValue::TensorValue(SharedArray<const Bool> && i_bools, const Shape& i_shape)
         : m_type(ScalarType::Bool, i_shape)
     {
         size_t const reduced_size = ConstantReduction<Bool>(m_type.GetFixedShape(), i_bools);
         if (reduced_size == i_bools.size())
             m_scalars = std::move(i_bools);
         else
-            m_scalars = Span<const Bool>(i_bools);
+            m_scalars = Span<const Bool>(i_bools.data(), reduced_size);
+    }
+
+    TensorValue::TensorValue(const ScalarsInitializer& i_scalars, const std::optional<Shape> & i_shape)
+    {
+        auto shape_and_type = i_scalars.GetShapeAndType();
+        m_type = TensorType(shape_and_type.second, Span<const Integer>(shape_and_type.first));
+        const Shape & shape = m_type.GetFixedShape();
+
+        switch (m_type.GetScalarType())
+        {
+        case ScalarType::Real:
+        {
+            auto scalars = SharedArray<Real>(NumericCast<size_t>(shape.GetLinearSize()));
+            for(Indices indices(shape); indices; indices++)
+                indices[Span<Real>(scalars)] = indices.At<Real>(i_scalars);
+            m_scalars = scalars;
+            break;
+        }
+        case ScalarType::Integer:
+        {
+            auto scalars = SharedArray<Integer>(NumericCast<size_t>(shape.GetLinearSize()));
+            for (Indices indices(shape); indices; indices++)
+                indices[Span<Integer>(scalars)] = indices.At<Integer>(i_scalars);
+            m_scalars = scalars;
+            break;
+        }
+        case ScalarType::Bool:
+        {
+            auto scalars = SharedArray<Bool>(NumericCast<size_t>(shape.GetLinearSize()));
+            for (Indices indices(shape); indices; indices++)
+                indices[Span<Bool>(scalars)] = indices.At<Bool>(i_scalars);
+            m_scalars = scalars;
+            break;
+        }
+
+        case ScalarType::Any: 
+            Panic("TensorValue - ScalarType::Any canot be used for a value");
+
+        default: 
+            Panic("Unrecognized scalar type ", static_cast<int>(m_type.GetScalarType()));
+        }
+
+        UntypedShapedReduction();
     }
 
     template <typename SCALAR_TYPE>

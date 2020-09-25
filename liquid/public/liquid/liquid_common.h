@@ -40,6 +40,8 @@ namespace liquid
     template <ScalarType SCALAR_TYPE>
         using FromScalarType = typename detail::FromScalarTypeImpl<SCALAR_TYPE>::type;
 
+    std::ostream & operator << (std::ostream & i_ostream, ScalarType i_scalar_type);
+
     template <typename... TYPE>
         std::string ToString(const TYPE & ... i_object)
     {

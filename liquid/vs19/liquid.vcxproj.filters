@@ -107,5 +107,11 @@
     <ClCompile Include="..\private\operators\cast.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\scalars_initializer.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\liquid_common.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@ namespace liquid
             indices[result] = first == second;
         }
 
-        return TensorValue(result_shape, std::move(result));
+        return TensorValue(std::move(result), result_shape);
     }
 
     extern const Operator& GetOperatorEqual()

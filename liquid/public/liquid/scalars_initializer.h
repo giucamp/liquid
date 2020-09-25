@@ -8,7 +8,7 @@
 #include <vector>
 #include <variant>
 #include <type_traits>
-#include <array>
+#include <utility>
 #include "liquid/liquid_common.h"
 #include "liquid/span.h"
 
@@ -54,32 +54,39 @@ namespace liquid
         ScalarsInitializer(ScalarsInitializer &&) = default;
         ScalarsInitializer & operator = (ScalarsInitializer&&) = default;
 
-        constexpr int64_t GetRank() const
-        {
-            if(std::holds_alternative<std::vector<ScalarsInitializer>>(m_elements))
-                return std::get<std::vector<ScalarsInitializer>>(m_elements).at(0).GetRank() + 1;
-            else
-                return 1;
-        }
+        int64_t GetRank() const;
 
-        std::vector<Integer> GetShape() const
+        std::pair<std::vector<Integer>, ScalarType> GetShapeAndType() const;
+
+        Integer GetFirstDimension() const;
+
+        template <typename ELEMENT_TYPE>
+            bool Is() const
+                { return std::holds_alternative<std::vector<ELEMENT_TYPE>>(m_elements); }
+
+        template <typename ELEMENT_TYPE>
+            const ELEMENT_TYPE & At(Span<const Integer> i_indices) const
         {
-            std::vector<Integer> result(NumericCast<size_t>(GetRank()));
-            GetShapeImpl(result);
-            return result;
+            if(i_indices.size() != static_cast<size_t>(GetRank()))
+                Panic("ScalarsInitializer - wrong number of indices");
+            
+            if (!Is<ELEMENT_TYPE>())
+                Panic("ScalarsInitializer - wrong scalar type");
+
+            const ScalarsInitializer * curr = this;
+            while (i_indices.size() > 1)
+            {
+                auto const & elements = std::get<std::vector<ScalarsInitializer>>(m_elements);
+                curr = &elements.at(NumericCast<size_t>(i_indices[0]));
+                i_indices = i_indices.subspan(1);
+            }
+            auto const & elements = std::get<std::vector<ELEMENT_TYPE>>(curr->m_elements);
+            return elements.at(NumericCast<size_t>(i_indices[0]));
         }
 
     private:
-        void GetShapeImpl(Span<int64_t> o_shape) const
-        {
-            size_t const size = std::visit([](auto const & i_elements){ return i_elements.size(); }, m_elements);
-            o_shape[0] = NumericCast<Integer>(size);
-            if (std::holds_alternative<std::vector<ScalarsInitializer>>(m_elements))
-            {
-                auto const & elements = std::get<std::vector<ScalarsInitializer>>(m_elements);
-                elements.at(0).GetShapeImpl(o_shape.subspan(0));
-            }
-        }
+
+        void GetShapeAndTypeImpl(size_t i_curr_dim, Span<int64_t> o_shape, ScalarType & o_type) const;
 
     private:
         std::variant<

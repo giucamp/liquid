@@ -63,31 +63,28 @@ namespace liquid
         IT_TYPE* m_pointer{};
     };
 
-    // IsContainerV<CONTAINER, ELEMENT_TYPE>
+    // IsContainerOfV<CONTAINER, ELEMENT_TYPE>
     template <typename CONTAINER, typename ELEMENT_TYPE, typename = std::void_t<>>
-        struct IsContainer : std::false_type { };
+        struct IsContainerOf : std::false_type { };
     template <typename CONTAINER, typename ELEMENT_TYPE>
-        struct IsContainer < CONTAINER, ELEMENT_TYPE, std::void_t<
+        struct IsContainerOf < CONTAINER, ELEMENT_TYPE, std::void_t<
 
             decltype(std::begin(std::declval<CONTAINER>()) != std::end(std::declval<CONTAINER>())),
 
             std::enable_if_t<std::is_same_v<
-
                 std::decay_t<ELEMENT_TYPE>,
                 std::decay_t<decltype(*std::begin(std::declval<CONTAINER>()))>
-
             >>
-
 
     > > : std::true_type{ };
     template <typename CONTAINER, typename ELEMENT_TYPE>
-        constexpr bool IsContainerV = IsContainer<CONTAINER, ELEMENT_TYPE>::value;
+        constexpr bool IsContainerOfV = IsContainerOf<CONTAINER, ELEMENT_TYPE>::value;
 
-    // IsContigousContainerV<CONTAINER, ELEMENT_TYPE>
+    // IsContigousContainerOfV<CONTAINER, ELEMENT_TYPE>
     template <typename CONTAINER, typename ELEMENT_TYPE, typename = std::void_t<>>
-        struct IsContigousContainer : std::false_type { };
+        struct IsContigousContainerOf : std::false_type { };
     template <typename CONTAINER, typename ELEMENT_TYPE>
-        struct IsContigousContainer< CONTAINER, ELEMENT_TYPE, std::void_t< std::enable_if_t<std::conjunction_v<
+        struct IsContigousContainerOf< CONTAINER, ELEMENT_TYPE, std::void_t< std::enable_if_t<std::conjunction_v<
 
             // decltype(std::data(i_source_container)) must be convertible to ELEMENT_TYPE *
             std::is_convertible<decltype(std::data(std::declval<CONTAINER>())), ELEMENT_TYPE*>,
@@ -100,5 +97,5 @@ namespace liquid
 
     > > > > : std::true_type { };
     template <typename CONTAINER, typename ELEMENT_TYPE>
-        constexpr bool IsContigousContainerV = IsContigousContainer<CONTAINER, ELEMENT_TYPE>::value;
+        constexpr bool IsContigousContainerOfV = IsContigousContainerOf<CONTAINER, ELEMENT_TYPE>::value;
 }

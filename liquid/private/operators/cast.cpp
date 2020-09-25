@@ -42,7 +42,7 @@ namespace liquid
         for (Indices indices(result_shape); indices; indices++)
             indices[result] = static_cast<DEST_TYPE>(indices.At<SOURCE_TYPE>(i_source));
 
-        return TensorValue(result_shape, std::move(result));
+        return TensorValue(std::move(result), result_shape);
     }
 
     template <typename SOURCE_TYPE>
