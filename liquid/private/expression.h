@@ -53,9 +53,7 @@ namespace liquid
 
     Tensor MakeConstant(const TensorValue & i_value);
 
-    bool IsConstant(const Tensor & i_tensor);
-
-    const TensorValue GetConstantValue(const Tensor& i_tensor);
+    const TensorValue & GetConstantValue(const Tensor & i_tensor);
 
     bool AlwaysEqual(const Tensor& i_tensor, const TensorValue & i_value);
 }

@@ -42,13 +42,13 @@
     <ClInclude Include="..\public\liquid\pointer_iterator.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\liquid\scalars_initializer.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\liquid\span.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\public\liquid\tensor.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\liquid\tensor_initializer.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,10 +107,10 @@
     <ClCompile Include="..\private\operators\cast.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\scalars_initializer.cpp">
+    <ClCompile Include="..\private\liquid_common.cpp">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\liquid_common.cpp">
+    <ClCompile Include="..\private\tensor_initializer.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

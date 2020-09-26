@@ -11,7 +11,7 @@
 #include <any>
 #include "liquid/liquid_common.h"
 #include "liquid/span.h"
-#include "liquid/scalars_initializer.h"
+#include "liquid/tensor_initializer.h"
 
 namespace liquid
 {
@@ -42,6 +42,8 @@ namespace liquid
 
         Span<const Integer> GetFixedShape() const;
 
+        Integer GetRank() const;
+
     public:
 
         Tensor(std::shared_ptr<const class Expression> && i_expression)
@@ -52,6 +54,11 @@ namespace liquid
     private:
         std::shared_ptr<const Expression> m_expression;
     };
+
+    bool IsConstant(const Tensor & i_tensor);
+
+    template <typename SCALAR_TYPE>
+        Span<const SCALAR_TYPE> GetConstantElements(const Tensor & i_tensor);
 
     bool Always(const Tensor & i_bool_tensor);
     

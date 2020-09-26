@@ -30,7 +30,7 @@
     <ClCompile Include="..\private\operators\equal.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />
-    <ClCompile Include="..\private\scalars_initializer.cpp" />
+    <ClCompile Include="..\private\tensor_initializer.cpp" />
     <ClCompile Include="..\private\shape.cpp" />
     <ClCompile Include="..\private\tensor.cpp" />
     <ClCompile Include="..\private\tensor_type.cpp" />
@@ -50,7 +50,7 @@
     <ClInclude Include="..\private\tensor_value.h" />
     <ClInclude Include="..\public\liquid\liquid_common.h" />
     <ClInclude Include="..\public\liquid\pointer_iterator.h" />
-    <ClInclude Include="..\public\liquid\scalars_initializer.h" />
+    <ClInclude Include="..\public\liquid\tensor_initializer.h" />
     <ClInclude Include="..\public\liquid\span.h" />
     <ClInclude Include="..\public\liquid\tensor.h" />
   </ItemGroup>

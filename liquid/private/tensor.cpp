@@ -36,6 +36,11 @@ namespace liquid
         return m_expression->GetType().GetFixedShape().GetDimensions();
     }
 
+    Integer Tensor::GetRank() const
+    {
+        return NumericCast<Integer>(GetFixedShape().size());
+    }
+
     bool Always(const Tensor& i_bool_tensor)
     {
         static const TensorValue True(true);

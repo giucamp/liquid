@@ -18,7 +18,7 @@ namespace liquid
         {
             Tensor t(2.0);
             LIQUID_ASSERT(t.HasFixedShape());
-            LIQUID_ASSERT(t.GetFixedShape().size() == 0);
+            LIQUID_ASSERT(t.GetFixedShape().content_equals({}));
             LIQUID_ASSERT(t.GetScalarType() == ScalarType::Real);
 
             LIQUID_ASSERT(t + 3.0 == 5.0); 
@@ -27,10 +27,8 @@ namespace liquid
         {
             Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
             LIQUID_ASSERT(t.HasFixedShape());
-            LIQUID_ASSERT(t.GetFixedShape().size() == 2);
+            LIQUID_ASSERT(t.GetFixedShape().content_equals({2, 3}));
             LIQUID_ASSERT(t.GetScalarType() == ScalarType::Integer);
-
-            
         }
 
         {

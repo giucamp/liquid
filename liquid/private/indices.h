@@ -10,7 +10,7 @@
 #include "liquid/liquid_common.h"
 #include "shape.h"
 #include "tensor_value.h"
-#include "liquid/scalars_initializer.h"
+#include "liquid/tensor_initializer.h"
 
 namespace liquid
 {

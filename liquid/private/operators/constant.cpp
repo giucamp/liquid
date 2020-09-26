@@ -43,10 +43,20 @@ namespace liquid
         return i_tensor.GetExpression()->OperatorIs(GetOperatorConstant());
     }
 
-    const TensorValue GetConstantValue(const Tensor & i_tensor)
+    const TensorValue & GetConstantValue(const Tensor & i_tensor)
     {
         if(!IsConstant(i_tensor))
             Panic("GetConstantValue - not a constant tensor");
-        return std::any_cast<TensorValue>(i_tensor.GetExpression()->GetAttachment());
+        return std::any_cast<const TensorValue&>(i_tensor.GetExpression()->GetAttachment());
+    }
+
+    template Span<const Real> GetConstantElements(const Tensor & i_tensor);
+    template Span<const Integer> GetConstantElements(const Tensor & i_tensor);
+    template Span<const Bool> GetConstantElements(const Tensor & i_tensor);
+
+    template <typename SCALAR_TYPE>
+        Span<const SCALAR_TYPE> GetConstantElements(const Tensor & i_tensor)
+    {
+        return GetConstantValue(i_tensor).GetAs<SCALAR_TYPE>();
     }
 }

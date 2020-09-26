@@ -8,6 +8,7 @@
 #include <iterator>
 #include <utility>
 #include <type_traits>
+#include <algorithm>
 #include "liquid/liquid_common.h"
 #include "liquid/pointer_iterator.h"
 
@@ -106,6 +107,12 @@ namespace liquid
         Span subspan(size_t i_offset) const
         {
             return subspan(i_offset, m_size - i_offset);
+        }
+
+        bool content_equals(Span<TYPE> i_other) const
+        {
+            return m_size == i_other.m_size &&
+                std::equal(begin(), end(), i_other.begin());
         }
 
         iterator begin() { return iterator{ m_data }; }

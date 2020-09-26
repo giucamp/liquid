@@ -9,7 +9,7 @@
 #include <variant>
 #include "liquid/liquid_common.h"
 #include "liquid/span.h"
-#include "liquid/scalars_initializer.h"
+#include "liquid/tensor_initializer.h"
 #include "shared_array.h"
 #include "tensor_type.h"
 

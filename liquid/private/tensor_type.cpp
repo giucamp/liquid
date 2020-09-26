@@ -96,4 +96,15 @@ namespace liquid
             return GetFixedShape() == i_other.GetFixedShape();
         return true;
     }
+
+    std::ostream& operator << (std::ostream & i_ostream, const TensorType & i_tensor_type)
+    {
+        if(i_tensor_type.m_scalar_type != ScalarType::Any)
+            i_ostream << i_tensor_type.m_scalar_type;
+
+        if(i_tensor_type.HasFixedShape())
+            i_ostream << i_tensor_type.GetFixedShape();
+
+        return i_ostream;
+    }
 }
