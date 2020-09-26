@@ -73,7 +73,7 @@ namespace liquid
         }
 
         template <typename SCALAR_TYPE>
-            const SCALAR_TYPE & At(const ScalarsInitializer & i_initializer) const
+            SCALAR_TYPE At(const TensorInitializer & i_initializer) const
         {
             return i_initializer.At<SCALAR_TYPE>(m_indices);
         }

@@ -18,5 +18,6 @@ namespace liquid
             case ScalarType::Bool: i_ostream << "Bool"; break;
             default: Panic("Unrecognized scalar type ", static_cast<int>(i_scalar_type));
         }
+        return i_ostream;
     }
 }

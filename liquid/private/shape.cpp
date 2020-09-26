@@ -133,4 +133,10 @@ namespace liquid
     {
         return liquid::GetPhysicalLinearIndex(i_indices, m_dimensions, m_strides);
     }
+
+    std::ostream & operator << (std::ostream & i_ostream, const Shape & i_shape)
+    {
+        i_ostream << "[" << i_shape.GetDimensions() << "]";
+        return i_ostream;
+    }
 }

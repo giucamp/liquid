@@ -9,12 +9,31 @@
 
 namespace liquid
 {
-    Tensor::Tensor(const ScalarsInitializer & i_scalars, const std::optional<Span<Integer>> & i_shape)
-        : m_expression(MakeConstant(TensorValue(
-                i_scalars,  i_shape ? Shape(*i_shape) : std::optional<Shape>{}
-          )).GetExpression())
+    Tensor::Tensor(const TensorInitializer& i_scalars)
+        : m_expression(MakeConstant(TensorValue(i_scalars)).GetExpression())
     {
-    
+
+    }
+
+    Tensor::Tensor(const TensorInitializer& i_scalars, Span<const Integer> i_shape)
+        : m_expression(MakeConstant(TensorValue(i_scalars, i_shape)).GetExpression())
+    {
+
+    }
+
+    ScalarType Tensor::GetScalarType() const
+    {
+        return m_expression->GetType().GetScalarType();
+    }
+
+    bool Tensor::HasFixedShape() const
+    {
+        return m_expression->GetType().HasFixedShape();
+    }
+
+    Span<const Integer> Tensor::GetFixedShape() const
+    {
+        return m_expression->GetType().GetFixedShape().GetDimensions();
     }
 
     bool Always(const Tensor& i_bool_tensor)

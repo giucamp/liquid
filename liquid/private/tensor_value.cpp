@@ -95,18 +95,66 @@ namespace liquid
             m_scalars = Span<const Bool>(i_bools.data(), reduced_size);
     }
 
-    TensorValue::TensorValue(const ScalarsInitializer& i_scalars, const std::optional<Shape> & i_shape)
+    void TensorValue::UnflattenLowerDim(const Shape & i_dest_shape)
+    {
+        const Shape & source_shape = m_type.GetFixedShape();
+
+        if(source_shape.GetRank() > 0 && i_dest_shape.GetRank() > 0)
+        {
+            Integer const source_lower = source_shape.GetDimensions().back();
+
+            Integer dest_lower = i_dest_shape.GetDimensions().back();
+            Integer dim_index = i_dest_shape.GetRank() - 2;
+            for (; dim_index >= 0 && dest_lower < source_lower; dim_index--)
+            {
+                dest_lower *= i_dest_shape.GetDimension(dim_index);
+                if (dest_lower == source_lower)
+                {
+                    auto const to_prepend = source_shape.GetDimensions().subspan(1);
+                    auto const to_append = i_dest_shape.GetDimensions().subspan(static_cast<size_t>(dim_index));
+                    std::vector<Integer> new_shape;
+                    new_shape.reserve(to_prepend.size() + to_append.size());
+                    new_shape.insert(new_shape.end(), to_prepend.begin(), to_prepend.end());
+                    new_shape.insert(new_shape.end(), to_append.begin(), to_append.end());
+                    m_type = TensorType(m_type.GetScalarType(), Shape(new_shape));
+                    break;
+                }
+            }
+        }
+    }
+
+    void TensorValue::Strip1UpperDims(const Shape& i_dest_shape)
+    {
+        const Shape & source_shape = m_type.GetFixedShape();
+        if(source_shape.GetRank() > i_dest_shape.GetRank())
+        {
+            const Span<const Integer> source_dims = source_shape.GetDimensions();
+
+            size_t leading_ones = 0;
+            while (source_shape.GetRank() - leading_ones > i_dest_shape.GetDimensions().size() 
+                    && source_dims[leading_ones] == 1)
+            {
+                leading_ones++;
+            }
+
+            if (leading_ones > 0)
+            {
+                m_type = TensorType(m_type.GetScalarType(), Shape(source_dims.subspan(leading_ones)));
+            }
+        }
+    }
+
+    void TensorValue::SetFromInitializer(const TensorInitializer& i_scalars)
     {
         auto shape_and_type = i_scalars.GetShapeAndType();
         m_type = TensorType(shape_and_type.second, Span<const Integer>(shape_and_type.first));
-        const Shape & shape = m_type.GetFixedShape();
-
+        const Shape& shape = m_type.GetFixedShape();
         switch (m_type.GetScalarType())
         {
         case ScalarType::Real:
         {
             auto scalars = SharedArray<Real>(NumericCast<size_t>(shape.GetLinearSize()));
-            for(Indices indices(shape); indices; indices++)
+            for (Indices indices(shape); indices; indices++)
                 indices[Span<Real>(scalars)] = indices.At<Real>(i_scalars);
             m_scalars = scalars;
             break;
@@ -128,11 +176,33 @@ namespace liquid
             break;
         }
 
-        case ScalarType::Any: 
+        case ScalarType::Any:
             Panic("TensorValue - ScalarType::Any canot be used for a value");
 
-        default: 
+        default:
             Panic("Unrecognized scalar type ", static_cast<int>(m_type.GetScalarType()));
+        }
+    }
+
+    TensorValue::TensorValue(const TensorInitializer & i_initializer)
+    {
+        SetFromInitializer(i_initializer);
+
+        UntypedShapedReduction();
+    }
+
+    TensorValue::TensorValue(const TensorInitializer & i_initializer, const Shape & i_shape)
+    {
+        SetFromInitializer(i_initializer);
+
+        UnflattenLowerDim(i_shape);
+
+        Strip1UpperDims(i_shape);
+
+        if(i_shape != m_type.GetFixedShape())
+        {
+            Panic("TensorValue - initializer has shape ", 
+                m_type.GetFixedShape(), ", tensor has shape ", i_shape);
         }
 
         UntypedShapedReduction();

@@ -37,12 +37,12 @@ namespace liquid
         template <typename SOURCE_CONTAINER, typename = std::enable_if_t<IsContigousContainerOfV<SOURCE_CONTAINER, TYPE>>>
             Span(SOURCE_CONTAINER && i_source_container)
                 : m_data(std::data(i_source_container)),
-                    m_size(std::size(i_source_container))
-                        { }
+                  m_size(std::size(i_source_container))
+                    { }
 
         Span(std::initializer_list<TYPE> && i_initializer_list)
             : m_data(i_initializer_list.begin()),
-                m_size(i_initializer_list.size())
+              m_size(i_initializer_list.size())
                 { }
 
         bool empty() const { return m_size == 0; }
@@ -71,6 +71,30 @@ namespace liquid
         {
             LIQUID_ASSERT(i_index < m_size);
             return m_data[i_index];
+        }
+
+        TYPE & front()
+        {
+            LIQUID_ASSERT(m_size > 0);
+            return m_data[0];
+        }
+
+        const TYPE & front() const
+        {
+            LIQUID_ASSERT(m_size > 0);
+            return m_data[0];
+        }
+
+        TYPE & back()
+        {
+            LIQUID_ASSERT(m_size > 0);
+            return m_data[m_size - 1];
+        }
+
+        const TYPE & back() const
+        {
+            LIQUID_ASSERT(m_size > 0);
+            return m_data[m_size - 1];
         }
 
         Span subspan(size_t i_offset, size_t i_size) const
@@ -102,4 +126,16 @@ namespace liquid
         TYPE * m_data{};
         size_t m_size{};
     };
+
+    template <typename TYPE>
+        std::ostream & operator << (std::ostream & i_ostream, Span<const TYPE> i_span)
+    {
+        for (size_t i = 0; i < i_span.size(); i++)
+        {
+            if(i != 0)
+                i_ostream << ", ";
+            i_ostream << i_span[i];
+        }
+        return i_ostream;
+    }
 }

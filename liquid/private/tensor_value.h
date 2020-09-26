@@ -26,10 +26,16 @@ namespace liquid
         TensorValue(SharedArray<const Bool> && i_bools, const Shape & i_shape);
 
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            TensorValue(const SCALAR& i_scalar, const std::optional<Shape> & i_shape = {})
-                : TensorValue({ i_scalar }, i_shape) { }
+            TensorValue(const SCALAR & i_scalar)
+                : TensorValue(TensorInitializer({ i_scalar }), Shape({})) { }
 
-        TensorValue(const ScalarsInitializer & i_scalars, const std::optional<Shape> & i_shape = {});
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            TensorValue(const SCALAR & i_scalar, const Shape & i_shape)
+                : TensorValue(TensorInitializer({ i_scalar }), i_shape) { }
+
+        TensorValue(const TensorInitializer & i_scalars);
+
+        TensorValue(const TensorInitializer & i_scalars, const Shape & i_shape);
 
         const TensorType & GetType() const { return m_type; }
 
@@ -66,10 +72,16 @@ namespace liquid
 
     private:
 
+        void SetFromInitializer(const TensorInitializer& i_scalars);
+
         template <typename SCALAR_TYPE>
             static size_t ConstantReduction(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars);
 
         void UntypedShapedReduction();
+
+        void UnflattenLowerDim(const Shape & i_dest_shape);
+
+        void Strip1UpperDims(const Shape& i_dest_shape);
 
     private:
         TensorType m_type;

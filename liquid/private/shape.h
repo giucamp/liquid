@@ -23,13 +23,16 @@ namespace liquid
 
         Shape(Span<const Integer> i_initializer_list);
 
-        Integer GetRank() const { return m_dimensions.size(); }
+        Integer GetRank() const { return static_cast<Integer>(m_dimensions.size()); }
 
         Integer GetLinearSize() const { return m_strides[0]; }
 
         Integer GetPhysicalLinearIndex(Span<const Integer> i_indices) const;
 
-        Integer GetDimension(Integer i_index) const { return m_dimensions[static_cast<size_t>(i_index)]; }
+        Integer GetDimension(Integer i_index) const { return m_dimensions[NumericCast<size_t>(i_index)]; }
+
+        Integer GetDimensionBackward(Integer i_backward_index) const 
+            { return m_dimensions[NumericCast<size_t>(GetRank() - 1 - i_backward_index)]; }
 
         Integer GetStride(Integer i_index) const { return m_strides[static_cast<size_t>(i_index)]; }
 
@@ -51,6 +54,8 @@ namespace liquid
         SharedArray<Integer> m_dimensions;
         SharedArray<Integer> m_strides;
     };
+
+    std::ostream & operator << (std::ostream & i_ostream, const Shape & i_shape);
 
     /* Strides[i] = Product of Dim[j], for i <= j < rank
        Strides[0] = product of all dimensions

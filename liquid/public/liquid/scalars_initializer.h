@@ -14,13 +14,16 @@
 
 namespace liquid
 {
-    class ScalarsInitializer
+    class TensorInitializer
     {
     public:
 
         template <typename ELEMENT_TYPE>
-            ScalarsInitializer(std::initializer_list<ELEMENT_TYPE> i_list)
+            TensorInitializer(std::initializer_list<ELEMENT_TYPE> i_list)
         {
+            if(i_list.size() == 0)
+                Panic("TensorInitializer - zero dimension");
+
             if constexpr (std::is_floating_point_v<ELEMENT_TYPE>)
             {
                 std::vector<Real> scalars(i_list.size());
@@ -44,15 +47,15 @@ namespace liquid
             }
             else
             {
-                std::vector<ScalarsInitializer> elements(i_list.size());
+                std::vector<TensorInitializer> elements(i_list.size());
                 for (size_t i = 0; i < i_list.size(); i++)
-                    elements[i] = ScalarsInitializer(i_list.begin()[i]);
+                    elements[i] = TensorInitializer(i_list.begin()[i]);
                 m_elements = std::move(elements);
             }
         }
 
-        ScalarsInitializer(ScalarsInitializer &&) = default;
-        ScalarsInitializer & operator = (ScalarsInitializer&&) = default;
+        TensorInitializer(TensorInitializer &&) = default;
+        TensorInitializer & operator = (TensorInitializer&&) = default;
 
         int64_t GetRank() const;
 
@@ -65,18 +68,18 @@ namespace liquid
                 { return std::holds_alternative<std::vector<ELEMENT_TYPE>>(m_elements); }
 
         template <typename ELEMENT_TYPE>
-            const ELEMENT_TYPE & At(Span<const Integer> i_indices) const
+            ELEMENT_TYPE At(Span<const Integer> i_indices) const
         {
             if(i_indices.size() != static_cast<size_t>(GetRank()))
-                Panic("ScalarsInitializer - wrong number of indices");
+                Panic("TensorInitializer - wrong number of indices");
             
             if (!Is<ELEMENT_TYPE>())
-                Panic("ScalarsInitializer - wrong scalar type");
+                Panic("TensorInitializer - wrong scalar type");
 
-            const ScalarsInitializer * curr = this;
+            const TensorInitializer * curr = this;
             while (i_indices.size() > 1)
             {
-                auto const & elements = std::get<std::vector<ScalarsInitializer>>(m_elements);
+                auto const & elements = std::get<std::vector<TensorInitializer>>(m_elements);
                 curr = &elements.at(NumericCast<size_t>(i_indices[0]));
                 i_indices = i_indices.subspan(1);
             }
@@ -93,7 +96,7 @@ namespace liquid
             std::vector<Real>,
             std::vector<Integer>,
             std::vector<Bool>,
-            std::vector<ScalarsInitializer>
+            std::vector<TensorInitializer>
         > m_elements;
     };
 }

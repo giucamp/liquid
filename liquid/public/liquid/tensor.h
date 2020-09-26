@@ -25,10 +25,22 @@ namespace liquid
     public:
 
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            Tensor(const SCALAR & i_scalar, const std::optional<Span<Integer>> & i_shape = {})
-                : Tensor({i_scalar}, i_shape) { }
+            Tensor(const SCALAR & i_scalar)
+                : Tensor(TensorInitializer({i_scalar}), Span<const Integer>{}) { }
 
-        Tensor(const ScalarsInitializer & i_scalars, const std::optional<Span<Integer>> & i_shape = {});
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(const SCALAR & i_scalar, Span<const Integer> i_shape)
+                : Tensor(TensorInitializer({ i_scalar }), i_shape) { }
+
+        Tensor(const TensorInitializer & i_scalars);
+
+        Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape);
+
+        ScalarType GetScalarType() const;
+
+        bool HasFixedShape() const;
+
+        Span<const Integer> GetFixedShape() const;
 
     public:
 
