@@ -18,6 +18,21 @@ namespace liquid
     class Operator
     {
     public:
+
+        Operator(std::string_view i_name);
+
+        Tensor Invoke(const Tensor & i_single_operand, Span<const Tensor> i_attributes = {},
+            const std::any& i_attachment = {}) const;
+
+        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
+            const std::any & i_attachment = {} ) const;
+
+        Tensor Invoke(std::string_view i_name, std::string_view i_doc,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
+            const std::any& i_attachment = {}) const;
+
+
+                // flags
  
         enum class Flags
         {
@@ -27,14 +42,25 @@ namespace liquid
         };
 
         friend Flags operator | (Flags i_first, Flags i_second)
-        {
-            return static_cast<Flags>(static_cast<int>(i_first) | static_cast<int>(i_second));
-        }
+            { return static_cast<Flags>(static_cast<int>(i_first) | static_cast<int>(i_second)); }
+
+        Operator & AddFlags(Flags i_flags);
+
+
+                // type deduction
 
         using DeduceTypeFunction = TensorType(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
 
+        Operator & SetDeduceType(DeduceTypeFunction i_func);
+        
+
+                // evaluation
+
         using EvaluateNoAttributesFunction = TensorValue(*)(const TensorType & i_result_type,
             Span<const TensorValue> i_operands);
+
+        using EvaluateSingleArgument = TensorValue(*)(const TensorType & i_result_type,
+            const TensorValue & i_operand);
 
         using EvaluateFunction = TensorValue(*)(const TensorType & i_result_type,
             Span<const TensorValue> i_operands, Span<const TensorValue> i_attributes);
@@ -43,36 +69,36 @@ namespace liquid
             const TensorType & i_result_type, Span<const TensorValue> i_operands, 
             Span<const TensorValue> i_attributes);
 
-        using SimplifyFunction = std::optional<Tensor>(*)(const Tensor & i_source);
-
-        using GradientOfOperandFunction = Tensor(*)(const Tensor & i_self, const Tensor & i_self_gradient, size_t i_operand_index);
-
         struct Overload
         {
-            std::variant<EvaluateNoAttributesFunction, EvaluateFunction, EvaluateWithAttachmentFunction> m_evaluate = {};
+            std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
+                EvaluateSingleArgument, EvaluateWithAttachmentFunction> m_evaluate = {};
             std::vector<TensorType> m_parameter_types;
             std::vector<std::string> m_parameter_names;
             size_t m_variadic_parameters_count = {};
         };
 
-        Operator(std::string_view i_name);
-
-        Operator & AddFlags(Flags i_flags);
-
-        Operator & SetDeduceType(DeduceTypeFunction i_func);
-        
         Operator & AddOverload(const Overload& i_overload);
 
-        Operator & SetSimplify(const SimplifyFunction & i_func);
+        
+            // canonicalization
+        
+        using CanonicalizeFunction = std::optional<Tensor>(*)(const Tensor & i_source);
+
+        Operator & SetCanonicalize(CanonicalizeFunction i_func);
+
+
+            // eligible for propagation
+
+        using EligibleForPropagation = bool(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+
+        Operator & SetEligibleForPropagation(EligibleForPropagation i_func);
+
+            // gradient of operand
+
+        using GradientOfOperandFunction = Tensor(*)(const Tensor & i_self, const Tensor & i_self_gradient, size_t i_operand_index);
 
         Operator & SetGradientOfOperand(GradientOfOperandFunction i_func);
-
-        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
-            const std::any & i_attachment = {} ) const;
-
-        Tensor Invoke(std::string_view i_name, std::string_view i_doc,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
-            const std::any& i_attachment = {}) const;
 
     private:
 
@@ -84,6 +110,9 @@ namespace liquid
             None,
             AllowNumericPromotion
         };
+
+        bool IsEligibleForPropagation(const std::any & i_attachment, 
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const;
 
         static bool OverloadMatch(const Operator::Overload& i_overload, 
             Span<const Tensor> i_operands, OverloadMatchFlags i_flags);
@@ -103,8 +132,9 @@ namespace liquid
         std::string const m_name;
         Flags m_flags = {};
         DeduceTypeFunction m_deduce_type_func = {};
-        std::vector<Overload> m_overloads;
-        SimplifyFunction m_simpily_func = {};
+        EligibleForPropagation m_eligible_for_propagation = {};
+        std::vector<Overload> m_overloads = {};
+        CanonicalizeFunction m_canonicalize_func = {};
         GradientOfOperandFunction m_gradient_of_input_func = {};
     };
 }

@@ -50,13 +50,34 @@ namespace liquid
         return std::any_cast<const TensorValue&>(i_tensor.GetExpression()->GetAttachment());
     }
 
-    template Span<const Real> GetConstantElements(const Tensor & i_tensor);
-    template Span<const Integer> GetConstantElements(const Tensor & i_tensor);
-    template Span<const Bool> GetConstantElements(const Tensor & i_tensor);
+    template Span<const Real> GetConstantStorage(const Tensor & i_tensor);
+    template Span<const Integer> GetConstantStorage(const Tensor & i_tensor);
+    template Span<const Bool> GetConstantStorage(const Tensor & i_tensor);
 
     template <typename SCALAR_TYPE>
-        Span<const SCALAR_TYPE> GetConstantElements(const Tensor & i_tensor)
+        Span<const SCALAR_TYPE> GetConstantStorage(const Tensor & i_tensor)
     {
         return GetConstantValue(i_tensor).GetAs<SCALAR_TYPE>();
+    }
+
+    template std::vector<Real> ConstantToVector(const Tensor & i_tensor);
+    template std::vector<Integer> ConstantToVector(const Tensor & i_tensor);
+    template std::vector<Bool> ConstantToVector(const Tensor & i_tensor);
+
+    template <typename SCALAR_TYPE>
+        std::vector<SCALAR_TYPE> ConstantToVector(const Tensor & i_tensor)
+    {
+        auto const storage = GetConstantStorage<SCALAR_TYPE>(i_tensor);
+        auto const & shape = i_tensor.GetExpression()->GetType().GetFixedShape();
+        auto const linear_size = static_cast<size_t>(shape.GetLinearSize());
+        
+        std::vector<SCALAR_TYPE> result;
+        result.reserve(linear_size);
+
+        // unwrap the constant
+        while(result.size() < linear_size)
+            result.insert(result.end(), storage.begin(), storage.end());
+
+        return result;
     }
 }

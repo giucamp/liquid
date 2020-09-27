@@ -16,13 +16,16 @@ namespace liquid
             Integer logical_linear_index = 0;
             for (size_t i = 0; i < rank; i++)
                 logical_linear_index += m_indices[i] * strides[i];
-            auto const logical_index_modulo = m_logical_linear_index% m_shape.GetLinearSize();
-            if (logical_linear_index != logical_index_modulo)
-                Panic("Indices - internal error: logical_linear_index != logical_index_modulo");
+            if(m_shape.GetLinearSize() > 0)
+            {
+                auto const logical_index_modulo = m_logical_linear_index % m_shape.GetLinearSize();
+                if (logical_linear_index != logical_index_modulo)
+                    Panic("Indices - internal error: logical_linear_index != logical_index_modulo");
+            }
         #endif
     }
 
-    Indices::Indices(const Shape& i_shape)
+    Indices::Indices(const FixedShape& i_shape)
         : m_shape(i_shape), m_indices(i_shape.GetDimensions().size())
     {
         DbgCheck();

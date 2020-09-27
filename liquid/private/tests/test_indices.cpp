@@ -15,7 +15,7 @@ namespace liquid
     {
         std::cout << "TestIndices...";
 
-        Shape const shape{ 3, 4, 6 };
+        FixedShape const shape{ 3, 4, 6 };
         Real values[3][4][6];
 
         Indices indices(shape);

@@ -11,7 +11,7 @@
 namespace liquid
 {
     template <typename SCALAR_TYPE>
-        size_t TensorValue::ConstantWrapping(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars)
+        size_t TensorValue::ConstantWrapping(const FixedShape & i_shape, Span<const SCALAR_TYPE> i_scalars)
     {
         /* Constant wrapping is the opposite of broadcasting. The actual stored tensor value
            has uppper dimensions stripped out, as long as the respective subtensors are identical. 
@@ -73,7 +73,7 @@ namespace liquid
         }
     }
 
-    TensorValue::TensorValue(SharedArray<const Real> && i_reals, const Shape& i_shape)
+    TensorValue::TensorValue(SharedArray<const Real> && i_reals, const FixedShape& i_shape)
         : m_type(ScalarType::Real, i_shape)
     {
         size_t const reduced_size = ConstantWrapping<Real>(m_type.GetFixedShape(), i_reals);
@@ -83,7 +83,7 @@ namespace liquid
             m_scalars = Span<const Real>(i_reals.data(), reduced_size);
     }
 
-    TensorValue::TensorValue(SharedArray<const Integer> && i_integers, const Shape & i_shape)
+    TensorValue::TensorValue(SharedArray<const Integer> && i_integers, const FixedShape & i_shape)
         : m_type(ScalarType::Integer, i_shape)
     {
         size_t const reduced_size = ConstantWrapping<Integer>(m_type.GetFixedShape(), i_integers);
@@ -93,7 +93,7 @@ namespace liquid
             m_scalars = Span<const Integer>(i_integers.data(), reduced_size);
     }
 
-    TensorValue::TensorValue(SharedArray<const Bool> && i_bools, const Shape& i_shape)
+    TensorValue::TensorValue(SharedArray<const Bool> && i_bools, const FixedShape& i_shape)
         : m_type(ScalarType::Bool, i_shape)
     {
         size_t const reduced_size = ConstantWrapping<Bool>(m_type.GetFixedShape(), i_bools);
@@ -103,9 +103,9 @@ namespace liquid
             m_scalars = Span<const Bool>(i_bools.data(), reduced_size);
     }
 
-    void TensorValue::UnflattenLowerDim(const Shape & i_dest_shape)
+    void TensorValue::UnflattenLowerDim(const FixedShape & i_dest_shape)
     {
-        const Shape & source_shape = m_type.GetFixedShape();
+        const FixedShape & source_shape = m_type.GetFixedShape();
 
         if(source_shape.GetRank() > 0 && i_dest_shape.GetRank() > 0)
         {
@@ -124,16 +124,16 @@ namespace liquid
                     new_shape.reserve(to_prepend.size() + to_append.size());
                     new_shape.insert(new_shape.end(), to_prepend.begin(), to_prepend.end());
                     new_shape.insert(new_shape.end(), to_append.begin(), to_append.end());
-                    m_type = TensorType(m_type.GetScalarType(), Shape(new_shape));
+                    m_type = TensorType(m_type.GetScalarType(), FixedShape(new_shape));
                     break;
                 }
             }
         }
     }
 
-    void TensorValue::StripSuperfluousUpperDims(const Shape& i_dest_shape)
+    void TensorValue::StripSuperfluousUpperDims(const FixedShape& i_dest_shape)
     {
-        const Shape & source_shape = m_type.GetFixedShape();
+        const FixedShape & source_shape = m_type.GetFixedShape();
         if(source_shape.GetRank() > i_dest_shape.GetRank())
         {
             const Span<const Integer> source_dims = source_shape.GetDimensions();
@@ -147,7 +147,7 @@ namespace liquid
 
             if (leading_ones > 0)
             {
-                m_type = TensorType(m_type.GetScalarType(), Shape(source_dims.subspan(leading_ones)));
+                m_type = TensorType(m_type.GetScalarType(), FixedShape(source_dims.subspan(leading_ones)));
             }
         }
     }
@@ -156,7 +156,7 @@ namespace liquid
     {
         auto shape_and_type = i_scalars.GetShapeAndType();
         m_type = TensorType(shape_and_type.second, Span<const Integer>(shape_and_type.first));
-        const Shape& shape = m_type.GetFixedShape();
+        const FixedShape& shape = m_type.GetFixedShape();
         switch (m_type.GetScalarType())
         {
         case ScalarType::Real:
@@ -199,13 +199,13 @@ namespace liquid
         DynamicConstantWrapping();
     }
 
-    TensorValue::TensorValue(const TensorInitializer & i_initializer, const Shape & i_shape)
+    TensorValue::TensorValue(const TensorInitializer & i_initializer, const FixedShape & i_shape)
     {
         SetFromInitializer(i_initializer);
 
         UnflattenLowerDim(i_shape);
 
-        const Shape broadcasted = Broadcast({ m_type.GetFixedShape(), i_shape });
+        const FixedShape broadcasted = Broadcast({ m_type.GetFixedShape(), i_shape });
         m_type = TensorType(m_type.GetScalarType(), broadcasted);
 
         StripSuperfluousUpperDims(i_shape);
@@ -220,7 +220,7 @@ namespace liquid
     }
 
     template <typename SCALAR_TYPE>
-        bool EqualsImpl(const Shape & i_shape, const TensorValue & i_first, const TensorValue & i_second)
+        bool EqualsImpl(const FixedShape & i_shape, const TensorValue & i_first, const TensorValue & i_second)
     {
         for (Indices indices = i_shape; indices; indices++)
             if (indices.At<SCALAR_TYPE>(i_first) != indices.At<SCALAR_TYPE>(i_second))

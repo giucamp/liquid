@@ -15,7 +15,7 @@ namespace liquid
     template <typename SCALAR_TYPE>
         TensorValue IfEvaluate(const TensorType& i_result_type, Span<const TensorValue> i_operands)
     {
-        const Shape& result_shape = i_result_type.GetFixedShape();
+        const FixedShape& result_shape = i_result_type.GetFixedShape();
         SharedArray<SCALAR_TYPE> result(static_cast<size_t>(result_shape.GetLinearSize()));
 
         /*for (Indices indices(result_shape); indices; indices++)

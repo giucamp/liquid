@@ -4,21 +4,21 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "shape.h"
+#include "fixed_shape.h"
 
 namespace liquid
 {
     void ValidateDimensions(Span<const Integer> i_dimensions)
     {
         for(size_t i = 0; i < i_dimensions.size(); i++)
-            if(i_dimensions[i] <= 0)
+            if(i_dimensions[i] < 0)
                 Panic("ValidateDimensions - bad shape, ", i, "-th dimension is ", i_dimensions[i]);
     }
 
     void ValidateStrides(Span<const Integer> i_stride)
     {
         for (size_t i = 0; i < i_stride.size(); i++)
-            if (i_stride[i] <= 0)
+            if (i_stride[i] < 0)
                 Panic("ValidateStrides - bad strides, ", i, "-th stride is ", i_stride[i]);
     }
 
@@ -78,10 +78,10 @@ namespace liquid
         return linear_index;
     }
 
-    std::optional<Shape> TryBroadcast(Span<const Shape> i_shapes)
+    std::optional<FixedShape> TryBroadcast(Span<const FixedShape> i_shapes)
     {
         Integer rank = 0;
-        for (const Shape& shape : i_shapes)
+        for (const FixedShape& shape : i_shapes)
             if (shape.GetRank() > rank)
                 rank = shape.GetRank();
 
@@ -92,7 +92,7 @@ namespace liquid
             Integer& this_dim = dimensions[static_cast<size_t>(dim_index)];
             for (size_t shape_index = 0; shape_index < i_shapes.size(); shape_index++)
             {
-                Shape const& shape = i_shapes[shape_index];
+                FixedShape const& shape = i_shapes[shape_index];
                 Integer const rank_offset = rank - shape.GetRank();
                 if (dim_index >= rank_offset)
                 {
@@ -107,34 +107,34 @@ namespace liquid
             }
         }
 
-        return Shape{ dimensions };
+        return FixedShape{ dimensions };
     }
 
-    Shape Broadcast(Span<const Shape> i_shapes)
+    FixedShape Broadcast(Span<const FixedShape> i_shapes)
     {
         if(auto result = TryBroadcast(i_shapes))
             return *result;
         Panic("Broadcast failure");
     }
 
-    Shape::Shape(std::initializer_list<Integer> i_initializer_list)
+    FixedShape::FixedShape(std::initializer_list<Integer> i_initializer_list)
         : m_dimensions(i_initializer_list), m_strides(i_initializer_list.size() + 1)
     {
         ComputeStrides(m_dimensions, m_strides);
     }
 
-    Shape::Shape(Span<const Integer> i_initializer_list)
+    FixedShape::FixedShape(Span<const Integer> i_initializer_list)
         : m_dimensions(i_initializer_list), m_strides(i_initializer_list.size() + 1)
     {
         ComputeStrides(m_dimensions, m_strides);
     }
 
-    Integer Shape::GetPhysicalLinearIndex(Span<const Integer> i_indices) const
+    Integer FixedShape::GetPhysicalLinearIndex(Span<const Integer> i_indices) const
     {
         return liquid::GetPhysicalLinearIndex(i_indices, m_dimensions, m_strides);
     }
 
-    std::ostream & operator << (std::ostream & i_ostream, const Shape & i_shape)
+    std::ostream & operator << (std::ostream & i_ostream, const FixedShape & i_shape)
     {
         i_ostream << "[" << i_shape.GetDimensions() << "]";
         return i_ostream;

@@ -12,7 +12,7 @@
 
 namespace liquid
 {
-    std::optional<Tensor> CastSimplify(const Tensor & i_cast)
+    std::optional<Tensor> CastCanonicalize(const Tensor & i_cast)
     {
         auto const & source = i_cast.GetExpression()->GetOperands().at(0);
         auto const source_type = source.GetExpression()->GetType().GetScalarType();
@@ -36,7 +36,7 @@ namespace liquid
     template <typename DEST_TYPE, typename SOURCE_TYPE>
         TensorValue CastEvaluateImpl(const TensorValue & i_source)
     {
-        const Shape & result_shape = i_source.GetShape();
+        const FixedShape & result_shape = i_source.GetShape();
 
         SharedArray<DEST_TYPE> result(static_cast<size_t>(result_shape.GetLinearSize()));
         for (Indices indices(result_shape); indices; indices++)
@@ -51,7 +51,7 @@ namespace liquid
             Span<const TensorValue> i_operands,
             [[maybe_unused]] Span<const TensorValue> i_attributes)
     {
-        const Shape & result_shape = i_result_type.GetFixedShape();        
+        const FixedShape & result_shape = i_result_type.GetFixedShape();        
         auto const dest_type = std::any_cast<ScalarType>(i_attachment);
         if(i_result_type.GetScalarType() != dest_type)
             Panic("CastEvaluate - internal error - mismatching types");
@@ -75,7 +75,7 @@ namespace liquid
             .SetDeduceType(CastDeduceType)
             .AddOverload({ CastEvaluate<Real>, { GetScalarType<Real>() }, { "Source" }, 0 })
             .AddOverload({ CastEvaluate<Integer>, { GetScalarType<Integer>() }, { "Source" }, 0 })
-            .SetSimplify(CastSimplify);
+            .SetCanonicalize(CastCanonicalize);
         return op;
     }
 

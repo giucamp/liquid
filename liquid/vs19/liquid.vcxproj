@@ -29,9 +29,11 @@
     <ClCompile Include="..\private\operators\constant.cpp" />
     <ClCompile Include="..\private\operators\equal.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
+    <ClCompile Include="..\private\operators\rank.cpp" />
+    <ClCompile Include="..\private\operators\shape.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />
     <ClCompile Include="..\private\tensor_initializer.cpp" />
-    <ClCompile Include="..\private\shape.cpp" />
+    <ClCompile Include="..\private\fixed_shape.cpp" />
     <ClCompile Include="..\private\tensor.cpp" />
     <ClCompile Include="..\private\tensor_type.cpp" />
     <ClCompile Include="..\private\tensor_value.cpp" />
@@ -44,7 +46,7 @@
     <ClInclude Include="..\private\expression.h" />
     <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\operator.h" />
-    <ClInclude Include="..\private\shape.h" />
+    <ClInclude Include="..\private\fixed_shape.h" />
     <ClInclude Include="..\private\shared_array.h" />
     <ClInclude Include="..\private\tensor_type.h" />
     <ClInclude Include="..\private\tensor_value.h" />

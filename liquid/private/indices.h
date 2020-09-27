@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "liquid/liquid_common.h"
-#include "shape.h"
+#include "fixed_shape.h"
 #include "tensor_value.h"
 #include "liquid/tensor_initializer.h"
 
@@ -18,7 +18,7 @@ namespace liquid
     {
     public:
 
-        Indices(const Shape & i_shape);
+        Indices(const FixedShape & i_shape);
 
         Indices & operator ++ ()
         {
@@ -89,7 +89,7 @@ namespace liquid
         void DbgCheck();
 
     private:
-        Shape m_shape;
+        FixedShape m_shape;
         std::vector<Integer> m_indices;
         Integer m_logical_linear_index = 0;
     };

@@ -18,9 +18,6 @@
     <ClInclude Include="..\private\tensor_value.h">
       <Filter>private</Filter>
     </ClInclude>
-    <ClInclude Include="..\private\shape.h">
-      <Filter>private</Filter>
-    </ClInclude>
     <ClInclude Include="..\private\shared_array.h">
       <Filter>private</Filter>
     </ClInclude>
@@ -51,12 +48,12 @@
     <ClInclude Include="..\public\liquid\tensor_initializer.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\fixed_shape.h">
+      <Filter>private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\private\shape.cpp">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\private\liquid.cpp">
@@ -112,6 +109,15 @@
     </ClCompile>
     <ClCompile Include="..\private\tensor_initializer.cpp">
       <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\shape.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\fixed_shape.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\rank.cpp">
+      <Filter>private\operators</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -25,9 +25,15 @@ namespace liquid
         return *this;
     }
 
-    Operator & Operator::SetSimplify(const SimplifyFunction& i_func)
+    Operator & Operator::SetCanonicalize(CanonicalizeFunction i_func)
     {
-        m_simpily_func = i_func;
+        m_canonicalize_func = i_func;
+        return *this;
+    }
+
+    Operator & Operator::SetEligibleForPropagation(EligibleForPropagation i_func)
+    {
+        m_eligible_for_propagation = i_func;
         return *this;
     }
 
@@ -37,7 +43,7 @@ namespace liquid
         return *this;
     }
 
-    Operator & Operator::AddOverload(const Overload& i_overload)
+    Operator & Operator::AddOverload(const Overload & i_overload)
     {
         if(i_overload.m_variadic_parameters_count > i_overload.m_parameter_types.size())
             Panic("Badformed overload");
@@ -142,6 +148,12 @@ namespace liquid
         return Invoke({}, {}, i_operands, i_attributes, i_attachment);
     }
 
+    Tensor Operator::Invoke(const Tensor & i_single_operand, Span<const Tensor> i_attributes,
+        const std::any & i_attachment) const
+    {
+        return Invoke({}, {}, { i_single_operand }, i_attributes, i_attachment);
+    }
+
     std::vector<TensorValue> Operator::ToValues(Span<const Tensor> i_tensors)
     {
         std::vector<TensorValue> values;
@@ -151,20 +163,44 @@ namespace liquid
         return values;
     }
 
+    bool Operator::IsEligibleForPropagation(const std::any & i_attachment,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const
+    {
+        if (m_eligible_for_propagation)
+        {
+            return m_eligible_for_propagation(i_attachment, i_operands, i_attributes);
+        }
+        else
+        {
+            return this != &GetOperatorConstant() &&
+                std::all_of(i_operands.begin(), i_operands.end(), IsConstant) &&
+                std::all_of(i_attributes.begin(), i_attributes.end(), IsConstant);
+        }
+    }
+
     std::optional<Tensor> Operator::TryConstantPropagation(
         const Overload & i_overload, const TensorType & i_result_type,
         Span<const Tensor> i_operands, Span<const Tensor> i_attributes, 
         const std::any & i_attachment) const
     {
-        if (this != &GetOperatorConstant() &&
-            std::all_of(i_operands.begin(), i_operands.end(), IsConstant) &&
-            std::all_of(i_attributes.begin(), i_attributes.end(), IsConstant))
+        if (IsEligibleForPropagation(i_attachment, i_operands, i_attributes))
         {
             auto const operand_values = ToValues(i_operands);
             auto const attribute_values = ToValues(i_attributes);
             
-            if (std::holds_alternative<EvaluateNoAttributesFunction>(i_overload.m_evaluate))
+            if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
             {
+                if(operand_values.size() != 1)
+                    Panic(m_name, ": evaluate supports only one operand, ", operand_values.size(), " provided");
+                
+                return MakeConstant(std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
+                    (i_result_type, operand_values.at(0)));
+            }
+            else if (std::holds_alternative<EvaluateNoAttributesFunction>(i_overload.m_evaluate))
+            {
+                if (attribute_values.size() != 0)
+                    Panic(m_name, ": evaluate dos not supports attributes, ", attribute_values.size(), " provided");
+                
                 return MakeConstant(std::get<EvaluateNoAttributesFunction>(i_overload.m_evaluate)
                     (i_result_type, operand_values));
             }
@@ -197,9 +233,9 @@ namespace liquid
             i_name, i_doc, type, *this, overload, 
             i_operands, i_attributes, i_attachment ));
 
-        if(m_simpily_func != nullptr)
+        if(m_canonicalize_func != nullptr)
         {
-            if(auto simplified = m_simpily_func(result))
+            if(auto simplified = m_canonicalize_func(result))
                 result = *simplified;
         }
 

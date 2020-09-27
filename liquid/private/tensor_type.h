@@ -9,7 +9,7 @@
 #include <variant>
 #include "liquid/liquid_common.h"
 #include "liquid/tensor.h"
-#include "shape.h"
+#include "fixed_shape.h"
 
 namespace liquid
 {
@@ -17,21 +17,22 @@ namespace liquid
     {
     public:
 
-        TensorType(ScalarType i_scalar_type = ScalarType::Any, std::variant<std::monostate, Shape, Tensor> i_shape = {})
-            : m_scalar_type(i_scalar_type), m_shape(std::move(i_shape))
-                { }
+        TensorType(ScalarType i_scalar_type = ScalarType::Any, 
+            const std::variant<std::monostate, FixedShape, Tensor> & i_shape = {});
 
         ScalarType GetScalarType() const { return m_scalar_type; }
 
         bool HasShape() const { return !std::holds_alternative<std::monostate>(m_shape); }
 
-        bool HasFixedShape() const { return std::holds_alternative<Shape>(m_shape); }
+        bool HasFixedShape() const { return std::holds_alternative<FixedShape>(m_shape); }
 
         bool HasVariableShape() const { return std::holds_alternative<Tensor>(m_shape); }
 
-        const std::variant<std::monostate, Shape, Tensor> & GetShape() const { return m_shape; }
-        const Shape & GetFixedShape() const { return std::get<Shape>(m_shape); }
-        const Tensor& GetVariableShape() const { return std::get<Tensor>(m_shape); }
+        const std::variant<std::monostate, FixedShape, Tensor> & GetShape() const { return m_shape; }
+        
+        const FixedShape & GetFixedShape() const { return std::get<FixedShape>(m_shape); }
+
+        const Tensor & GetVariableShape() const { return std::get<Tensor>(m_shape); }
 
         bool operator == (const TensorType & i_other) const;
 
@@ -43,7 +44,7 @@ namespace liquid
 
     private:
         ScalarType m_scalar_type;
-        std::variant<std::monostate, Shape, Tensor> m_shape;
+        std::variant<std::monostate, FixedShape, Tensor> m_shape;
     };
 
     ScalarType DeduceScalarType(Span<const ScalarType> i_operand_types);

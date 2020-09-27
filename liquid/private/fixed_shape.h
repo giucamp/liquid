@@ -15,13 +15,13 @@
 
 namespace liquid
 {
-    class Shape
+    class FixedShape
     {
     public:
 
-        Shape(std::initializer_list<Integer> i_initializer_list);
+        FixedShape(std::initializer_list<Integer> i_initializer_list);
 
-        Shape(Span<const Integer> i_initializer_list);
+        FixedShape(Span<const Integer> i_initializer_list);
 
         Integer GetRank() const { return static_cast<Integer>(m_dimensions.size()); }
 
@@ -40,14 +40,20 @@ namespace liquid
 
         Span<const Integer> GetStrides() const { return m_strides; }
 
-        bool operator == (const Shape & i_other) const
+        bool operator == (const FixedShape & i_other) const
         {
             return m_dimensions == i_other.m_dimensions;
         }
 
-        bool operator != (const Shape & i_other) const
+        bool operator != (const FixedShape & i_other) const
         {
             return m_dimensions != i_other.m_dimensions;
+        }
+
+        static const FixedShape & Scalar()
+        {
+            static const FixedShape scalar({});
+            return scalar;
         }
 
     private:
@@ -55,7 +61,7 @@ namespace liquid
         SharedArray<Integer> m_strides;
     };
 
-    std::ostream & operator << (std::ostream & i_ostream, const Shape & i_shape);
+    std::ostream & operator << (std::ostream & i_ostream, const FixedShape & i_shape);
 
     /* Strides[i] = Product of Dim[j], for i <= j < rank
        Strides[0] = product of all dimensions
@@ -74,8 +80,8 @@ namespace liquid
         Span<const Integer> i_dimensions,
         Span<const Integer> i_strides);
 
-    std::optional<Shape> TryBroadcast(Span<const Shape> i_shapes);
+    std::optional<FixedShape> TryBroadcast(Span<const FixedShape> i_shapes);
 
-    Shape Broadcast(Span<const Shape> i_shapes);
+    FixedShape Broadcast(Span<const FixedShape> i_shapes);
 
 } // namespace liquid

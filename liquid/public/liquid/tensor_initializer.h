@@ -21,9 +21,6 @@ namespace liquid
         template <typename ELEMENT_TYPE>
             TensorInitializer(std::initializer_list<ELEMENT_TYPE> i_list)
         {
-            if(i_list.size() == 0)
-                Panic("TensorInitializer - zero dimension");
-
             if constexpr (std::is_floating_point_v<ELEMENT_TYPE>)
             {
                 std::vector<Real> scalars(i_list.size());

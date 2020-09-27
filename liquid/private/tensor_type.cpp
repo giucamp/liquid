@@ -37,7 +37,7 @@ namespace liquid
     TensorType DeduceType(Span<const TensorType> i_operand_types)
     {
         std::vector<ScalarType> scalar_types;
-        std::vector<Shape> shapes;
+        std::vector<FixedShape> shapes;
 
         scalar_types.reserve(i_operand_types.size());
         shapes.reserve(i_operand_types.size());
@@ -56,6 +56,17 @@ namespace liquid
             return { scalar_type };
     }
 
+    TensorType::TensorType(ScalarType i_scalar_type, const std::variant<std::monostate, FixedShape, Tensor> & i_shape)
+        : m_scalar_type(i_scalar_type), m_shape(std::move(i_shape))
+    {
+        if (HasVariableShape() && IsConstant(GetVariableShape()))
+        {
+            // the shape is not really variable
+            auto dimensions = ConstantToVector<Integer>(GetVariableShape());
+            m_shape = FixedShape(dimensions);
+        }
+    }
+
     bool TensorType::operator == (const TensorType& i_other) const
     {
         if (m_scalar_type != i_other.m_scalar_type)
@@ -71,7 +82,7 @@ namespace liquid
                 return !m_other.HasShape();
             }
 
-            bool operator () (const Shape & i_shape) const
+            bool operator () (const FixedShape & i_shape) const
             {
                 if (m_other.HasFixedShape())
                     return m_this.GetFixedShape() == m_other.GetFixedShape();

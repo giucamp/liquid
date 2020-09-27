@@ -59,12 +59,6 @@ namespace liquid
 
         ScalarType GetScalarType() const;
 
-        bool HasFixedShape() const;
-
-        Span<const Integer> GetFixedShape() const;
-
-        Integer GetRank() const;
-
     public:
 
         Tensor(std::shared_ptr<const class Expression> && i_expression)
@@ -76,10 +70,17 @@ namespace liquid
         std::shared_ptr<const Expression> m_expression;
     };
 
+    Tensor Rank(const Tensor & i_tensor);
+
+    Tensor Shape(const Tensor & i_tensor);
+
     bool IsConstant(const Tensor & i_tensor);
 
     template <typename SCALAR_TYPE>
-        Span<const SCALAR_TYPE> GetConstantElements(const Tensor & i_tensor);
+        Span<const SCALAR_TYPE> GetConstantStorage(const Tensor & i_tensor);
+
+    template <typename SCALAR_TYPE>
+        std::vector<SCALAR_TYPE> ConstantToVector(const Tensor & i_tensor);
 
     bool Always(const Tensor & i_bool_tensor);
     
