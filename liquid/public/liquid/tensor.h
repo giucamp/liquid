@@ -24,6 +24,15 @@ namespace liquid
     {
     public:
 
+        Tensor(const TensorInitializer & i_scalars);
+
+        Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape);
+
+        Tensor(std::string_view i_liquid_code, ScalarType i_scalar_type = ScalarType::Any);
+
+        Tensor(std::string_view i_liquid_code, Span<const Integer> i_shape, 
+            ScalarType i_scalar_type = ScalarType::Any);
+
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
             Tensor(const SCALAR & i_scalar)
                 : Tensor(TensorInitializer({i_scalar}), Span<const Integer>{}) { }
@@ -32,9 +41,21 @@ namespace liquid
             Tensor(const SCALAR & i_scalar, Span<const Integer> i_shape)
                 : Tensor(TensorInitializer({ i_scalar }), i_shape) { }
 
-        Tensor(const TensorInitializer & i_scalars);
+        // std::initializer_list - rank 1
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(std::initializer_list<SCALAR> i_vector, Span<const Integer> i_shape)
+                : Tensor(TensorInitializer(i_vector), i_shape) { }
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(std::initializer_list<SCALAR> i_vector)
+                : Tensor(TensorInitializer(i_vector)) { }
 
-        Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape);
+        // std::initializer_list - rank 2
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(std::initializer_list<std::initializer_list<SCALAR>> i_matrix, Span<const Integer> i_shape)
+                : Tensor(TensorInitializer(i_matrix), i_shape) { }
+        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
+            Tensor(std::initializer_list<std::initializer_list<SCALAR>> i_matrix)
+                : Tensor(TensorInitializer(i_matrix)) { }
 
         ScalarType GetScalarType() const;
 

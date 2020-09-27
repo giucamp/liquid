@@ -50,9 +50,12 @@ namespace liquid
             this_type = ScalarType::Bool;
         else if (Is<TensorInitializer>())
         {
-            auto const& elements = std::get<std::vector<TensorInitializer>>(m_elements);
+            auto const & elements = std::get<std::vector<TensorInitializer>>(m_elements);
             for(const TensorInitializer & initializer : elements)
+            {
                 initializer.GetShapeAndTypeImpl(i_curr_dim + 1, o_shape, o_type);
+                this_type = o_type;
+            }
         }
 
         if (this_type != o_type)

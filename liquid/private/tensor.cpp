@@ -9,16 +9,27 @@
 
 namespace liquid
 {
-    Tensor::Tensor(const TensorInitializer& i_scalars)
+    Tensor::Tensor(const TensorInitializer & i_scalars)
         : m_expression(MakeConstant(TensorValue(i_scalars)).GetExpression())
     {
 
     }
 
-    Tensor::Tensor(const TensorInitializer& i_scalars, Span<const Integer> i_shape)
+    Tensor::Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape)
         : m_expression(MakeConstant(TensorValue(i_scalars, i_shape)).GetExpression())
     {
 
+    }
+
+    Tensor::Tensor(std::string_view i_liquid_code, ScalarType i_scalar_type)
+    {
+        Panic("To do");
+    }
+
+    Tensor::Tensor(std::string_view i_liquid_code, Span<const Integer> i_shape,
+        ScalarType i_scalar_type)
+    {
+        Panic("To do");
     }
 
     ScalarType Tensor::GetScalarType() const

@@ -29,12 +29,12 @@ namespace liquid
 
         Integer GetPhysicalLinearIndex(Span<const Integer> i_indices) const;
 
-        Integer GetDimension(Integer i_index) const { return m_dimensions[NumericCast<size_t>(i_index)]; }
+        Integer GetDimension(Integer i_index) const { return m_dimensions.at(NumericCast<size_t>(i_index)); }
 
         Integer GetDimensionBackward(Integer i_backward_index) const 
-            { return m_dimensions[NumericCast<size_t>(GetRank() - 1 - i_backward_index)]; }
+            { return m_dimensions.at(NumericCast<size_t>(GetRank() - 1 - i_backward_index)); }
 
-        Integer GetStride(Integer i_index) const { return m_strides[static_cast<size_t>(i_index)]; }
+        Integer GetStride(Integer i_index) const { return m_strides.at(static_cast<size_t>(i_index)); }
 
         Span<const Integer> GetDimensions() const { return m_dimensions; }
 

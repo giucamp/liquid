@@ -60,8 +60,8 @@ namespace liquid
         if (i_indices.size() < i_dimensions.size())
             Panic("LinearIndex - Too few indices");
 
-        if (i_indices.size() > i_strides.size())
-            i_indices = i_indices.subspan(i_indices.size() - i_strides.size());
+        if (i_indices.size() > i_dimensions.size())
+            i_indices = i_indices.subspan(i_indices.size() - i_dimensions.size());
 
         Integer linear_index = 0;
         for (size_t i = 0; i < i_indices.size(); i++)

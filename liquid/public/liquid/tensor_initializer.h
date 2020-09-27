@@ -47,9 +47,10 @@ namespace liquid
             }
             else
             {
-                std::vector<TensorInitializer> elements(i_list.size());
+                std::vector<TensorInitializer> elements;
+                elements.reserve(i_list.size());
                 for (size_t i = 0; i < i_list.size(); i++)
-                    elements[i] = TensorInitializer(i_list.begin()[i]);
+                    elements.emplace_back<TensorInitializer>(i_list.begin()[i]);
                 m_elements = std::move(elements);
             }
         }
@@ -65,16 +66,15 @@ namespace liquid
 
         template <typename ELEMENT_TYPE>
             bool Is() const
-                { return std::holds_alternative<std::vector<ELEMENT_TYPE>>(m_elements); }
+        { 
+            return std::holds_alternative<std::vector<ELEMENT_TYPE>>(m_elements); 
+        }
 
         template <typename ELEMENT_TYPE>
             ELEMENT_TYPE At(Span<const Integer> i_indices) const
         {
             if(i_indices.size() != static_cast<size_t>(GetRank()))
                 Panic("TensorInitializer - wrong number of indices");
-            
-            if (!Is<ELEMENT_TYPE>())
-                Panic("TensorInitializer - wrong scalar type");
 
             const TensorInitializer * curr = this;
             while (i_indices.size() > 1)
@@ -83,6 +83,10 @@ namespace liquid
                 curr = &elements.at(NumericCast<size_t>(i_indices[0]));
                 i_indices = i_indices.subspan(1);
             }
+
+            if (!curr->Is<ELEMENT_TYPE>())
+                Panic("TensorInitializer - wrong scalar type");
+
             auto const & elements = std::get<std::vector<ELEMENT_TYPE>>(curr->m_elements);
             return elements.at(NumericCast<size_t>(i_indices[0]));
         }

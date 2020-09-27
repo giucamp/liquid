@@ -68,8 +68,15 @@ namespace liquid
         template <typename SCALAR_TYPE>
             const SCALAR_TYPE & At(const TensorValue & i_tensor_value) const
         {
-            Integer const physical_linear_index = i_tensor_value.GetShape().GetPhysicalLinearIndex(m_indices);
-            return i_tensor_value.GetAs<SCALAR_TYPE>()[static_cast<size_t>(physical_linear_index)];
+            Integer const physical_linear_index = static_cast<size_t>(
+                i_tensor_value.GetShape().GetPhysicalLinearIndex(m_indices));
+
+            Span<SCALAR_TYPE const> const elements = i_tensor_value.GetAs<SCALAR_TYPE>();
+            
+            // constant reduction wraps the storage
+            size_t const modulo_index = physical_linear_index % elements.size();
+            
+            return elements.at(modulo_index);
         }
 
         template <typename SCALAR_TYPE>

@@ -20,8 +20,17 @@ namespace liquid
             LIQUID_ASSERT(t.HasFixedShape());
             LIQUID_ASSERT(t.GetFixedShape().content_equals({}));
             LIQUID_ASSERT(t.GetScalarType() == ScalarType::Real);
-
+            LIQUID_ASSERT(GetConstantElements<Real>(t).content_equals({ 2.0 }));
             LIQUID_ASSERT(t + 3.0 == 5.0); 
+        }
+
+        {
+            Tensor t(2.0, {3, 9});
+            LIQUID_ASSERT(t.HasFixedShape());
+            LIQUID_ASSERT(t.GetFixedShape().content_equals({3, 9}));
+            LIQUID_ASSERT(t.GetScalarType() == ScalarType::Real);
+            LIQUID_ASSERT(GetConstantElements<Real>(t).content_equals({ 2.0 }));
+            LIQUID_ASSERT(t + 3.0 == 5.0);
         }
 
         {
@@ -29,6 +38,14 @@ namespace liquid
             LIQUID_ASSERT(t.HasFixedShape());
             LIQUID_ASSERT(t.GetFixedShape().content_equals({2, 3}));
             LIQUID_ASSERT(t.GetScalarType() == ScalarType::Integer);
+        }
+
+        {
+            
+            Tensor t({ { 1., 2., 3., 4., 5., 6. }, { 6., 5., 4., 3., 2., 1. } });
+            LIQUID_ASSERT(t.HasFixedShape());
+            LIQUID_ASSERT(t.GetFixedShape().content_equals({ 2, 6 }));
+            LIQUID_ASSERT(t.GetScalarType() == ScalarType::Real);
         }
 
         {

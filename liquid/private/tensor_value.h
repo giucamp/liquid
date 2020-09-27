@@ -75,13 +75,13 @@ namespace liquid
         void SetFromInitializer(const TensorInitializer& i_scalars);
 
         template <typename SCALAR_TYPE>
-            static size_t ConstantReduction(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars);
+            static size_t ConstantWrapping(const Shape & i_shape, Span<const SCALAR_TYPE> i_scalars);
 
-        void UntypedShapedReduction();
+        void DynamicConstantWrapping();
 
         void UnflattenLowerDim(const Shape & i_dest_shape);
 
-        void Strip1UpperDims(const Shape& i_dest_shape);
+        void StripSuperfluousUpperDims(const Shape& i_dest_shape);
 
     private:
         TensorType m_type;
