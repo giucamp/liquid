@@ -19,9 +19,18 @@ namespace liquid
         return { ScalarType::Integer, { Rank(i_operands.at(0)) } };
     }
 
-    TensorValue ShapeEvaluate(const TensorType & i_result_type, const TensorValue & i_source)
+    bool ShapeEligibleForPropagation(const std::any & i_attachment,
+        Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
     {
-        const FixedShape & source_shape = i_source.GetShape();
+        const TensorType & type = i_operands.at(0).GetExpression()->GetType();
+        return type.HasFixedShape();
+    }
+
+    TensorValue ShapeEvaluate([[maybe_unused]] const std::any & i_attachment,
+        const TensorType & i_result_type, Span<const Tensor> i_operands,
+        [[maybe_unused]] Span<const Tensor> i_attributes)
+    {
+        const FixedShape & source_shape = i_operands.at(0).GetExpression()->GetType().GetFixedShape();
         const FixedShape & result_shape = i_result_type.GetFixedShape();
         Span<const Integer> const source_dimensions = source_shape.GetDimensions();
 
@@ -36,6 +45,7 @@ namespace liquid
     {
         static auto const op = Operator("Shape")
             .SetDeduceType(ShapeDeduceType)
+            .SetEligibleForPropagation(ShapeEligibleForPropagation)
             .AddOverload({ ShapeEvaluate, { GetScalarType<Real>() }, { "Source" } })
             .AddOverload({ ShapeEvaluate, { GetScalarType<Integer>() }, { "Source" } })
             .AddOverload({ ShapeEvaluate, { GetScalarType<Bool>() }, { "Source" } });

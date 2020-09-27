@@ -178,6 +178,47 @@ namespace liquid
         }
     }
 
+    TensorValue Operator::Evaluate(const Overload & i_overload, const TensorType & i_result_type,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
+            const std::any & i_attachment) const
+    {
+        if (std::holds_alternative<EvaluateFromVariablesFunction>(i_overload.m_evaluate))
+        {
+            return std::get<EvaluateFromVariablesFunction>(i_overload.m_evaluate)
+                (i_attachment, i_result_type, i_operands, i_attributes);
+        }
+
+        auto const operand_values = ToValues(i_operands);
+        auto const attribute_values = ToValues(i_attributes);
+
+        if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
+        {
+            if(operand_values.size() != 1)
+                Panic(m_name, ": evaluate supports only one operand, ", operand_values.size(), " provided");
+
+            return std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
+                (i_result_type, operand_values.at(0));
+        }
+        else if (std::holds_alternative<EvaluateNoAttributesFunction>(i_overload.m_evaluate))
+        {
+            if (attribute_values.size() != 0)
+                Panic(m_name, ": evaluate dos not supports attributes, ", attribute_values.size(), " provided");
+
+            return std::get<EvaluateNoAttributesFunction>(i_overload.m_evaluate)
+                (i_result_type, operand_values);
+        }
+        else if(std::holds_alternative<EvaluateFunction>(i_overload.m_evaluate))
+        {
+            return std::get<EvaluateFunction>(i_overload.m_evaluate)
+                (i_result_type, operand_values, attribute_values);
+        }
+        else if (std::holds_alternative<EvaluateWithAttachmentFunction>(i_overload.m_evaluate))
+        {
+            return std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
+                (i_attachment, i_result_type, operand_values, attribute_values);
+        }
+    }
+
     std::optional<Tensor> Operator::TryConstantPropagation(
         const Overload & i_overload, const TensorType & i_result_type,
         Span<const Tensor> i_operands, Span<const Tensor> i_attributes, 
@@ -185,35 +226,8 @@ namespace liquid
     {
         if (IsEligibleForPropagation(i_attachment, i_operands, i_attributes))
         {
-            auto const operand_values = ToValues(i_operands);
-            auto const attribute_values = ToValues(i_attributes);
-            
-            if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
-            {
-                if(operand_values.size() != 1)
-                    Panic(m_name, ": evaluate supports only one operand, ", operand_values.size(), " provided");
-                
-                return MakeConstant(std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
-                    (i_result_type, operand_values.at(0)));
-            }
-            else if (std::holds_alternative<EvaluateNoAttributesFunction>(i_overload.m_evaluate))
-            {
-                if (attribute_values.size() != 0)
-                    Panic(m_name, ": evaluate dos not supports attributes, ", attribute_values.size(), " provided");
-                
-                return MakeConstant(std::get<EvaluateNoAttributesFunction>(i_overload.m_evaluate)
-                    (i_result_type, operand_values));
-            }
-            else if(std::holds_alternative<EvaluateFunction>(i_overload.m_evaluate))
-            {
-                return MakeConstant(std::get<EvaluateFunction>(i_overload.m_evaluate)
-                    (i_result_type, operand_values, attribute_values) );
-            }
-            else if (std::holds_alternative<EvaluateWithAttachmentFunction>(i_overload.m_evaluate))
-            {
-                return MakeConstant(std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
-                    (i_attachment, i_result_type, operand_values, attribute_values));
-            }
+            return MakeConstant(Evaluate(i_overload, i_result_type, 
+                i_operands, i_attributes, i_attachment));
         }
         return {};
     }

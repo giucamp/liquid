@@ -56,23 +56,30 @@ namespace liquid
 
                 // evaluation
 
+        using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment,
+            const TensorType & i_result_type, Span<const TensorValue> i_operands,
+            Span<const TensorValue> i_attributes);
+
+        using EvaluateFromVariablesFunction = TensorValue(*)(const std::any & i_attachment,
+            const TensorType & i_result_type, Span<const Tensor> i_operands,
+            Span<const Tensor> i_attributes);
+
+        using EvaluateFunction = TensorValue(*)(const TensorType & i_result_type,
+            Span<const TensorValue> i_operands, Span<const TensorValue> i_attributes);
+
         using EvaluateNoAttributesFunction = TensorValue(*)(const TensorType & i_result_type,
             Span<const TensorValue> i_operands);
 
         using EvaluateSingleArgument = TensorValue(*)(const TensorType & i_result_type,
             const TensorValue & i_operand);
 
-        using EvaluateFunction = TensorValue(*)(const TensorType & i_result_type,
-            Span<const TensorValue> i_operands, Span<const TensorValue> i_attributes);
 
-        using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment,
-            const TensorType & i_result_type, Span<const TensorValue> i_operands, 
-            Span<const TensorValue> i_attributes);
 
         struct Overload
         {
             std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
-                EvaluateSingleArgument, EvaluateWithAttachmentFunction> m_evaluate = {};
+                EvaluateSingleArgument, EvaluateWithAttachmentFunction,
+                EvaluateFromVariablesFunction> m_evaluate = {};
             std::vector<TensorType> m_parameter_types;
             std::vector<std::string> m_parameter_names;
             size_t m_variadic_parameters_count = {};
@@ -94,6 +101,7 @@ namespace liquid
 
         Operator & SetEligibleForPropagation(EligibleForPropagation i_func);
 
+
             // gradient of operand
 
         using GradientOfOperandFunction = Tensor(*)(const Tensor & i_self, const Tensor & i_self_gradient, size_t i_operand_index);
@@ -114,7 +122,7 @@ namespace liquid
         bool IsEligibleForPropagation(const std::any & i_attachment, 
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const;
 
-        static bool OverloadMatch(const Operator::Overload& i_overload, 
+        static bool OverloadMatch(const Operator::Overload & i_overload, 
             Span<const Tensor> i_operands, OverloadMatchFlags i_flags);
 
         const Overload * TryFindOverload(Span<const Tensor> i_operands, OverloadMatchFlags i_flags) const;
@@ -122,9 +130,13 @@ namespace liquid
         const Overload & FindOverload(Span<const Tensor> i_operands) const;
 
         std::optional<Tensor> TryConstantPropagation(
-            const Overload& i_overload, const TensorType & i_result_type,
+            const Overload & i_overload, const TensorType & i_result_type,
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-            const std::any& i_attachment) const;
+            const std::any & i_attachment) const;
+
+        TensorValue Evaluate(const Overload & i_overload, const TensorType & i_result_type,
+            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
+            const std::any & i_attachment) const;
 
         static std::vector<TensorValue> ToValues(Span<const Tensor> i_tensors);
 

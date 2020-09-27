@@ -24,6 +24,8 @@ namespace liquid
 
         bool HasShape() const { return !std::holds_alternative<std::monostate>(m_shape); }
 
+        bool HasUndefinedShape() const { return std::holds_alternative<std::monostate>(m_shape); }
+
         bool HasFixedShape() const { return std::holds_alternative<FixedShape>(m_shape); }
 
         bool HasVariableShape() const { return std::holds_alternative<Tensor>(m_shape); }

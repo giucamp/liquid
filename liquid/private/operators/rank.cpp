@@ -19,16 +19,27 @@ namespace liquid
         return { ScalarType::Integer, FixedShape::Scalar() };
     }
 
-    TensorValue RankEvaluate(const TensorType & i_result_type, const TensorValue & i_source)
+    bool RankEligibleForPropagation(const std::any & i_attachment,
+        Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
     {
-        SharedArray<Integer> result = { i_source.GetShape().GetRank() };
-        return TensorValue(std::move(result), i_result_type.GetFixedShape());
+        const TensorType & type = i_operands.at(0).GetExpression()->GetType();
+        return type.HasFixedShape();
+    }
+
+    TensorValue RankEvaluate([[maybe_unused]] const std::any & i_attachment,
+        const TensorType & i_result_type, Span<const Tensor> i_operands,
+        [[maybe_unused]] Span<const Tensor> i_attributes)
+    {
+        const Tensor & operand = i_operands.at(0);
+        const FixedShape & shape = operand.GetExpression()->GetType().GetFixedShape();
+        return TensorValue(SharedArray<Integer>{ shape.GetRank() }, i_result_type.GetFixedShape());
     }
 
     extern const Operator & GetOperatorRank()
     {
         static auto const op = Operator("Rank")
             .SetDeduceType(RankDeduceType)
+            .SetEligibleForPropagation(RankEligibleForPropagation)
             .AddOverload({ RankEvaluate, { GetScalarType<Real>() }, { "Source" } })
             .AddOverload({ RankEvaluate, { GetScalarType<Integer>() }, { "Source" } })
             .AddOverload({ RankEvaluate, { GetScalarType<Bool>() }, { "Source" } });
