@@ -25,7 +25,7 @@ namespace liquid
             if(scalar_count > stride)
             {
                 bool equals = true;
-                for (Integer pos = stride; pos <= scalar_count && equals; pos += stride)
+                for (Integer pos = stride; pos < scalar_count && equals; pos += stride)
                     equals = equals && std::equal(
                         i_scalars.begin(), i_scalars.begin() + stride, i_scalars.begin() + pos);
 

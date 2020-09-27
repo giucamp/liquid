@@ -42,6 +42,14 @@ namespace liquid
         }
 
         {
+            Tensor t({{ 1, 2, 3, 4, 5, 6 }, { 1, 2, 3, 4, 5, 6 }, { 1, 2, 3, 4, 5, 6 } });
+            LIQUID_ASSERT(( GetConstantStorage<Integer>(t).content_equals({ 1, 2, 3, 4, 5, 6 }) ));
+            LIQUID_ASSERT((Rank(t) == 2));
+            LIQUID_ASSERT((Shape(t) == Tensor({ 3, 6 })));
+            LIQUID_ASSERT(t.GetScalarType() == ScalarType::Integer);
+        }
+
+        {
             
             Tensor t({ { 1., 2., 3., 4., 5., 6. }, { 6., 5., 4., 3., 2., 1. } });
             LIQUID_ASSERT(( Rank(t) == 2 ));

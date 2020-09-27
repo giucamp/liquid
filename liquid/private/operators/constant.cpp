@@ -57,6 +57,9 @@ namespace liquid
     template <typename SCALAR_TYPE>
         Span<const SCALAR_TYPE> GetConstantStorage(const Tensor & i_tensor)
     {
+        if(i_tensor.GetScalarType() != GetScalarType<SCALAR_TYPE>())
+            Panic("GetConstantStorage - mismatching type, tensor is ", i_tensor.GetScalarType(),
+                ", requested type ", GetScalarType<SCALAR_TYPE>());
         return GetConstantValue(i_tensor).GetAs<SCALAR_TYPE>();
     }
 
