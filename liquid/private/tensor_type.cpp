@@ -57,7 +57,7 @@ namespace liquid
     }
 
     TensorType::TensorType(ScalarType i_scalar_type, const std::variant<std::monostate, FixedShape, Tensor> & i_shape)
-        : m_scalar_type(i_scalar_type), m_shape(std::move(i_shape))
+        : m_scalar_type(i_scalar_type), m_shape(i_shape)
     {
         if (HasVariableShape() && IsConstant(GetVariableShape()))
         {

@@ -37,12 +37,12 @@ namespace liquid
         return m_expression->GetType().GetScalarType();
     }
 
-    bool Always(const Tensor& i_bool_tensor)
+    bool Always(const Tensor & i_bool_tensor)
     {
         return AlwaysEqual(i_bool_tensor, TensorValue::True());
     }
 
-    bool Never(const Tensor& i_bool_tensor)
+    bool Never(const Tensor & i_bool_tensor)
     {
         return AlwaysEqual(i_bool_tensor, TensorValue::False());
     }

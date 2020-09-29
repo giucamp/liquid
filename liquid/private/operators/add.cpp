@@ -29,8 +29,8 @@ namespace liquid
         return TensorValue(std::move(result), result_shape);
     }
 
-    Tensor AddGradient([[maybe_unused]] const Tensor& i_self,
-        const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
+    Tensor AddGradient([[maybe_unused]] const Tensor & i_self,
+        const Tensor & i_self_gradient, [[maybe_unused]] size_t i_operand_index)
     {
         return i_self_gradient;
     }
@@ -39,6 +39,7 @@ namespace liquid
     {
         static auto const op = Operator("Add")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
+            .SetIdentityElement(0)
             .AddOverload({ AddEvaluate<Real>, { GetScalarType<Real>() }, { "Addend" }, 1 })
             .AddOverload({ AddEvaluate<Integer>, { GetScalarType<Integer>() }, { "Addend" }, 1 })
             .SetGradientOfOperand(AddGradient);
@@ -55,14 +56,30 @@ namespace liquid
         return i_operand;
     }
 
-    Tensor operator + (const Tensor & i_first, const Tensor& i_second)
+    Tensor operator - (const Tensor & i_operand)
     {
-        return Add({i_first, i_second });
+        return i_operand * -1;
     }
 
-    Tensor & operator += (Tensor& i_first, const Tensor& i_second)
+    Tensor operator + (const Tensor & i_first, const Tensor & i_second)
+    {
+        return Add({ i_first, i_second });
+    }
+
+    Tensor operator - (const Tensor & i_first, const Tensor & i_second)
+    {
+        return Add({ i_first, -i_second });
+    }
+
+    Tensor & operator += (Tensor & i_first, const Tensor & i_second)
     {
         i_first = i_first + i_second;
+        return i_first;
+    }
+
+    Tensor & operator -= (Tensor & i_first, const Tensor & i_second)
+    {
+        i_first = i_first - i_second;
         return i_first;
     }
 }

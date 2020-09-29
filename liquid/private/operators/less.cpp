@@ -12,7 +12,7 @@
 
 namespace liquid
 {
-    TensorType EqualDeduceType( [[maybe_unused]] const std::any & i_attachment,
+    TensorType LessDeduceType( [[maybe_unused]] const std::any & i_attachment,
         [[maybe_unused]] Span<const Tensor> i_operands,
         Span<const Tensor> i_attributes)
     {
@@ -26,7 +26,7 @@ namespace liquid
     }
 
     template <typename SCALAR_TYPE>
-        TensorValue EqualEvaluate(const TensorType& i_result_type, Span<const TensorValue> i_operands)
+        TensorValue LessEvaluate(const TensorType& i_result_type, Span<const TensorValue> i_operands)
     {
         const FixedShape& result_shape = i_result_type.GetFixedShape();
         SharedArray<Bool> result(static_cast<size_t>(result_shape.GetLinearSize()));
@@ -35,31 +35,30 @@ namespace liquid
         {
             const SCALAR_TYPE & first = indices.At<SCALAR_TYPE>(i_operands[0]);
             const SCALAR_TYPE & second = indices.At<SCALAR_TYPE>(i_operands[1]);
-            indices[result] = first == second;
+            indices[result] = first < second;
         }
 
         return TensorValue(std::move(result), result_shape);
     }
 
-    extern const Operator& GetOperatorEqual()
+    extern const Operator& GetOperatorLess()
     {
-        static auto const op = Operator("Equal")
-            .AddFlags(Operator::Flags::Commutative)
-            .SetDeduceType(EqualDeduceType)
-            .AddOverload({ EqualEvaluate<Real>, { GetScalarType<Real>() }, { "First", "Second" } })
-            .AddOverload({ EqualEvaluate<Integer>, { GetScalarType<Integer>() }, { "First", "Second" } })
-            .AddOverload({ EqualEvaluate<Bool>, { GetScalarType<Bool>() }, { "First", "Second" } });
+        static auto const op = Operator("Less")
+            .SetDeduceType(LessDeduceType)
+            .AddOverload({ LessEvaluate<Real>, { GetScalarType<Real>() }, { "First", "Second" } })
+            .AddOverload({ LessEvaluate<Integer>, { GetScalarType<Integer>() }, { "First", "Second" } })
+            .AddOverload({ LessEvaluate<Bool>, { GetScalarType<Bool>() }, { "First", "Second" } });
         return op;
     }
 
-    Tensor Equal(const Tensor& i_first, const Tensor& i_second)
+    Tensor Less(const Tensor& i_first, const Tensor& i_second)
     {
-        return GetOperatorEqual().Invoke({ i_first, i_second });
+        return GetOperatorLess().Invoke({ i_first, i_second });
     }
 
-    Tensor operator == (const Tensor& i_first, const Tensor& i_second)
+    Tensor operator < (const Tensor& i_first, const Tensor& i_second)
     {
-        return Equal(i_first, i_second);
+        return Less(i_first, i_second);
     }
 }
 

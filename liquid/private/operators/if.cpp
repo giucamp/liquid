@@ -12,36 +12,113 @@
 
 namespace liquid
 {
-    template <typename SCALAR_TYPE>
-        TensorValue IfEvaluate(const TensorType& i_result_type, Span<const TensorValue> i_operands)
+    TensorType IfDeduceType(const std::any& i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
     {
-        const FixedShape& result_shape = i_result_type.GetFixedShape();
+        size_t const condition_count = i_operands.size() / 2;
+        
+        // only value operands partecipate in scalar type deduction
+        std::vector<ScalarType> scalar_types;
+        scalar_types.reserve(condition_count + 1);
+        for (size_t condition_index = 0; condition_index < condition_count; condition_index++)
+        {
+            const TensorType & value_type = i_operands.at(condition_index * 2 + 1).GetExpression()->GetType();
+            scalar_types.push_back(value_type.GetScalarType());
+        }
+        const TensorType & fallback_value_type = i_operands.back().GetExpression()->GetType();
+        scalar_types.push_back(fallback_value_type.GetScalarType());
+
+        // all operands partecipate in shape deduction
+        std::vector<FixedShape> shapes;
+        shapes.reserve(i_operands.size());
+        for (size_t operand_index = 0; operand_index < i_operands.size(); operand_index++)
+        {
+            const TensorType & operand_type = i_operands[operand_index].GetExpression()->GetType();
+            if(operand_type.HasFixedShape())
+                shapes.push_back(operand_type.GetFixedShape());
+        }
+
+        ScalarType const scalar_type = DeduceScalarType(scalar_types);
+        if(shapes.size() == i_operands.size())
+            return { scalar_type, Broadcast(shapes) };
+        else
+            return { scalar_type };
+    }
+
+    template <typename SCALAR_TYPE>
+        TensorValue IfEvaluate(const TensorType & i_result_type, Span<const TensorValue> i_operands)
+    {
+        size_t const condition_count = i_operands.size() / 2;
+
+        const FixedShape & result_shape = i_result_type.GetFixedShape();
         SharedArray<SCALAR_TYPE> result(static_cast<size_t>(result_shape.GetLinearSize()));
 
-        /*for (Indices indices(result_shape); indices; indices++)
+        /* 'If' is evaluated component-wise: for every element of the conditions we select the
+            corresponding element of a value. */
+        for (Indices indices(result_shape); indices; indices++)
         {
-            SCALAR_TYPE element = {};
-            for (const TensorValue& operand : i_operands)
-                element += indices.At<SCALAR_TYPE>(operand);
-            indices[result] = element;
-        }*/
+            bool assigned = false;
+            for (size_t condition_index = 0; condition_index < condition_count && !assigned; condition_index++)
+            {
+                Bool const condition = indices.At<Bool>(i_operands[condition_index * 2]);
+                if(condition)
+                {
+                    const TensorValue & value = i_operands[condition_index * 2 + 1];
+                    indices[result] = indices.At<SCALAR_TYPE>(value);
+                    assigned = true;
+                }
+            }
+            if(!assigned)
+            {
+                const TensorValue & fallback_value = i_operands.back();
+                indices[result] = indices.At<SCALAR_TYPE>(fallback_value);
+            }
+        }
 
         return TensorValue(std::move(result), result_shape);
     }
 
-    Tensor IfGradient([[maybe_unused]] const Tensor& i_self,
-        const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
+    Tensor IfGradient([[maybe_unused]] const Tensor & i_self,
+        const Tensor & i_self_gradient, [[maybe_unused]] size_t i_operand_index)
     {
-        return i_self_gradient;
+        const std::vector<Tensor> & source_ops = i_self.GetExpression()->GetOperands();
+
+        size_t const operand_count = source_ops.size();
+        if((i_operand_index % 2) == 0 && i_operand_index + 1 != operand_count)
+            Panic("Trying to compute the gradient of a condition");
+        
+        size_t const condition_count = source_ops.size() / 2;
+
+        std::vector<Tensor> grad_ops = source_ops;
+        for (size_t condition_index = 0; condition_index < condition_count; condition_index++)
+        {
+            Tensor & value = grad_ops[condition_index * 2 + 1];
+            if (i_operand_index == condition_index * 2 + 1)
+                value = i_self_gradient;
+            else
+                value = Real{};
+        }
+        
+        if(i_operand_index + 1 == grad_ops.size())
+            grad_ops.back() = i_self_gradient;
+        else
+            grad_ops.back() = Real{};
+
+        return If(grad_ops);
     }
 
     extern const Operator& GetOperatorIf()
     {
         static auto const op = Operator("If")
+            .SetDeduceType(IfDeduceType)
             .AddOverload({ IfEvaluate<Real>, { GetScalarType<Real>() }, { "Condition", "Result", "Fallback" }, 2 })
             .AddOverload({ IfEvaluate<Integer>, { GetScalarType<Integer>() }, { "Condition", "Result", "Fallback" }, 2 })
             .AddOverload({ IfEvaluate<Bool>, { GetScalarType<Bool>() }, { "Condition", "Result", "Fallback" }, 2 })
             .SetGradientOfOperand(IfGradient);
         return op;
+    }
+
+    Tensor If(Span<Tensor const> i_operands)
+    {
+        return GetOperatorIf().Invoke(i_operands);
     }
 }

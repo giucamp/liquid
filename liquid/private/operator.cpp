@@ -58,6 +58,12 @@ namespace liquid
         return *this;
     }
 
+    Operator & Operator::SetIdentityElement(const TensorValue & i_value)
+    {
+        m_identity_element = i_value;
+        return *this;
+    }
+
     TensorType Operator::DefaultDeduceType([[maybe_unused]] const std::any & i_attachment,
         Span<const Tensor> i_operands, [[maybe_unused]] Span<const Tensor> i_attributes)
     {
@@ -217,6 +223,8 @@ namespace liquid
             return std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
                 (i_attachment, i_result_type, operand_values, attribute_values);
         }
+
+        Panic("Operator - internal error - unhandled evaluate function type");
     }
 
     std::optional<Tensor> Operator::TryConstantPropagation(

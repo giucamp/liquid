@@ -84,9 +84,15 @@ namespace liquid
 
     bool Always(const Tensor & i_bool_tensor);
     
-    bool Never(const Tensor& i_bool_tensor);
+    bool Never(const Tensor & i_bool_tensor);
     
     Tensor Add(Span<Tensor const> i_addends);
+    Tensor Mul(Span<Tensor const> i_factors);
+
+    Tensor If(Span<Tensor const> i_operands);
+    Tensor And(Span<Tensor const> i_bool_operands);
+    Tensor Or(Span<Tensor const> i_bool_operands);
+    Tensor Not(Tensor const & i_bool_operand);
 
     Tensor Cast(ScalarType i_dest_scalar_type, const Tensor & i_source);
 
@@ -102,10 +108,19 @@ namespace liquid
     }
 
     Tensor operator + (const Tensor & i_operand);
+    Tensor operator - (const Tensor & i_operand);
 
-    Tensor operator + (const Tensor & i_first, const Tensor& i_second);
+    Tensor operator + (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator - (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator * (const Tensor & i_first, const Tensor & i_second);
+
+    Tensor operator && (const Tensor & i_first_bool, const Tensor & i_second_bool);
+    Tensor operator || (const Tensor & i_first_bool, const Tensor & i_second_bool);
+    Tensor operator ! (const Tensor & i_bool_operand);
 
     Tensor & operator += (Tensor & i_first, const Tensor & i_second);
+    Tensor & operator -= (Tensor & i_first, const Tensor & i_second);
+    Tensor & operator *= (Tensor & i_first, const Tensor & i_second);
 
     Tensor operator == (const Tensor & i_first, const Tensor & i_second);
 

@@ -108,6 +108,11 @@ namespace liquid
 
         Operator & SetGradientOfOperand(GradientOfOperandFunction i_func);
 
+
+            // canonicalization
+
+        Operator & SetIdentityElement(const TensorValue & i_value);
+
     private:
 
         static TensorType DefaultDeduceType(const std::any & i_attachment,
@@ -148,5 +153,6 @@ namespace liquid
         std::vector<Overload> m_overloads = {};
         CanonicalizeFunction m_canonicalize_func = {};
         GradientOfOperandFunction m_gradient_of_input_func = {};
+        std::optional<TensorValue> m_identity_element;
     };
 }
