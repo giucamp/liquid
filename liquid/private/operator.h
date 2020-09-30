@@ -74,19 +74,33 @@ namespace liquid
             const TensorValue & i_operand);
 
 
+        struct Parameter
+        {
+            TensorType m_type;
+            std::string m_name;
+            std::optional<Tensor> m_default_value;
+        };
+
+
+        using VarEvaluateFunction = std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
+            EvaluateSingleArgument, EvaluateWithAttachmentFunction,
+            EvaluateFromVariablesFunction>;
 
         struct Overload
         {
-            std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
-                EvaluateSingleArgument, EvaluateWithAttachmentFunction,
-                EvaluateFromVariablesFunction> m_evaluate = {};
-            std::vector<TensorType> m_parameter_types;
-            std::vector<std::string> m_parameter_names;
+            VarEvaluateFunction m_evaluate = {};
+            std::vector<Parameter> m_parameters;
             size_t m_variadic_parameters_count = {};
         };
 
         Operator & AddOverload(const Overload& i_overload);
 
+        Operator & AddOverload(VarEvaluateFunction i_evaluate, 
+            std::vector<Parameter> i_parameters = {},
+            size_t i_variadic_parameters_count = {})
+        {
+            return AddOverload({i_evaluate, std::move(i_parameters), i_variadic_parameters_count});
+        }
         
             // canonicalization
         
@@ -120,19 +134,28 @@ namespace liquid
 
         enum class OverloadMatchFlags
         {
-            None,
-            AllowNumericPromotion
+            None = 0,
+            AllowNumericPromotion = 1 << 0, /**< consider implicit numeric promotion 
+                for the match */
+            ProcessArguments = 1 << 1 /**< perform implicit numeric promotion 
+                and default argument substitution */
         };
+
+        friend OverloadMatchFlags operator | (OverloadMatchFlags i_first, OverloadMatchFlags i_second)
+            { return CombineFlags(i_first, i_second); }
 
         bool IsEligibleForPropagation(const std::any & i_attachment, 
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const;
 
         static bool OverloadMatch(const Operator::Overload & i_overload, 
-            Span<const Tensor> i_operands, OverloadMatchFlags i_flags);
+            Span<const Tensor> i_operands, OverloadMatchFlags i_flags,
+            std::vector<Tensor> & o_processed_parameters);
 
-        const Overload * TryFindOverload(Span<const Tensor> i_operands, OverloadMatchFlags i_flags) const;
+        const Overload * TryFindOverload(Span<const Tensor> i_operands,
+            OverloadMatchFlags i_flags, std::vector<Tensor> & o_processed_parameters) const;
 
-        const Overload & FindOverload(Span<const Tensor> i_operands) const;
+        const Overload & FindOverload(Span<const Tensor> i_operands, 
+            std::vector<Tensor> & o_processed_parameters) const;
 
         std::optional<Tensor> TryConstantPropagation(
             const Overload & i_overload, const TensorType & i_result_type,

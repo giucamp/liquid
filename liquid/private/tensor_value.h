@@ -45,12 +45,15 @@ namespace liquid
 
         template <typename SCALAR_TYPE> bool Is() const
         {
-            return std::holds_alternative<const SCALAR_TYPE>>(m_scalars);
+            return std::holds_alternative<SharedArray<const SCALAR_TYPE>>(m_scalars);
         }
 
         template <typename SCALAR_TYPE>
             SharedArray<const SCALAR_TYPE> const & GetAs() const
         {
+            if(!Is<SCALAR_TYPE>())
+                Panic("TensorValue - Mismatching scalar type: requested ", liquid::GetScalarType<SCALAR_TYPE>(),
+                    ", the actual type is ", GetScalarType());
             return std::get<SharedArray<const SCALAR_TYPE>>(m_scalars);
         }
 

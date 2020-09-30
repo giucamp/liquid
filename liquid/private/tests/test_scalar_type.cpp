@@ -11,7 +11,7 @@ namespace liquid
 {
     void TestScalarType()
     {
-        std::cout << "TestScalarTypefd...";
+        std::cout << "Test ScalarTypefd...";
 
         LIQUID_ASSERT(GetScalarType<Real>() == ScalarType::Real);
         LIQUID_ASSERT(GetScalarType<Integer>() == ScalarType::Integer);

@@ -15,6 +15,8 @@ namespace liquid
     TensorType IfDeduceType(const std::any& i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
     {
         size_t const condition_count = i_operands.size() / 2;
+
+        // sintax: If([Condition, Value]*, Fallback)
         
         // only value operands partecipate in scalar type deduction
         std::vector<ScalarType> scalar_types;
@@ -110,9 +112,18 @@ namespace liquid
     {
         static auto const op = Operator("If")
             .SetDeduceType(IfDeduceType)
-            .AddOverload({ IfEvaluate<Real>, { GetScalarType<Real>() }, { "Condition", "Result", "Fallback" }, 2 })
-            .AddOverload({ IfEvaluate<Integer>, { GetScalarType<Integer>() }, { "Condition", "Result", "Fallback" }, 2 })
-            .AddOverload({ IfEvaluate<Bool>, { GetScalarType<Bool>() }, { "Condition", "Result", "Fallback" }, 2 })
+            .AddOverload(IfEvaluate<Real>, {
+                { GetScalarType<Bool>(), "Condition" },
+                { GetScalarType<Real>(), "Value" },
+                { GetScalarType<Real>(), "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
+            .AddOverload(IfEvaluate<Integer>, {
+                { GetScalarType<Bool>(), "Condition" },
+                { GetScalarType<Integer>(), "Value" },
+                { GetScalarType<Integer>(), "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
+            .AddOverload(IfEvaluate<Bool>, {
+                { GetScalarType<Bool>(), "Condition" },
+                { GetScalarType<Bool>(), "Value" },
+                { GetScalarType<Bool>(), "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
             .SetGradientOfOperand(IfGradient);
         return op;
     }

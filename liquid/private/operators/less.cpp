@@ -45,20 +45,35 @@ namespace liquid
     {
         static auto const op = Operator("Less")
             .SetDeduceType(LessDeduceType)
-            .AddOverload({ LessEvaluate<Real>, { GetScalarType<Real>() }, { "First", "Second" } })
-            .AddOverload({ LessEvaluate<Integer>, { GetScalarType<Integer>() }, { "First", "Second" } })
-            .AddOverload({ LessEvaluate<Bool>, { GetScalarType<Bool>() }, { "First", "Second" } });
+            .AddOverload(LessEvaluate<Real>, { { GetScalarType<Real>(), "First" }, { GetScalarType<Real>(), "Second" } })
+            .AddOverload(LessEvaluate<Integer>, { { GetScalarType<Integer>(), "First" }, { GetScalarType<Integer>(), "Second" } })
+            .AddOverload(LessEvaluate<Bool>, { { GetScalarType<Bool>(), "First" }, { GetScalarType<Bool>(), "Second" } });
         return op;
     }
 
-    Tensor Less(const Tensor& i_first, const Tensor& i_second)
+    Tensor Less(const Tensor & i_first, const Tensor & i_second)
     {
         return GetOperatorLess().Invoke({ i_first, i_second });
     }
 
-    Tensor operator < (const Tensor& i_first, const Tensor& i_second)
+    Tensor operator < (const Tensor & i_first, const Tensor & i_second)
     {
         return Less(i_first, i_second);
     }
+
+    Tensor operator >= (const Tensor& i_first, const Tensor& i_second)
+    {
+        return !Less(i_first, i_second);
+    }
+
+    Tensor operator <= (const Tensor& i_first, const Tensor& i_second)
+    {
+        return i_first < i_second || i_first == i_second;
+    }
+
+    Tensor operator > (const Tensor & i_first, const Tensor & i_second)
+    {
+        return !(i_first <= i_second);
+    } 
 }
 

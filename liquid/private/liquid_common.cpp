@@ -12,10 +12,10 @@ namespace liquid
     {
         switch (i_scalar_type)
         {
-            case ScalarType::Any: i_ostream << "Any"; break;
-            case ScalarType::Real: i_ostream << "Real"; break;
-            case ScalarType::Integer: i_ostream << "Integer"; break;
-            case ScalarType::Bool: i_ostream << "Bool"; break;
+            case ScalarType::Any: i_ostream << "any"; break;
+            case ScalarType::Real: i_ostream << "real"; break;
+            case ScalarType::Integer: i_ostream << "int"; break;
+            case ScalarType::Bool: i_ostream << "bool"; break;
             default: Panic("Unrecognized scalar type ", static_cast<int>(i_scalar_type));
         }
         return i_ostream;

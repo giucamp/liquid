@@ -75,4 +75,16 @@ namespace liquid
             Panic("NumericCast - Bad cast of ", i_source);
         return result;
     }
+
+    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
+        constexpr FLAGS CombineFlags(FLAGS i_first, FLAGS i_second)
+    {
+        return static_cast<FLAGS>(static_cast<int>(i_first) | static_cast<int>(i_second));
+    }
+
+    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
+        constexpr bool HasFlags(FLAGS i_all, FLAGS i_some)
+    {
+        return (static_cast<int>(i_all) & static_cast<int>(i_some)) == static_cast<int>(i_some);
+    }
 }

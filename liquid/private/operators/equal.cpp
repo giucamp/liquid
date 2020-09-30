@@ -46,9 +46,9 @@ namespace liquid
         static auto const op = Operator("Equal")
             .AddFlags(Operator::Flags::Commutative)
             .SetDeduceType(EqualDeduceType)
-            .AddOverload({ EqualEvaluate<Real>, { GetScalarType<Real>() }, { "First", "Second" } })
-            .AddOverload({ EqualEvaluate<Integer>, { GetScalarType<Integer>() }, { "First", "Second" } })
-            .AddOverload({ EqualEvaluate<Bool>, { GetScalarType<Bool>() }, { "First", "Second" } });
+            .AddOverload(EqualEvaluate<Real>, { { GetScalarType<Real>(), "First" }, { GetScalarType<Real>(), "Second" } })
+            .AddOverload(EqualEvaluate<Integer>, { { GetScalarType<Integer>(), "First" }, { GetScalarType<Integer>(), "Second" } })
+            .AddOverload(EqualEvaluate<Bool>, { { GetScalarType<Bool>(), "First" }, { GetScalarType<Bool>(), "Second" } });
         return op;
     }
 
@@ -60,6 +60,11 @@ namespace liquid
     Tensor operator == (const Tensor& i_first, const Tensor& i_second)
     {
         return Equal(i_first, i_second);
+    }
+
+    Tensor operator != (const Tensor& i_first, const Tensor& i_second)
+    {
+        return !Equal(i_first, i_second);
     }
 }
 

@@ -42,8 +42,8 @@ namespace liquid
         static auto const op = Operator("Mul")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(1)
-            .AddOverload({ MulEvaluate<Real>, { GetScalarType<Real>() }, { "Factor" }, 1 })
-            .AddOverload({ MulEvaluate<Integer>, { GetScalarType<Integer>() }, { "Factor" }, 1 })
+            .AddOverload(MulEvaluate<Real>, { {GetScalarType<Real>(), "Factor"} }, 1)
+            .AddOverload(MulEvaluate<Integer>, { {GetScalarType<Integer>(), "Factor"} }, 1)
             .SetGradientOfOperand(MulGradient);
         return op;
     }

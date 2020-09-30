@@ -13,7 +13,7 @@ namespace liquid
 {
     void TestTensor()
     {
-        std::cout << "TestTensor...";
+        std::cout << "Test Tensor...";
 
         {
             Tensor t = 2.0;
@@ -59,6 +59,8 @@ namespace liquid
 
         {
             Tensor t({1.0, 2.0});
+
+            LIQUID_ASSERT(( Add(t) == Tensor({1, 2}) ));
         }
 
         std::cout << "done" << std::endl;

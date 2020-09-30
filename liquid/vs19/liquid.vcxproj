@@ -43,6 +43,7 @@
     <ClCompile Include="..\private\tensor_type.cpp" />
     <ClCompile Include="..\private\tensor_value.cpp" />
     <ClCompile Include="..\private\tests\tests.cpp" />
+    <ClCompile Include="..\private\tests\test_if.cpp" />
     <ClCompile Include="..\private\tests\test_indices.cpp" />
     <ClCompile Include="..\private\tests\test_scalar_type.cpp" />
     <ClCompile Include="..\private\tests\test_tensor.cpp" />

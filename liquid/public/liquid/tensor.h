@@ -87,11 +87,51 @@ namespace liquid
     bool Never(const Tensor & i_bool_tensor);
     
     Tensor Add(Span<Tensor const> i_addends);
+
+    template <typename... TENSOR, typename = std::enable_if_t<
+            (std::is_constructible_v<Tensor, TENSOR> && ...) >>
+        Tensor Add(TENSOR && ... i_addends)
+    {
+        return Add({i_addends...});
+    }
+
     Tensor Mul(Span<Tensor const> i_factors);
 
+    template <typename... TENSOR, typename = std::enable_if_t<
+            (std::is_constructible_v<Tensor, TENSOR> && ...) >>
+        Tensor Mul(TENSOR && ... i_factors)
+    {
+        return Mul({i_factors...});
+    }
+
     Tensor If(Span<Tensor const> i_operands);
+
+    template <typename... TENSOR, typename = std::enable_if_t<
+            (std::is_constructible_v<Tensor, TENSOR> && ...) &&
+            sizeof...(TENSOR) % 2 == 1 >>
+        Tensor If(TENSOR && ... i_operands)
+    {
+        return If({i_operands...});
+    }
+
     Tensor And(Span<Tensor const> i_bool_operands);
+    
+    template <typename... TENSOR, typename = std::enable_if_t<
+            (std::is_constructible_v<Tensor, TENSOR> && ...) >>
+        Tensor And(TENSOR && ... i_bool_operands)
+    {
+        return And({i_bool_operands...});
+    }
+
     Tensor Or(Span<Tensor const> i_bool_operands);
+
+    template <typename... TENSOR, typename = std::enable_if_t<
+            (std::is_constructible_v<Tensor, TENSOR> && ...) >>
+        Tensor Or(TENSOR && ... i_bool_operands)
+    {
+        return Or({i_bool_operands...});
+    }
+
     Tensor Not(Tensor const & i_bool_operand);
 
     Tensor Cast(ScalarType i_dest_scalar_type, const Tensor & i_source);
@@ -122,7 +162,12 @@ namespace liquid
     Tensor & operator -= (Tensor & i_first, const Tensor & i_second);
     Tensor & operator *= (Tensor & i_first, const Tensor & i_second);
 
+    Tensor operator < (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator > (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator <= (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator >= (const Tensor & i_first, const Tensor & i_second);
     Tensor operator == (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator != (const Tensor & i_first, const Tensor & i_second);
 
     inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
 }

@@ -11,11 +11,13 @@ namespace liquid
     void TestIndices();
     void TestScalarType();
     void TestTensor();
+    void TestIf();
 
     void TestLiquid()
     {
         TestScalarType();
         TestIndices();
         TestTensor();
+        TestIf();
     }
 }

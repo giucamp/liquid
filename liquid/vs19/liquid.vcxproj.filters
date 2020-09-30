@@ -134,5 +134,8 @@
     <ClCompile Include="..\private\operators\less.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\tests\test_if.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -46,9 +46,9 @@ namespace liquid
         static auto const op = Operator("Shape")
             .SetDeduceType(ShapeDeduceType)
             .SetEligibleForPropagation(ShapeEligibleForPropagation)
-            .AddOverload({ ShapeEvaluate, { GetScalarType<Real>() }, { "Source" } })
-            .AddOverload({ ShapeEvaluate, { GetScalarType<Integer>() }, { "Source" } })
-            .AddOverload({ ShapeEvaluate, { GetScalarType<Bool>() }, { "Source" } });
+            .AddOverload(ShapeEvaluate, {{ GetScalarType<Real>(), "Source" }} )
+            .AddOverload(ShapeEvaluate, {{ GetScalarType<Integer>(), "Source" }} )
+            .AddOverload(ShapeEvaluate, {{ GetScalarType<Bool>(), "Source" }} );
         return op;
     }
 
