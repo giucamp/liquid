@@ -63,7 +63,7 @@ namespace liquid
 
         Integer GetLogicalLinearIndex() const { return m_logical_linear_index; }
 
-        Span<const Integer> GetIndices() const { return m_indices; }
+        const std::vector<Integer> & GetIndices() const { return m_indices; }
 
         template <typename SCALAR_TYPE>
             const SCALAR_TYPE & At(const TensorValue & i_tensor_value) const

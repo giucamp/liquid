@@ -37,6 +37,7 @@
     <ClCompile Include="..\private\operators\pow.cpp" />
     <ClCompile Include="..\private\operators\rank.cpp" />
     <ClCompile Include="..\private\operators\shape.cpp" />
+    <ClCompile Include="..\private\operators\stack.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />
     <ClCompile Include="..\private\tensor_initializer.cpp" />
     <ClCompile Include="..\private\fixed_shape.cpp" />

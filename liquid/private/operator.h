@@ -31,6 +31,9 @@ namespace liquid
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
             const std::any & i_attachment = {}) const;
 
+                // doc
+
+        Operator & SetDoc(std::string_view i_description, std::string_view i_return_type);
 
                 // flags
  
@@ -168,6 +171,8 @@ namespace liquid
 
     private:
         std::string const m_name;
+        std::string_view m_doc_description;
+        std::string_view m_doc_return_type;
         Flags m_flags = {};
         DeduceTypeFunction m_deduce_type_func = {};
         EligibleForPropagation m_eligible_for_propagation = {};

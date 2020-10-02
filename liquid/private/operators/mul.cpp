@@ -29,17 +29,25 @@ namespace liquid
         return TensorValue(std::move(result), result_shape);
     }
 
-    Tensor MulGradient([[maybe_unused]] const Tensor& i_self,
-        const Tensor& i_self_gradient, [[maybe_unused]] size_t i_operand_index)
+    Tensor MulGradient(const Tensor & i_self,
+        const Tensor& i_self_gradient, size_t i_operand_index)
     {
         std::vector<Tensor> operands = i_self.GetExpression()->GetOperands();
         operands[i_operand_index] = i_self_gradient;
         return Mul(operands);
     }
 
+    const char g_mul_description[] = 
+        "Returns the component-wise product of the operands.";
+
+    const char g_mul_return_type[] = 
+        "The return scalar type is deduced permorming numeric promotion from all operands.\n"
+        "The return shape is deduced by broadcasting the shapes of all operands";
+
     extern const Operator & GetOperatorMul()
     {
         static auto const op = Operator("Mul")
+            .SetDoc(g_mul_description, g_mul_return_type)
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(1)
             .AddOverload(MulEvaluate<Real>, { {GetScalarType<Real>(), "Factor"} }, 1)

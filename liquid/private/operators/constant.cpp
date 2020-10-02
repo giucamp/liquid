@@ -29,7 +29,7 @@ namespace liquid
     {
         static auto const op = Operator("Constant")
             .SetDeduceType(ConstantDeduceType)
-            .AddOverload({ ConstantEvaluate, { }, { } });
+            .AddOverload({ ConstantEvaluate, { } });
         return op;
     }
 

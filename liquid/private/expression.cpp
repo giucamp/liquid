@@ -28,8 +28,14 @@ namespace liquid
 
     }
 
-    bool AlwaysEqual(const Tensor& i_tensor, const TensorValue& i_value)
+    bool AlwaysEqual(const Tensor & i_tensor, const TensorValue& i_value)
     {
         return IsConstant(i_tensor) && GetConstantValue(i_tensor) == i_value;
+    }
+
+    TensorType DeduceType(Span<const Tensor> i_operands)
+    {
+        return DeduceType(Transform(i_operands, 
+            [](const Tensor & i_tensor){ return i_tensor.GetExpression()->GetType(); }));
     }
 }

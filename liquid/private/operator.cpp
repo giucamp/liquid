@@ -17,6 +17,13 @@ namespace liquid
 
     }
 
+    Operator & Operator::SetDoc(std::string_view i_description, std::string_view i_return_type)
+    {
+        m_doc_description = i_description;
+        m_doc_return_type = i_return_type;
+        return *this;
+    }
+
     Operator & Operator::SetDeduceType(DeduceTypeFunction i_func)
     {
         if(i_func == nullptr)
@@ -139,17 +146,12 @@ namespace liquid
     const Operator::Overload * Operator::TryFindOverload(Span<const Tensor> i_operands,
         OverloadMatchFlags i_flags, std::vector<Tensor> & o_arguments) const
     {
-        const Operator::Overload * match = nullptr;
-        int matches = 0;
         for (const Overload & overload : m_overloads)
         {
             if(OverloadMatch(overload, i_operands, i_flags, o_arguments))
-            {
-                matches++;
-                match = &overload;
-            }
+                return &overload;
         }
-        return matches == 1 ? match : nullptr;
+        return nullptr;
     }
 
     const Operator::Overload & Operator::FindOverload(Span<const Tensor> i_operands,

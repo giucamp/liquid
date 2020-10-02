@@ -140,5 +140,8 @@
     <ClCompile Include="..\private\operators\log.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\operators\stack.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

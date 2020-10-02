@@ -60,7 +60,9 @@ namespace liquid
         {
             Tensor t({1.0, 2.0});
 
+            LIQUID_ASSERT(( Add() == 0 ));
             LIQUID_ASSERT(( Add(t) == Tensor({1, 2}) ));
+            LIQUID_ASSERT(( Add(t, t) == t * 2 ));
 
             LIQUID_EXPECTS_ERROR(Add(true), "Add: could not find an overload matching the argument types: bool[]");
         }

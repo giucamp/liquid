@@ -108,9 +108,23 @@ namespace liquid
         return If(grad_ops);
     }
 
-    extern const Operator& GetOperatorIf()
+    const char g_if_description[] = 
+        "Performs a component-wise value selection based on a set a conditions.\n"
+        "The return value is a tensor in which every element is taken from the first"
+        " 'Value' operand that has its corresponding element in the preceding 'Condition'" 
+        " equal to true, or from the 'Fallback' operand if there is no corresponding"
+        " condition element equal to true.";
+
+    const char g_if_return_type[] = 
+        "The return scalar type is deduced permorming numeric promotion from all"
+        " 'Value' operands and the 'Fallback' operand.\n"
+        "The return shape is deduced by broadcasting the shapes of all operands, "
+        " including the conditions.";
+
+    extern const Operator & GetOperatorIf()
     {
         static auto const op = Operator("If")
+            .SetDoc(g_if_description, g_if_return_type)
             .SetDeduceType(IfDeduceType)
             .AddOverload(IfEvaluate<Real>, {
                 { GetScalarType<Bool>(), "Condition" },

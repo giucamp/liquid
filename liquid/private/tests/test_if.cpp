@@ -63,6 +63,7 @@ namespace liquid
 
             LIQUID_EXPECTS( Lerp(0.5, 7, 8) == 7.5);
             LIQUID_EXPECTS( Lerp( {-1., 0.5, 2.}, 7, 8 ) == Tensor({7., 7.5, 8.}));
+            LIQUID_EXPECTS( Lerp( 0.5, 0, {8, 2} ) == Tensor({4, 1}));
         }
 
         std::cout << "done" << std::endl;

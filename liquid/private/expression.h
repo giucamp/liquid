@@ -56,4 +56,6 @@ namespace liquid
     const TensorValue & GetConstantValue(const Tensor & i_tensor);
 
     bool AlwaysEqual(const Tensor& i_tensor, const TensorValue & i_value);
+
+    TensorType DeduceType(Span<const Tensor> i_operands);
 }
