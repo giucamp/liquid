@@ -56,9 +56,6 @@
     <ClCompile Include="..\private\tensor_value.cpp">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\liquid.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\expression.cpp">
       <Filter>private</Filter>
     </ClCompile>
@@ -136,6 +133,12 @@
     </ClCompile>
     <ClCompile Include="..\private\tests\test_if.cpp">
       <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\pow.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\operators\log.cpp">
+      <Filter>private\operators</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

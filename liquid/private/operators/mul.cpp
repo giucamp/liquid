@@ -58,9 +58,19 @@ namespace liquid
         return Mul({ i_first, i_second });
     }
 
+    Tensor operator / (const Tensor & i_dividend, const Tensor & i_divisor)
+    {
+        return i_dividend * Pow(i_divisor, -1);
+    }
+
     Tensor & operator *= (Tensor & i_first, const Tensor & i_second)
     {
         i_first = i_first * i_second;
         return i_first;
+    }
+
+    Tensor & operator /= (Tensor & i_dividend, const Tensor & i_divisor)
+    {
+        return i_dividend = i_dividend / i_divisor;
     }
 }

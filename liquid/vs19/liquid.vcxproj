@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\private\expression.cpp" />
     <ClCompile Include="..\private\indices.cpp" />
-    <ClCompile Include="..\private\liquid.cpp" />
     <ClCompile Include="..\private\liquid_common.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\operators\add.cpp" />
@@ -31,9 +30,11 @@
     <ClCompile Include="..\private\operators\equal.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
     <ClCompile Include="..\private\operators\less.cpp" />
+    <ClCompile Include="..\private\operators\log.cpp" />
     <ClCompile Include="..\private\operators\mul.cpp" />
     <ClCompile Include="..\private\operators\not.cpp" />
     <ClCompile Include="..\private\operators\or.cpp" />
+    <ClCompile Include="..\private\operators\pow.cpp" />
     <ClCompile Include="..\private\operators\rank.cpp" />
     <ClCompile Include="..\private\operators\shape.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />

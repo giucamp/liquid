@@ -76,7 +76,7 @@ namespace liquid
 
     bool Operator::OverloadMatch(const Operator::Overload & i_overload, 
         Span<const Tensor> i_operands, OverloadMatchFlags i_flags,
-        std::vector<Tensor> & o_processed_parameters)
+        std::vector<Tensor> & o_arguments)
     {
         auto & parameters = i_overload.m_parameters;
         size_t const variadic_parameters = i_overload.m_variadic_parameters_count;
@@ -84,15 +84,15 @@ namespace liquid
 
         if(HasFlags(i_flags, OverloadMatchFlags::ProcessArguments))
         {
-            o_processed_parameters.clear();
-            o_processed_parameters.insert(o_processed_parameters.begin(), i_operands.begin(), i_operands.end());
+            o_arguments.clear();
+            o_arguments.insert(o_arguments.begin(), i_operands.begin(), i_operands.end());
         }
 
         // check variadic repetitions
         size_t variadic_repetitions = 0;
         if (i_overload.m_variadic_parameters_count > 0)
         {
-            size_t const variadic_arguments = parameters.size() - non_variadic_parameters;
+            size_t const variadic_arguments = i_operands.size() - non_variadic_parameters;
             variadic_repetitions = variadic_arguments / variadic_parameters;
             if((variadic_arguments % variadic_parameters) != 0)
                 return false;
@@ -103,13 +103,16 @@ namespace liquid
         size_t variadic_repetition_index = 0;
         for (size_t operand_index = 0; operand_index < i_operands.size(); operand_index++)
         {
-            while(parameter_index >= i_overload.m_parameters.size())
+            if(parameter_index >= variadic_parameters)
             {
-                if (variadic_repetition_index >= variadic_repetitions)
-                    return false;
-
                 variadic_repetition_index++;
                 parameter_index = 0;
+            }
+
+            if (variadic_repetition_index >= variadic_repetitions &&
+                parameter_index < variadic_parameters)
+            {
+                parameter_index = variadic_parameters;
             }
 
             auto const & argument_type = i_operands[operand_index].GetExpression()->GetType();
@@ -125,20 +128,22 @@ namespace liquid
                     return false;
 
                 if(HasFlags(i_flags, OverloadMatchFlags::ProcessArguments))
-                    o_processed_parameters[operand_index] = Cast<Real>(o_processed_parameters[operand_index]);
+                    o_arguments[operand_index] = Cast<Real>(o_arguments[operand_index]);
             }
+
+            parameter_index++;
         }
         return true;
     }
 
     const Operator::Overload * Operator::TryFindOverload(Span<const Tensor> i_operands,
-        OverloadMatchFlags i_flags, std::vector<Tensor> & o_processed_parameters) const
+        OverloadMatchFlags i_flags, std::vector<Tensor> & o_arguments) const
     {
         const Operator::Overload * match = nullptr;
         int matches = 0;
         for (const Overload & overload : m_overloads)
         {
-            if(OverloadMatch(overload, i_operands, i_flags, o_processed_parameters))
+            if(OverloadMatch(overload, i_operands, i_flags, o_arguments))
             {
                 matches++;
                 match = &overload;
@@ -148,17 +153,18 @@ namespace liquid
     }
 
     const Operator::Overload & Operator::FindOverload(Span<const Tensor> i_operands,
-        std::vector<Tensor> & o_processed_parameters) const
+        std::vector<Tensor> & o_arguments) const
     {
         if (const Overload* overload = TryFindOverload(i_operands, 
-                OverloadMatchFlags::None, o_processed_parameters))
+                OverloadMatchFlags::None, o_arguments))
             return *overload;
 
         if (const Overload* overload = TryFindOverload(i_operands,
-                OverloadMatchFlags::AllowNumericPromotion, o_processed_parameters))
+                OverloadMatchFlags::AllowNumericPromotion, o_arguments))
             return *overload;
 
-        Panic(m_name, ": could not find a matching overload");
+        Panic(m_name, ": could not find an overload matching the argument types: ",
+            ToSpan(Transform(i_operands, [](auto & i_op){ return i_op.GetExpression()->GetType(); } )) );
     }
 
     Tensor Operator::Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes,

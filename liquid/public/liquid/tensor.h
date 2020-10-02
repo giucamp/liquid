@@ -153,6 +153,7 @@ namespace liquid
     Tensor operator + (const Tensor & i_first, const Tensor & i_second);
     Tensor operator - (const Tensor & i_first, const Tensor & i_second);
     Tensor operator * (const Tensor & i_first, const Tensor & i_second);
+    Tensor operator / (const Tensor & i_dividend, const Tensor & i_divisor);
 
     Tensor operator && (const Tensor & i_first_bool, const Tensor & i_second_bool);
     Tensor operator || (const Tensor & i_first_bool, const Tensor & i_second_bool);
@@ -161,6 +162,7 @@ namespace liquid
     Tensor & operator += (Tensor & i_first, const Tensor & i_second);
     Tensor & operator -= (Tensor & i_first, const Tensor & i_second);
     Tensor & operator *= (Tensor & i_first, const Tensor & i_second);
+    Tensor & operator /= (Tensor & i_dividend, const Tensor & i_divisor);
 
     Tensor operator < (const Tensor & i_first, const Tensor & i_second);
     Tensor operator > (const Tensor & i_first, const Tensor & i_second);
@@ -168,6 +170,11 @@ namespace liquid
     Tensor operator >= (const Tensor & i_first, const Tensor & i_second);
     Tensor operator == (const Tensor & i_first, const Tensor & i_second);
     Tensor operator != (const Tensor & i_first, const Tensor & i_second);
+
+    Tensor Log(const Tensor & i_source);
+    Tensor Exp(const Tensor & i_source);
+    Tensor Pow(const Tensor & i_base, const Tensor & i_exponent);
+    Tensor Square(const Tensor & i_base);
 
     inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
 }

@@ -73,13 +73,11 @@ namespace liquid
 
     Tensor & operator += (Tensor & i_first, const Tensor & i_second)
     {
-        i_first = i_first + i_second;
-        return i_first;
+        return i_first = i_first + i_second;
     }
 
     Tensor & operator -= (Tensor & i_first, const Tensor & i_second)
     {
-        i_first = i_first - i_second;
-        return i_first;
+        return i_first = i_first - i_second;
     }
 }

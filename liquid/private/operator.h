@@ -22,14 +22,14 @@ namespace liquid
         Operator(std::string_view i_name);
 
         Tensor Invoke(const Tensor & i_single_operand, Span<const Tensor> i_attributes = {},
-            const std::any& i_attachment = {}) const;
+            const std::any & i_attachment = {}) const;
 
         Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
             const std::any & i_attachment = {} ) const;
 
         Tensor Invoke(std::string_view i_name, std::string_view i_doc,
             Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
-            const std::any& i_attachment = {}) const;
+            const std::any & i_attachment = {}) const;
 
 
                 // flags
@@ -73,6 +73,9 @@ namespace liquid
         using EvaluateSingleArgument = TensorValue(*)(const TensorType & i_result_type,
             const TensorValue & i_operand);
 
+        using VarEvaluateFunction = std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
+            EvaluateSingleArgument, EvaluateWithAttachmentFunction,
+            EvaluateFromVariablesFunction>;
 
         struct Parameter
         {
@@ -80,11 +83,6 @@ namespace liquid
             std::string m_name;
             std::optional<Tensor> m_default_value;
         };
-
-
-        using VarEvaluateFunction = std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
-            EvaluateSingleArgument, EvaluateWithAttachmentFunction,
-            EvaluateFromVariablesFunction>;
 
         struct Overload
         {
@@ -149,13 +147,13 @@ namespace liquid
 
         static bool OverloadMatch(const Operator::Overload & i_overload, 
             Span<const Tensor> i_operands, OverloadMatchFlags i_flags,
-            std::vector<Tensor> & o_processed_parameters);
+            std::vector<Tensor> & o_arguments);
 
         const Overload * TryFindOverload(Span<const Tensor> i_operands,
-            OverloadMatchFlags i_flags, std::vector<Tensor> & o_processed_parameters) const;
+            OverloadMatchFlags i_flags, std::vector<Tensor> & o_arguments) const;
 
         const Overload & FindOverload(Span<const Tensor> i_operands, 
-            std::vector<Tensor> & o_processed_parameters) const;
+            std::vector<Tensor> & o_arguments) const;
 
         std::optional<Tensor> TryConstantPropagation(
             const Overload & i_overload, const TensorType & i_result_type,

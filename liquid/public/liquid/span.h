@@ -135,7 +135,7 @@ namespace liquid
     };
 
     template <typename TYPE>
-        std::ostream & operator << (std::ostream & i_ostream, Span<const TYPE> i_span)
+        std::ostream & operator << (std::ostream & i_ostream, Span<TYPE> i_span)
     {
         for (size_t i = 0; i < i_span.size(); i++)
         {
@@ -144,5 +144,23 @@ namespace liquid
             i_ostream << i_span[i];
         }
         return i_ostream;
+    }
+
+    template <typename SOURCE_CONTAINER>
+        auto ToSpan(SOURCE_CONTAINER && i_source_container)
+    {
+        using ElementType = std::decay_t<decltype(*std::begin(i_source_container))>;
+        return Span<ElementType>(i_source_container);
+    }
+
+    template <typename SOURCE_ELEMENTS, typename PREDICATE>
+        auto Transform(Span<SOURCE_ELEMENTS> i_source_elements, const PREDICATE & i_predicate)
+    {
+        using DestType = decltype(i_predicate(std::declval<SOURCE_ELEMENTS>()));
+        std::vector<DestType> result;
+        result.reserve(i_source_elements.size());
+        for(const auto & source : i_source_elements)
+            result.push_back(i_predicate(source));
+        return result;
     }
 }

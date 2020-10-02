@@ -72,7 +72,7 @@ namespace liquid
         if (m_scalar_type != i_other.m_scalar_type)
             return false;
 
-        struct Visistor
+        struct Visitor
         {
             const TensorType & m_this;
             const TensorType & m_other;
@@ -95,7 +95,7 @@ namespace liquid
             }
         };
 
-        return std::visit(Visistor{*this, i_other}, m_shape);
+        return std::visit(Visitor{*this, i_other}, m_shape);
     }
 
     bool TensorType::IsSupercaseOf(const TensorType & i_other) const

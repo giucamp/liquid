@@ -10,6 +10,8 @@
 #include <sstream>
 #include <iostream>
 #include <exception>
+#include <vector>
+#include <functional>
 
 namespace liquid
 {
@@ -50,19 +52,34 @@ namespace liquid
         return stream.str();
     }
 
-    void DbgBreak();
+    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
+        constexpr FLAGS CombineFlags(FLAGS i_first, FLAGS i_second)
+    {
+        return static_cast<FLAGS>(static_cast<int>(i_first) | static_cast<int>(i_second));
+    }
+
+    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
+        constexpr bool HasFlags(FLAGS i_all, FLAGS i_some)
+    {
+        return (static_cast<int>(i_all) & static_cast<int>(i_some)) == static_cast<int>(i_some);
+    }
+
+    [[noreturn]] void Panic(const std::string & i_error);
 
     template <typename... TYPE>
         [[noreturn]] void Panic(const TYPE & ... i_object)
     {
-        std::string message = ToString(i_object...);
-        std::cerr << message << std::endl;
-        DbgBreak();
-        throw std::exception(message.c_str());
+        Panic(ToString(i_object...));
     }
 
     inline bool AssertCheck(bool i_value) { return i_value; }
     #define LIQUID_ASSERT(expr) if(!liquid::AssertCheck(expr)) Panic("Assert failure: " #expr);
+
+    #define LIQUID_EXPECTS(expr) LIQUID_ASSERT(expr)
+
+    void ExpectsError(const std::function<void()> & i_function, 
+        const char * i_expression_str, const char * i_expected_error);
+    #define LIQUID_EXPECTS_ERROR(expr, expected_error) ExpectsError([&]{ expr; }, #expr, expected_error);
 
     template <typename DEST_TYPE, typename SOURCE_TYPE>
         DEST_TYPE NumericCast(SOURCE_TYPE i_source)
@@ -74,17 +91,5 @@ namespace liquid
         if(i_source != source_back || source_negative != result_negative)
             Panic("NumericCast - Bad cast of ", i_source);
         return result;
-    }
-
-    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
-        constexpr FLAGS CombineFlags(FLAGS i_first, FLAGS i_second)
-    {
-        return static_cast<FLAGS>(static_cast<int>(i_first) | static_cast<int>(i_second));
-    }
-
-    template <typename FLAGS, typename = std::enable_if_t<std::is_enum_v<FLAGS>>>
-        constexpr bool HasFlags(FLAGS i_all, FLAGS i_some)
-    {
-        return (static_cast<int>(i_all) & static_cast<int>(i_some)) == static_cast<int>(i_some);
     }
 }
