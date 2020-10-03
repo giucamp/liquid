@@ -13,6 +13,9 @@
     <Filter Include="public">
       <UniqueIdentifier>{6a2edab1-11f5-4cef-91d7-f028bc019cc3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="private\miu6">
+      <UniqueIdentifier>{1e0099fb-1e00-4f60-bbd1-b18aca0a0015}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\tensor_value.h">
@@ -50,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="..\private\fixed_shape.h">
       <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\miu6\lexer.h">
+      <Filter>private\miu6</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +148,12 @@
     </ClCompile>
     <ClCompile Include="..\private\operators\stack.cpp">
       <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\miu6\lexer.cpp">
+      <Filter>private\miu6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\test_miu6.cpp">
+      <Filter>private\tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

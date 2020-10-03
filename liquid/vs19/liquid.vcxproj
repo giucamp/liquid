@@ -22,6 +22,7 @@
     <ClCompile Include="..\private\expression.cpp" />
     <ClCompile Include="..\private\indices.cpp" />
     <ClCompile Include="..\private\liquid_common.cpp" />
+    <ClCompile Include="..\private\miu6\lexer.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\operators\add.cpp" />
     <ClCompile Include="..\private\operators\and.cpp" />
@@ -47,12 +48,14 @@
     <ClCompile Include="..\private\tests\tests.cpp" />
     <ClCompile Include="..\private\tests\test_if.cpp" />
     <ClCompile Include="..\private\tests\test_indices.cpp" />
+    <ClCompile Include="..\private\tests\test_miu6.cpp" />
     <ClCompile Include="..\private\tests\test_scalar_type.cpp" />
     <ClCompile Include="..\private\tests\test_tensor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\private\expression.h" />
     <ClInclude Include="..\private\indices.h" />
+    <ClInclude Include="..\private\miu6\lexer.h" />
     <ClInclude Include="..\private\operator.h" />
     <ClInclude Include="..\private\fixed_shape.h" />
     <ClInclude Include="..\private\shared_array.h" />

@@ -119,7 +119,7 @@ namespace liquid
         "The return scalar type is deduced permorming numeric promotion from all"
         " 'Value' operands and the 'Fallback' operand.\n"
         "The return shape is deduced by broadcasting the shapes of all operands, "
-        " including the conditions.";
+        " including conditions.";
 
     extern const Operator & GetOperatorIf()
     {

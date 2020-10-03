@@ -12,6 +12,7 @@ namespace liquid
     void TestScalarType();
     void TestTensor();
     void TestIf();
+    void TestMiu6();
 
     void TestLiquid()
     {
@@ -19,5 +20,6 @@ namespace liquid
         TestIndices();
         TestTensor();
         TestIf();
+        TestMiu6();
     }
 }
