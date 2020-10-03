@@ -69,8 +69,8 @@ namespace liquid
         return op;
     }
 
-    Tensor Stack(const Tensor & i_base, const Tensor & i_exponent)
+    Tensor Stack(Span<Tensor const> i_tensors)
     {
-        return GetOperatorStack().Invoke({i_base, i_exponent});
+        return GetOperatorStack().Invoke(i_tensors);
     }
 }

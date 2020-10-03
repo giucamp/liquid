@@ -5,6 +5,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #include "tensor_type.h"
+#include "expression.h"
 
 namespace liquid
 {
@@ -61,8 +62,15 @@ namespace liquid
     {
         if (HasVariableShape() && IsConstant(GetVariableShape()))
         {
+            const Tensor & tensor = GetVariableShape();
+
+            /* This check fails because of ShapeDeduceType - to do: implement Tensor nesting
+            const TensorType & tensor_type = tensor.GetExpression()->GetType();
+            if(tensor_type.GetFixedShape().GetRank() != 1)
+                Panic("The shape of a tensor must be a vector");*/
+
             // the shape is not really variable
-            auto dimensions = ConstantToVector<Integer>(GetVariableShape());
+            auto dimensions = ConstantToVector<Integer>(tensor);
             m_shape = FixedShape(dimensions);
         }
     }

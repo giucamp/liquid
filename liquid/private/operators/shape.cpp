@@ -16,7 +16,9 @@ namespace liquid
         Span<const Tensor> i_operands,
         [[maybe_unused]] Span<const Tensor> i_attributes)
     {
-        return { ScalarType::Integer, { Rank(i_operands.at(0)) } };
+        Tensor const rank( {Rank(i_operands.at(0))} );
+        auto v = GetConstantValue(rank);
+        return { ScalarType::Integer, rank };
     }
 
     bool ShapeEligibleForPropagation(const std::any & i_attachment,

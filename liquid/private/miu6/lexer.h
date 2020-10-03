@@ -11,87 +11,94 @@
 
 namespace liquid
 {
-    struct Token
+    namespace miu6
     {
-        enum class Kind
+        struct Token
         {
-            Unrecognized,
-            EndOfSource,
+            enum class Kind
+            {
+                Unrecognized,
+                EndOfSource,
             
-            Name,
-            Literal,
+                Name,
+                Literal,
+                Comma,
 
-            // scalar types
-            Any,
-            Real,
-            Bool,
-            Integer,
+                // scalar types
+                Any,
+                Real,
+                Bool,
+                Integer,
 
-            // arithmetic operators
-            Plus,
-            Minus,
-            Times,
-            Div,
+                // arithmetic operators
+                Plus,
+                Minus,
+                Times,
+                Div,
+                Pow,
 
-            // comparison
-            Equal,
-            NotEqual,
-            Less,
-            Greater,
-            LessOrEqual,
-            GreaterOrEqual,
+                // comparison
+                Equal,
+                NotEqual,
+                Less,
+                Greater,
+                LessOrEqual,
+                GreaterOrEqual,
 
-            // boolean operators
-            And,
-            Or,
-            Not,
+                // boolean operators
+                And,
+                Or,
+                Not,
 
-            // bracket 
-            LeftParenthesis,
-            RightParenthesis,
-            LeftBracket,
-            RightBracket,
-            LeftBrace,
-            RightBrace,
+                // bracket 
+                LeftParenthesis,
+                RightParenthesis,
+                LeftBracket,
+                RightBracket,
+                LeftBrace,
+                RightBrace,
+            };
+
+            Kind m_kind = Kind::EndOfSource;
+            std::variant<std::monostate, Real, Integer, Bool> m_value;
+            std::string_view m_chars;
         };
 
-        Kind m_kind = Kind::EndOfSource;
-        std::variant<std::monostate, Real, Integer, Bool> m_value;
-        std::string_view m_chars;
-    };
+        class Lexer
+        {
+        public:
 
-    class Miu6Lexer
-    {
-    public:
+            Lexer(std::string_view i_source);
 
-        Miu6Lexer(std::string_view i_source);
+            const Token & GetCurrentToken() const { return m_curr_token; }
 
-        const Token & GetCurrentToken() const { return m_curr_token; }
+            const Token & GetNextToken() const { return m_next_token; }
 
-        const Token & GetNextToken() const { return m_next_token; }
+            void Advance();
 
-        void NextToken();
+            /* if the current token matches the specified kind, returns it and the advances */
+            [[nodiscard]] std::optional<Token> TryAccept(Token::Kind i_token_kind);
 
-        /* if the current token matches the specified kind, returns it and the advances */
-        std::optional<Token> TryAccept(Token::Kind i_token_kind);
+            Token Accept(Token::Kind i_token_kind);
 
-        Token Accept(Token::Kind i_token_kind);
+        private:
 
-    private:
+            static bool TrySkipSpaces(std::string_view & io_source);
+            static bool TryParseString(std::string_view & io_source, std::string_view i_what);
+            static std::optional<Real> TryParseReal(std::string_view & io_source);
+            static std::optional<Integer> TryParseInteger(std::string_view & io_source);
+            static std::optional<Bool> TryParseBool(std::string_view & io_source);
+            static std::optional<std::string_view> TryParseName(std::string_view & io_source);
 
-        static bool TrySkipSpaces(std::string_view & io_source);
-        static bool TryParseString(std::string_view & io_source, std::string_view i_what);
-        static std::optional<Real> TryParseReal(std::string_view & io_source);
-        static std::optional<Integer> TryParseInteger(std::string_view & io_source);
-        static std::optional<Bool> TryParseBool(std::string_view & io_source);
+            static Token TryParseToken(std::string_view & io_source);
+            static Token TryParseTokenImpl(std::string_view & io_source);
 
-        static Token TryParseToken(std::string_view & io_source);
-        static Token TryParseTokenImpl(std::string_view & io_source);
+        private:
+            std::string_view m_whole_source;
+            std::string_view m_remaining_source;
+            Token m_curr_token, m_next_token;
+        };
 
-    private:
-        std::string_view m_whole_source;
-        std::string_view m_remaining_source;
-        Token m_curr_token, m_next_token;
-    };
+    } // namespace miu6
 
 } // namespace liquid

@@ -176,5 +176,7 @@ namespace liquid
     Tensor Pow(const Tensor & i_base, const Tensor & i_exponent);
     Tensor Square(const Tensor & i_base);
 
+    Tensor Stack(Span<Tensor const> i_tensors);
+
     inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
 }

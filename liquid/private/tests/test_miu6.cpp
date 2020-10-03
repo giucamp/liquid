@@ -17,7 +17,11 @@ namespace liquid
         std::cout << "Test Miu6...";
 
         {
-            Miu6Lexer lexer("   real int\tbool   ");
+            using namespace miu6;
+
+            Lexer lexer(" \r\n  real int\tbool   ");
+
+            LIQUID_EXPECTS_ERROR(lexer.Accept(Token::Kind::Plus), "Unexpected token");
             
             lexer.Accept(Token::Kind::Real);
             lexer.Accept(Token::Kind::Integer);

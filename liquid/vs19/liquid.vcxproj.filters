@@ -57,6 +57,9 @@
     <ClInclude Include="..\private\miu6\lexer.h">
       <Filter>private\miu6</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\miu6\parser.h">
+      <Filter>private\miu6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
@@ -154,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="..\private\tests\test_miu6.cpp">
       <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\miu6\parser.cpp">
+      <Filter>private\miu6</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

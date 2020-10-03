@@ -23,6 +23,7 @@
     <ClCompile Include="..\private\indices.cpp" />
     <ClCompile Include="..\private\liquid_common.cpp" />
     <ClCompile Include="..\private\miu6\lexer.cpp" />
+    <ClCompile Include="..\private\miu6\parser.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\operators\add.cpp" />
     <ClCompile Include="..\private\operators\and.cpp" />
@@ -56,6 +57,7 @@
     <ClInclude Include="..\private\expression.h" />
     <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\miu6\lexer.h" />
+    <ClInclude Include="..\private\miu6\parser.h" />
     <ClInclude Include="..\private\operator.h" />
     <ClInclude Include="..\private\fixed_shape.h" />
     <ClInclude Include="..\private\shared_array.h" />
