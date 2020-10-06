@@ -9,24 +9,79 @@
 
 namespace liquid
 {
-    Tensor::Tensor(const TensorInitializer & i_scalars)
-        : m_expression(MakeConstant(TensorValue(i_scalars)).GetExpression())
-    {
-
+    Tensor::Tensor(std::initializer_list<Tensor> i_vector)
+        : Tensor(Stack(i_vector))
+    {        
     }
 
-    Tensor::Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape)
-        : m_expression(MakeConstant(TensorValue(i_scalars, i_shape)).GetExpression())
+    Tensor::Tensor(std::initializer_list<Tensor> i_vector, Span<const Integer> i_shape)
+        : Tensor(Stack(i_vector))
     {
+        if (IsConstant(*this))
+        {
+            const TensorValue & value = GetConstantValue(*this);
+            switch (GetScalarType())
+            {
+                case ScalarType::Real:
+                {
+                    TensorValue value(ToSpan(value.GetAs<Real>()), FixedShape(i_shape));
+                    m_expression = MakeConstant(value).GetExpression();
+                    break;
+                }
 
+                case ScalarType::Integer:
+                {
+                    TensorValue value(ToSpan(value.GetAs<Integer>()), FixedShape(i_shape));
+                    m_expression = MakeConstant(value).GetExpression();
+                    break;
+                }
+
+                case ScalarType::Bool:
+                {
+                    TensorValue value(ToSpan(value.GetAs<Bool>()), FixedShape(i_shape));
+                    m_expression = MakeConstant(value).GetExpression();
+                    break;
+                }
+            }
+        }
     }
 
-    Tensor::Tensor(std::string_view i_liquid_code, ScalarType i_scalar_type)
+    Tensor::Tensor(ScalarConst, Real i_scalar)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Real>({i_scalar}), FixedShape{})).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(ScalarConst, Integer i_scalar)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Integer>({i_scalar}), FixedShape{})).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(ScalarConst, Bool i_scalar)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Bool>({i_scalar}), FixedShape{})).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(ScalarConst, Real i_scalar, Span<const Integer> i_shape)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Real>({i_scalar}), i_shape)).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(ScalarConst, Integer i_scalar, Span<const Integer> i_shape)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Integer>({i_scalar}), i_shape)).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(ScalarConst, Bool i_scalar, Span<const Integer> i_shape)
+        : m_expression(MakeConstant(TensorValue(SharedArray<const Bool>({i_scalar}), i_shape)).GetExpression())
+    {
+    }
+
+    Tensor::Tensor(std::string_view i_miu6_code, ScalarType i_scalar_type)
     {
         Panic("To do");
     }
 
-    Tensor::Tensor(std::string_view i_liquid_code, Span<const Integer> i_shape,
+    Tensor::Tensor(std::string_view i_miu6_code, Span<const Integer> i_shape,
         ScalarType i_scalar_type)
     {
         Panic("To do");

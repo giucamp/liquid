@@ -17,7 +17,7 @@ namespace liquid
         Span<const Tensor> i_attributes)
     {
         const TensorType & first_type = i_operands.at(0).GetExpression()->GetType();
-        const TensorType & second_type = i_operands.at(0).GetExpression()->GetType();
+        const TensorType & second_type = i_operands.at(1).GetExpression()->GetType();
 
         if(first_type.HasFixedShape() && second_type.HasFixedShape())
             return { ScalarType::Bool, Broadcast({first_type.GetFixedShape(), second_type.GetFixedShape()}) };
@@ -52,17 +52,17 @@ namespace liquid
         return op;
     }
 
-    Tensor Equal(const Tensor& i_first, const Tensor& i_second)
+    Tensor Equal(const Tensor & i_first, const Tensor & i_second)
     {
         return GetOperatorEqual().Invoke({ i_first, i_second });
     }
 
-    Tensor operator == (const Tensor& i_first, const Tensor& i_second)
+    Tensor operator == (const Tensor & i_first, const Tensor & i_second)
     {
         return Equal(i_first, i_second);
     }
 
-    Tensor operator != (const Tensor& i_first, const Tensor& i_second)
+    Tensor operator != (const Tensor & i_first, const Tensor & i_second)
     {
         return !Equal(i_first, i_second);
     }

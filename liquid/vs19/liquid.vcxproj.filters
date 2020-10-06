@@ -161,5 +161,11 @@
     <ClCompile Include="..\private\miu6\parser.cpp">
       <Filter>private\miu6</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\operators\exp.cpp">
+      <Filter>private\operators</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
   </ItemGroup>
 </Project>

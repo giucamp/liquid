@@ -175,12 +175,6 @@ namespace liquid
         return Invoke({}, {}, i_operands, i_attributes, i_attachment);
     }
 
-    Tensor Operator::Invoke(const Tensor & i_single_operand, Span<const Tensor> i_attributes,
-        const std::any & i_attachment) const
-    {
-        return Invoke({}, {}, { i_single_operand }, i_attributes, i_attachment);
-    }
-
     std::vector<TensorValue> Operator::ToValues(Span<const Tensor> i_tensors)
     {
         std::vector<TensorValue> values;

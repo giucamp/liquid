@@ -62,10 +62,12 @@ namespace liquid
         }
 
         SharedArray(std::initializer_list<TYPE> i_initializer_list)
-            : m_elements(new TYPE[i_initializer_list.size()]), m_size(i_initializer_list.size())
         {
+            auto const elements = new std::remove_const_t<TYPE>[i_initializer_list.size()];
+            m_elements.reset(elements);
+            m_size = i_initializer_list.size();
             for(size_t i = 0; i < m_size; i++)
-                m_elements[i] = i_initializer_list.begin()[i];
+                elements[i] = i_initializer_list.begin()[i];
         }
 
         template <typename SOURCE_CONTAINER,
@@ -79,7 +81,10 @@ namespace liquid
             m_elements = std::shared_ptr<TYPE[]>(elements);
             size_t index = 0;
             for(const auto & source_element : i_source)
-                elements[index++] = source_element;
+            {
+                elements[index] = source_element;
+                index++;
+            }
         }
 
         bool empty() const { return m_size == 0; }

@@ -21,9 +21,6 @@ namespace liquid
 
         Operator(std::string_view i_name);
 
-        Tensor Invoke(const Tensor & i_single_operand, Span<const Tensor> i_attributes = {},
-            const std::any & i_attachment = {}) const;
-
         Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
             const std::any & i_attachment = {} ) const;
 

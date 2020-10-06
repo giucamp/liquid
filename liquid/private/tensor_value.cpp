@@ -22,7 +22,7 @@ namespace liquid
         {
             Integer const stride = i_shape.GetStride(dim);
 
-            if(scalar_count > stride)
+            if(scalar_count > stride && stride > 0)
             {
                 bool equals = true;
                 for (Integer pos = stride; pos < scalar_count && equals; pos += stride)

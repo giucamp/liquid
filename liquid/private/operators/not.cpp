@@ -33,7 +33,7 @@ namespace liquid
 
     Tensor Not(Tensor const & i_bool_operand)
     {
-        return GetOperatorNot().Invoke(i_bool_operand);
+        return GetOperatorNot().Invoke({i_bool_operand});
     }
 
     Tensor operator ! (const Tensor & i_bool_operand)

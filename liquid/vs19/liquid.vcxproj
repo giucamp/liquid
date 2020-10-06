@@ -30,6 +30,7 @@
     <ClCompile Include="..\private\operators\cast.cpp" />
     <ClCompile Include="..\private\operators\constant.cpp" />
     <ClCompile Include="..\private\operators\equal.cpp" />
+    <ClCompile Include="..\private\operators\exp.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
     <ClCompile Include="..\private\operators\less.cpp" />
     <ClCompile Include="..\private\operators\log.cpp" />
@@ -68,6 +69,9 @@
     <ClInclude Include="..\public\liquid\tensor_initializer.h" />
     <ClInclude Include="..\public\liquid\span.h" />
     <ClInclude Include="..\public\liquid\tensor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

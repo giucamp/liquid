@@ -19,12 +19,6 @@ namespace liquid
     {
     public:
 
-        TensorValue(SharedArray<const Real> && i_reals, const FixedShape & i_shape);
-
-        TensorValue(SharedArray<const Integer> && i_integers, const FixedShape & i_shape);
-
-        TensorValue(SharedArray<const Bool> && i_bools, const FixedShape & i_shape);
-
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
             TensorValue(const SCALAR & i_scalar)
                 : TensorValue(TensorInitializer({ i_scalar }), FixedShape({})) { }
@@ -32,6 +26,12 @@ namespace liquid
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
             TensorValue(const SCALAR & i_scalar, const FixedShape & i_shape)
                 : TensorValue(TensorInitializer({ i_scalar }), i_shape) { }
+
+        TensorValue(SharedArray<const Real> && i_reals, const FixedShape & i_shape);
+
+        TensorValue(SharedArray<const Integer> && i_integers, const FixedShape & i_shape);
+
+        TensorValue(SharedArray<const Bool> && i_bools, const FixedShape & i_shape);
 
         TensorValue(const TensorInitializer & i_scalars);
 

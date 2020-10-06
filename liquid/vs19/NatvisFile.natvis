@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="liquid::Span&lt;*&gt;">
+    <DisplayString>{m_data, [m_size]}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <ArrayItems>
+        <Size>m_size</Size>
+        <ValuePointer>m_data</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="liquid::SharedArray&lt;*&gt;">
+    <DisplayString>{m_elements._Ptr, [m_size]}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <ArrayItems>
+        <Size>m_size</Size>
+        <ValuePointer>m_elements._Ptr</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="liquid::FixedShape">
+    <DisplayString Condition="m_dimensions.m_size==0">scalar</DisplayString>
+    <DisplayString>{m_dimensions.m_elements._Ptr, [m_dimensions.m_size]}</DisplayString>
+  </Type>
+  <Type Name="liquid::TensorType">
+    <DisplayString Condition="m_shape._Which==0">any</DisplayString>
+    <DisplayString Condition="m_shape._Which==1">{m_shape._Tail._Head} {m_scalar_type}</DisplayString>
+    <DisplayString Condition="m_shape._Which==2">{m_shape._Tail._Tail._Head} {m_scalar_type}</DisplayString>
+  </Type>
+  <Type Name="liquid::Tensor">
+    <DisplayString>{m_expression._Ptr->m_operator.m_name} {m_expression._Ptr->m_type}</DisplayString>
+  </Type>
+</AutoVisualizer>

@@ -17,7 +17,7 @@ namespace liquid
         Span<const Tensor> i_attributes)
     {
         const TensorType & first_type = i_operands.at(0).GetExpression()->GetType();
-        const TensorType & second_type = i_operands.at(0).GetExpression()->GetType();
+        const TensorType & second_type = i_operands.at(1).GetExpression()->GetType();
 
         if(first_type.HasFixedShape() && second_type.HasFixedShape())
             return { ScalarType::Bool, Broadcast({first_type.GetFixedShape(), second_type.GetFixedShape()}) };

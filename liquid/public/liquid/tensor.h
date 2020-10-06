@@ -11,7 +11,6 @@
 #include <any>
 #include "liquid/liquid_common.h"
 #include "liquid/span.h"
-#include "liquid/tensor_initializer.h"
 
 namespace liquid
 {
@@ -24,38 +23,22 @@ namespace liquid
     {
     public:
 
-        Tensor(const TensorInitializer & i_scalars);
+        Tensor(std::string_view i_miu6_code, ScalarType i_scalar_type = ScalarType::Any);
 
-        Tensor(const TensorInitializer & i_scalars, Span<const Integer> i_shape);
-
-        Tensor(std::string_view i_liquid_code, ScalarType i_scalar_type = ScalarType::Any);
-
-        Tensor(std::string_view i_liquid_code, Span<const Integer> i_shape, 
+        Tensor(std::string_view i_miu6_code, Span<const Integer> i_shape, 
             ScalarType i_scalar_type = ScalarType::Any);
 
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
             Tensor(const SCALAR & i_scalar)
-                : Tensor(TensorInitializer({i_scalar}), Span<const Integer>{}) { }
+                : Tensor(ScalarConst{}, CanonicalizeScalar(i_scalar)) { }
 
         template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
             Tensor(const SCALAR & i_scalar, Span<const Integer> i_shape)
-                : Tensor(TensorInitializer({ i_scalar }), i_shape) { }
+                : Tensor(ScalarConst{}, CanonicalizeScalar(i_scalar), i_shape) { }
 
-        // std::initializer_list - rank 1
-        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            Tensor(std::initializer_list<SCALAR> i_vector, Span<const Integer> i_shape)
-                : Tensor(TensorInitializer(i_vector), i_shape) { }
-        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            Tensor(std::initializer_list<SCALAR> i_vector)
-                : Tensor(TensorInitializer(i_vector)) { }
+        Tensor(std::initializer_list<Tensor> i_vector);
 
-        // std::initializer_list - rank 2
-        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            Tensor(std::initializer_list<std::initializer_list<SCALAR>> i_matrix, Span<const Integer> i_shape)
-                : Tensor(TensorInitializer(i_matrix), i_shape) { }
-        template <typename SCALAR, typename = EnableIfNumeric<SCALAR>>
-            Tensor(std::initializer_list<std::initializer_list<SCALAR>> i_matrix)
-                : Tensor(TensorInitializer(i_matrix)) { }
+        Tensor(std::initializer_list<Tensor> i_vector, Span<const Integer> i_shape);
 
         ScalarType GetScalarType() const;
 
@@ -67,6 +50,27 @@ namespace liquid
         const std::shared_ptr<const Expression> & GetExpression() const { return m_expression; }
 
     private:
+        enum class ScalarConst {};
+        Tensor(ScalarConst, Real i_scalar);
+        Tensor(ScalarConst, Integer i_scalar);
+        Tensor(ScalarConst, Bool i_scalar);
+        Tensor(ScalarConst, Real i_scalar, Span<const Integer> i_shape);
+        Tensor(ScalarConst, Integer i_scalar, Span<const Integer> i_shape);
+        Tensor(ScalarConst, Bool i_scalar, Span<const Integer> i_shape);
+        
+        template <typename TYPE>
+            auto CanonicalizeScalar(TYPE i_scalar)
+        {
+            if constexpr(std::is_same_v<TYPE, bool>)
+                return i_scalar;
+            else if constexpr(std::is_floating_point_v<TYPE>)
+                return NumericCast<Real>(i_scalar);
+            else if constexpr(std::is_integral_v<TYPE>)
+                return NumericCast<Integer>(i_scalar);
+        }
+            
+    private:
+        // expressions are immutable
         std::shared_ptr<const Expression> m_expression;
     };
 

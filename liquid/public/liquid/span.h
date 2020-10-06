@@ -149,7 +149,7 @@ namespace liquid
     template <typename SOURCE_CONTAINER>
         auto ToSpan(SOURCE_CONTAINER && i_source_container)
     {
-        using ElementType = std::decay_t<decltype(*std::begin(i_source_container))>;
+        using ElementType = std::remove_reference_t<decltype(*std::begin(i_source_container))>;
         return Span<ElementType>(i_source_container);
     }
 

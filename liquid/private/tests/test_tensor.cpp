@@ -15,14 +15,23 @@ namespace liquid
     {
         std::cout << "Test Tensor...";
 
+        TensorType nnn(ScalarType::Real, FixedShape({2, 3, 2}));
+
         {
             Tensor t = 2.0;
             LIQUID_ASSERT(( Rank(t) == 0 ));
-            LIQUID_ASSERT(( Shape(t) == Tensor(std::initializer_list<Integer>{}, {0}) ));
+            LIQUID_ASSERT(( Shape(t) == Tensor(std::initializer_list<Tensor>{}, {0}) ));
             LIQUID_ASSERT(( t.GetScalarType() == ScalarType::Real ));
             LIQUID_ASSERT(( GetConstantStorage<Real>(t).content_equals({ 2.0 }) ));
 
             LIQUID_ASSERT(( t + 3.0 == 5.0 )); 
+        }
+
+        {
+            Tensor t1 = 1;
+            Tensor t2 = 2;
+            Tensor t = {t1, t2};
+            Tensor t11 = {{t1, t2}, {t1, t2}};
         }
 
         {
