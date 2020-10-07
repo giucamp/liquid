@@ -7,7 +7,7 @@
 #pragma once
 
 #include <variant>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/tensor.h"
 #include "fixed_shape.h"
 

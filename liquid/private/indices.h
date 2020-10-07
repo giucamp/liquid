@@ -7,10 +7,10 @@
 #pragma once
 
 #include <vector>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "fixed_shape.h"
 #include "tensor_value.h"
-#include "liquid/tensor_initializer.h"
+#include "tensor_initializer.h"
 
 namespace liquid
 {

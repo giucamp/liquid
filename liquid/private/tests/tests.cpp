@@ -4,11 +4,12 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 
 namespace liquid
 {
     void TestIndices();
+    void TestFixedShape();
     void TestScalarType();
     void TestTensor();
     void TestIf();
@@ -16,8 +17,9 @@ namespace liquid
 
     void TestLiquid()
     {
-        TestScalarType();
         TestIndices();
+        TestFixedShape();
+        TestScalarType();
         TestTensor();
         TestIf();
         TestMiu6();

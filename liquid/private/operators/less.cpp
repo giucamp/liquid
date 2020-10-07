@@ -41,7 +41,7 @@ namespace liquid
         return TensorValue(std::move(result), result_shape);
     }
 
-    extern const Operator& GetOperatorLess()
+    extern const Operator & GetOperatorLess()
     {
         static auto const op = Operator("Less")
             .SetDeduceType(LessDeduceType)

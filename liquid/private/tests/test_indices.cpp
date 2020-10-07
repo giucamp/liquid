@@ -4,7 +4,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "indices.h"
 #include <numeric>
 #include <iostream>
@@ -20,7 +20,7 @@ namespace liquid
 
         Indices indices(shape);
         Integer linear_index = 0;
-        LIQUID_ASSERT(shape.GetLinearSize() == 3 * 4 * 6);
+        LIQUID_EXPECTS(shape.GetLinearSize() == 3 * 4 * 6);
         for (Integer i = 0; i < 6; i++)
         {
             for (Integer j = 0; j < 4; j++)
@@ -28,8 +28,8 @@ namespace liquid
                 for (Integer k = 0; k < 3; k++)
                 {
                     Integer n = k + j * 3 + i * 3 * 4;
-                    LIQUID_ASSERT(n == linear_index);
-                    LIQUID_ASSERT(n == indices.GetLogicalLinearIndex());
+                    LIQUID_EXPECTS(n == linear_index);
+                    LIQUID_EXPECTS(n == indices.GetLogicalLinearIndex());
                     values[k][j][i] = static_cast<Real>(k + j + i);
                     indices++;
                     linear_index++;
@@ -50,11 +50,11 @@ namespace liquid
             auto ind = indices.GetIndices();
             auto first = values[ind[0]][ind[1]][ind[2]];
             auto second = indices[check_values];
-            LIQUID_ASSERT(first == second);
+            LIQUID_EXPECTS(first == second);
         }
-        LIQUID_ASSERT(linear_index == 72);
+        LIQUID_EXPECTS(linear_index == 72);
 
-        LIQUID_ASSERT(GetScalarType<Real>() == ScalarType::Real);
+        LIQUID_EXPECTS(GetScalarType<Real>() == ScalarType::Real);
 
         std::cout << "done" << std::endl;
     }

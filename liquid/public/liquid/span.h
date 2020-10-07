@@ -9,7 +9,9 @@
 #include <utility>
 #include <type_traits>
 #include <algorithm>
-#include "liquid/liquid_common.h"
+#include <stdexcept>
+#include <assert.h>
+#include <vector>
 #include "liquid/pointer_iterator.h"
 
 namespace liquid
@@ -54,53 +56,57 @@ namespace liquid
 
         const TYPE & operator[](size_t i_index) const
         {
-            return at(i_index);
+            assert(i_index < m_size);
+            return m_data[i_index];
         }
 
         TYPE & operator[](size_t i_index)
         {
-            return at(i_index);
+            assert(i_index < m_size);
+            return m_data[i_index];
         }
 
         const TYPE & at(size_t i_index) const
         {
-            LIQUID_ASSERT(i_index < m_size);
+            if(i_index >= m_size)
+                throw std::out_of_range("Span - out of range");
             return m_data[i_index];
         }
 
         TYPE & at(size_t i_index)
         {
-            LIQUID_ASSERT(i_index < m_size);
+            if(i_index >= m_size)
+                throw std::out_of_range("Span - out of range");
             return m_data[i_index];
         }
 
         TYPE & front()
         {
-            LIQUID_ASSERT(m_size > 0);
+            assert(m_size > 0);
             return m_data[0];
         }
 
         const TYPE & front() const
         {
-            LIQUID_ASSERT(m_size > 0);
+            assert(m_size > 0);
             return m_data[0];
         }
 
         TYPE & back()
         {
-            LIQUID_ASSERT(m_size > 0);
+            assert(m_size > 0);
             return m_data[m_size - 1];
         }
 
         const TYPE & back() const
         {
-            LIQUID_ASSERT(m_size > 0);
+            assert(m_size > 0);
             return m_data[m_size - 1];
         }
 
         Span subspan(size_t i_offset, size_t i_size) const
         {
-            LIQUID_ASSERT(i_offset <= m_size && i_offset + i_size <= m_size);
+            assert(i_offset <= m_size && i_offset + i_size <= m_size);
             return {m_data + i_offset, i_size};
         }
 
@@ -153,12 +159,13 @@ namespace liquid
         return Span<ElementType>(i_source_container);
     }
 
-    template <typename SOURCE_ELEMENTS, typename PREDICATE>
-        auto Transform(Span<SOURCE_ELEMENTS> i_source_elements, const PREDICATE & i_predicate)
+    template <typename SOURCE_CONTAINER, typename PREDICATE>
+        auto Transform(const SOURCE_CONTAINER & i_source_elements, const PREDICATE & i_predicate)
     {
-        using DestType = decltype(i_predicate(std::declval<SOURCE_ELEMENTS>()));
+        using DestType = decltype(i_predicate(*std::declval<SOURCE_CONTAINER>().begin()));
         std::vector<DestType> result;
-        result.reserve(i_source_elements.size());
+        auto const size = std::size(i_source_elements);
+        result.reserve(size);
         for(const auto & source : i_source_elements)
             result.push_back(i_predicate(source));
         return result;

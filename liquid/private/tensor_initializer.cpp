@@ -5,8 +5,8 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
-#include "liquid/liquid_common.h"
-#include "liquid/tensor_initializer.h"
+#include "private_common.h"
+#include "tensor_initializer.h"
 
 namespace liquid
 {

@@ -182,5 +182,5 @@ namespace liquid
 
     Tensor Stack(Span<Tensor const> i_tensors);
 
-    inline bool AssertCheck(const Tensor & i_value) { return Always(i_value); }
+    std::ostream & operator << (std::ostream & i_dest, const Tensor & i_tensor);
 }

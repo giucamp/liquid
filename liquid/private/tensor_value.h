@@ -7,9 +7,9 @@
 #pragma once
 
 #include <variant>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/span.h"
-#include "liquid/tensor_initializer.h"
+#include "tensor_initializer.h"
 #include "shared_array.h"
 #include "tensor_type.h"
 
@@ -66,9 +66,9 @@ namespace liquid
                 return {};
         }
 
-        friend bool operator == (const TensorValue & i_first, const TensorValue& i_second);
+        friend bool operator == (const TensorValue & i_first, const TensorValue & i_second);
 
-        friend bool operator != (const TensorValue& i_first, const TensorValue& i_second)
+        friend bool operator != (const TensorValue & i_first, const TensorValue & i_second)
         {
             return !(i_first == i_second);
         }
@@ -89,7 +89,7 @@ namespace liquid
 
     private:
 
-        void SetFromInitializer(const TensorInitializer& i_scalars);
+        void SetFromInitializer(const TensorInitializer & i_scalars);
 
         template <typename SCALAR_TYPE>
             static size_t ConstantWrapping(const FixedShape & i_shape, Span<const SCALAR_TYPE> i_scalars);
@@ -98,7 +98,7 @@ namespace liquid
 
         void UnflattenLowerDim(const FixedShape & i_dest_shape);
 
-        void StripSuperfluousUpperDims(const FixedShape& i_dest_shape);
+        void StripSuperfluousUpperDims(const FixedShape & i_dest_shape);
 
     private:
         TensorType m_type;

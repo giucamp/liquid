@@ -41,7 +41,7 @@ namespace liquid
         return TensorValue(std::move(result), result_shape);
     }
 
-    extern const Operator& GetOperatorEqual()
+    extern const Operator & GetOperatorEqual()
     {
         static auto const op = Operator("Equal")
             .AddFlags(Operator::Flags::Commutative)

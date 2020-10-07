@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/span.h"
 #include "shared_array.h"
 

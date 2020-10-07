@@ -4,18 +4,20 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include <iostream>
 
 namespace liquid
 {
     void TestScalarType()
     {
-        std::cout << "Test ScalarTypefd...";
+        std::cout << "Test ScalarType...";
 
-        LIQUID_ASSERT(GetScalarType<Real>() == ScalarType::Real);
-        LIQUID_ASSERT(GetScalarType<Integer>() == ScalarType::Integer);
-        LIQUID_ASSERT(GetScalarType<Bool>() == ScalarType::Bool);
+        const char topic[] = "scalar types";
+
+        LIQUID_EXPECTS_DOC(topic, GetScalarType<Real>() == ScalarType::Real);
+        LIQUID_EXPECTS_DOC(topic, GetScalarType<Integer>() == ScalarType::Integer);
+        LIQUID_EXPECTS_DOC(topic, GetScalarType<Bool>() == ScalarType::Bool);
 
         static_assert(std::is_same_v<FromScalarType<ScalarType::Real>, Real>);
         static_assert(std::is_same_v<FromScalarType<ScalarType::Integer>, Integer>);

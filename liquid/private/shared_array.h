@@ -10,7 +10,7 @@
 #include <iterator>
 #include <algorithm>
 #include <type_traits>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/pointer_iterator.h"
 #include "liquid/span.h"
 
@@ -43,13 +43,13 @@ namespace liquid
             i_source.m_size = 0;
         }
 
-        friend void swap(SharedArray & i_first, SharedArray & i_second)
+        friend void swap(SharedArray & i_first, SharedArray & i_second) noexcept
         {
             std::swap(i_first.m_elements, i_second.m_elements);
             std::swap(i_first.m_size, i_second.m_size);
         }
 
-        SharedArray & operator = (SharedArray i_source)
+        SharedArray & operator = (SharedArray i_source) noexcept
         {
             swap(*this, i_source);
             return *this;

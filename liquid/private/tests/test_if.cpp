@@ -4,7 +4,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "indices.h"
 #include <numeric>
 #include <iostream>
@@ -21,6 +21,8 @@ namespace liquid
     void TestIf()
     {
         std::cout << "Test If...";
+
+        const char topic[] = "If";
 
         {
             Tensor t2 = 2.0;
@@ -39,14 +41,15 @@ namespace liquid
         }
 
         {
-            LIQUID_EXPECTS(If(2) == 2);
-            LIQUID_EXPECTS(If(true, 2, 1) == 2);
-            LIQUID_EXPECTS(If(false, 2, 1.0) == 1);
-            LIQUID_EXPECTS(If(true, 2, 1) == 2);
-            LIQUID_EXPECTS(If(false, 2, false, 3, 1) == 1);
-            LIQUID_EXPECTS(If(false, 2, false, 3, true, 1, 42) == 1);
+            LIQUID_EXPECTS_DOC(topic, If(2) == 2);
+            LIQUID_EXPECTS_DOC(topic, If(true, 2, 1) == 2);
+            LIQUID_EXPECTS_DOC(topic, If(false, 2, 1.0) == 1);
+            LIQUID_EXPECTS_DOC(topic, If(true, 2, 1) == 2);
+            LIQUID_EXPECTS_DOC(topic, If(false, 2, false, 3, 1) == 1);
+            LIQUID_EXPECTS_DOC(topic, If(false, 2, false, 3, true, 1, 42) == 1);
 
-            LIQUID_EXPECTS_ERROR(If(1, 1, 1), "If: could not find an overload matching the argument types: int[], int[], int[]");
+            LIQUID_EXPECTS_ERROR_DOC(topic, If(1, 1, 1), 
+                "If: could not find an overload matching the argument types: int[], int[], int[]");
         }
 
         {
@@ -55,15 +58,15 @@ namespace liquid
             Tensor t3 = {0.0, 0.0};
             Tensor matrix = {{1, 2}, {3, 4}};
 
-            LIQUID_EXPECTS( If(t1 > t2, 5.0, 2) == Tensor({5, 2}) );
-            LIQUID_EXPECTS( If(t1 > t2 || t3 == t2, 5.0, 2) == Tensor({5, 2}) );
-            LIQUID_EXPECTS( If(false, matrix, 2) == 2 );
-            LIQUID_EXPECTS( If(false, matrix, 2) == Tensor({{2, 2}, {2, 2}}) );
-            LIQUID_EXPECTS( If(true, matrix, 2) == matrix );
+            LIQUID_EXPECTS(If(t1 > t2, 5.0, 2) == Tensor({5, 2}) );
+            LIQUID_EXPECTS(If(t1 > t2 || t3 == t2, 5.0, 2) == Tensor({5, 2}) );
+            LIQUID_EXPECTS(If(false, matrix, 2) == 2 );
+            LIQUID_EXPECTS(If(false, matrix, 2) == Tensor({{2, 2}, {2, 2}}) );
+            LIQUID_EXPECTS(If(true, matrix, 2) == matrix );
 
-            LIQUID_EXPECTS( Lerp(0.5, 7, 8) == 7.5);
-            LIQUID_EXPECTS( Lerp( {-1., 0.5, 2.}, 7, 8 ) == Tensor({7., 7.5, 8.}));
-            LIQUID_EXPECTS( Lerp( 0.5, 0, {8, 2} ) == Tensor({4, 1}));
+            LIQUID_EXPECTS_DOC(topic, Lerp(0.5, 7, 8) == 7.5);
+            LIQUID_EXPECTS_DOC(topic, Lerp( {-1., 0.5, 2.}, 7, 8 ) == Tensor({7., 7.5, 8.}));
+            LIQUID_EXPECTS_DOC(topic, Lerp( 0.5, 0, {8, 2} ) == Tensor({4, 1}));
         }
 
         std::cout << "done" << std::endl;

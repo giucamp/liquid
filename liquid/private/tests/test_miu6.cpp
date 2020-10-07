@@ -4,7 +4,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "miu6/lexer.h"
 #include "indices.h"
 #include <numeric>

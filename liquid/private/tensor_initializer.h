@@ -9,7 +9,7 @@
 #include <variant>
 #include <type_traits>
 #include <utility>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/span.h"
 
 namespace liquid

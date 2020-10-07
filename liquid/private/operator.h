@@ -5,7 +5,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "tensor_value.h"
 #include "tensor_type.h"
 #include <optional>
@@ -20,6 +20,8 @@ namespace liquid
     public:
 
         Operator(std::string_view i_name);
+
+        const std::string & GetName() const      { return m_name; }
 
         Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
             const std::any & i_attachment = {} ) const;
@@ -81,7 +83,6 @@ namespace liquid
         {
             TensorType m_type;
             std::string m_name;
-            std::optional<Tensor> m_default_value;
         };
 
         struct Overload
@@ -121,7 +122,7 @@ namespace liquid
         Operator & SetGradientOfOperand(GradientOfOperandFunction i_func);
 
 
-            // canonicalization
+            // identity element
 
         Operator & SetIdentityElement(const TensorValue & i_value);
 

@@ -8,7 +8,7 @@
 
 #include <variant>
 #include <any>
-#include "liquid/liquid_common.h"
+#include "private_common.h"
 #include "liquid/span.h"
 #include "shared_array.h"
 #include "tensor_type.h"
@@ -38,7 +38,7 @@ namespace liquid
         const std::vector<Tensor> & GetOperands() const { return m_operands; }
         const std::any & GetAttachment() const { return m_attachment; }
 
-        bool OperatorIs(const Operator& i_op) const { return &m_operator == &i_op; }
+        bool OperatorIs(const Operator & i_op) const { return &m_operator == &i_op; }
 
     private:
         std::string m_name;
@@ -55,7 +55,7 @@ namespace liquid
 
     const TensorValue & GetConstantValue(const Tensor & i_tensor);
 
-    bool AlwaysEqual(const Tensor& i_tensor, const TensorValue & i_value);
+    bool AlwaysEqual(const Tensor & i_tensor, const TensorValue & i_value);
 
     TensorType DeduceType(Span<const Tensor> i_operands);
 }

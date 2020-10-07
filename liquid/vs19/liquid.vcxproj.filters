@@ -48,9 +48,6 @@
     <ClInclude Include="..\public\liquid\tensor.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\liquid\tensor_initializer.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\private\fixed_shape.h">
       <Filter>private</Filter>
     </ClInclude>
@@ -59,6 +56,15 @@
     </ClInclude>
     <ClInclude Include="..\private\miu6\parser.h">
       <Filter>private\miu6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\private_common.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\tensor_initializer.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\private\book.h">
+      <Filter>private</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +169,12 @@
     </ClCompile>
     <ClCompile Include="..\private\operators\exp.cpp">
       <Filter>private\operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\book.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\test_shape.cpp">
+      <Filter>private\tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
