@@ -21,7 +21,7 @@ namespace liquid
 
             Lexer lexer(" \r\n  real int\tbool   ");
 
-            LIQUID_EXPECTS_ERROR(lexer.Accept(Token::Kind::Plus), "Unexpected token");
+            LIQUID_EXPECTS_PANIC(lexer.Accept(Token::Kind::Plus), "Unexpected token");
             
             lexer.Accept(Token::Kind::Real);
             lexer.Accept(Token::Kind::Integer);

@@ -27,23 +27,27 @@ namespace liquid
         return (static_cast<int>(i_all) & static_cast<int>(i_some)) == static_cast<int>(i_some);
     }
 
-    namespace detail
-    {
-        void Expects(const char * i_topic, const Tensor & i_bool_tensor, const char * i_str_expr);
+    void Expects(const char * i_topic, const Tensor & i_bool_tensor,
+        const char * i_cpp_source_code);
 
-        void ExpectsError(const char * i_topic, const std::function<void()> & i_function, 
-            const char * i_expression_str, const char * i_expected_error);
-    }
+    void Expects(const char * i_topic, const char * i_miu6_source_code);
+
+    void ExpectsPanic(const char * i_topic, 
+        const std::function<void()> & i_function,
+        const char * i_cpp_source_code, const char * i_expected_message);
+
+    void ExpectsPanic(const char * i_topic, const char * i_miu6_source_code, 
+        const char * i_expected_message);
 
     #define LIQUID_ASSERT(expr) if(!(expr)) Panic("Assert failure: " #expr);
 
-    #define LIQUID_EXPECTS(expr) ::liquid::detail::Expects(nullptr, expr, #expr)
+    #define LIQUID_EXPECTS(expr) ::liquid::Expects(nullptr, expr, #expr)
 
-    #define LIQUID_EXPECTS_DOC(topic, expr) ::liquid::detail::Expects(topic, expr, #expr)
+    #define LIQUID_EXPECTS_DOC(topic, expr) ::liquid::Expects(topic, expr, #expr)
 
-    #define LIQUID_EXPECTS_ERROR(expr, expected_error) \
-        ::liquid::detail::ExpectsError(nullptr, [&]{ (void)(expr); }, #expr, expected_error);
+    #define LIQUID_EXPECTS_PANIC(expr, expected_error) \
+        ::liquid::ExpectsPanic(nullptr, [&]{ (void)(expr); }, #expr, expected_error);
 
-    #define LIQUID_EXPECTS_ERROR_DOC(topic, expr, expected_error) \
-        ::liquid::detail::ExpectsError(topic, [&]{ (void)(expr); }, #expr, expected_error);
+    #define LIQUID_EXPECTS_PANIC_DOC(topic, expr, expected_error) \
+        ::liquid::ExpectsPanic(topic, [&]{ (void)(expr); }, #expr, expected_error);
 }

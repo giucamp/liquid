@@ -16,73 +16,128 @@ namespace liquid
     namespace detail
     {
         thread_local bool g_silent_panic = false;
+    }
 
-        void Expects(const char * i_topic, const Tensor & i_bool_tensor, const char * i_str_expr)
+    void Expects(const char * i_topic, const Tensor & i_bool_tensor, const char * i_cpp_source_code)
+    {
+        auto GetMessageHeader = [i_topic, i_cpp_source_code]{
+            return i_topic != nullptr ? 
+                std::string("Expects - ") + i_topic + ": " + i_cpp_source_code :
+                std::string("Expects - ") + i_cpp_source_code;
+        };
+
+        if(i_bool_tensor.GetScalarType() != ScalarType::Bool)
+            Panic(GetMessageHeader(), " has type ", i_bool_tensor.GetScalarType(), " (should be bool)");
+
+        if(!Always(i_bool_tensor))
+            Panic(GetMessageHeader(), " is ", i_bool_tensor);
+
+        if(i_topic != nullptr)
+            Book::Get().AddProposition(i_topic, i_bool_tensor, i_cpp_source_code, nullptr);
+    }
+
+    void Expects(const char * i_topic, const char * i_miu6_source_code)
+    {
+        auto GetMessageHeader = [i_topic, i_miu6_source_code]{
+            return i_topic != nullptr ? 
+                std::string("Expects - ") + i_topic + ": " + i_miu6_source_code :
+                std::string("Expects - ") + i_miu6_source_code;
+        };
+
+        Tensor bool_tensor(i_miu6_source_code);
+        if(bool_tensor.GetScalarType() != ScalarType::Bool)
+            Panic(GetMessageHeader(), " has type ", bool_tensor.GetScalarType(), " (should be bool)");
+
+        if(!Always(bool_tensor))
+            Panic(GetMessageHeader(), " is ", bool_tensor);
+
+        if(i_topic != nullptr)
+            Book::Get().AddProposition(i_topic, bool_tensor, nullptr, i_miu6_source_code);
+    }
+
+    void ExpectsPanic(const char * i_topic, 
+        const std::function<void()> & i_function,
+        const char * i_cpp_source_code, const char * i_expected_message)
+    {
+        auto GetMessageHeader = [i_topic, i_cpp_source_code]{
+            return i_topic != nullptr ? 
+                std::string("ExpectsPanic - ") + i_topic + ": " + i_cpp_source_code :
+                std::string("ExpectsPanic - ") + i_cpp_source_code;
+        };
+
+        if(detail::g_silent_panic)
+            Panic(GetMessageHeader(), ", recursion is not allowed");
+
+        std::string panic_message;
+        bool got_error = false;
+        try
         {
-            if(i_bool_tensor.GetScalarType() != ScalarType::Bool)
-            {
-                if(i_topic != nullptr)
-                    Panic("Expects - ", i_topic, ": ", i_str_expr, " has type ", i_bool_tensor.GetScalarType());
-                else
-                    Panic("Expects: ", i_str_expr, " has type ", i_bool_tensor.GetScalarType());
-            }
-
-            if(!Always(i_bool_tensor))
-            {
-                if(i_topic != nullptr)
-                    Panic("Expects - ", i_topic, ": ", i_str_expr, " is ", i_bool_tensor);
-                else
-                    Panic("Expects: ", i_str_expr, " is ", i_bool_tensor);
-            }
-
-            if(i_topic != nullptr)
-                Book::Get().AddProposition(i_topic, i_bool_tensor, i_str_expr);
+            detail::g_silent_panic = true;
+            i_function();
+            detail::g_silent_panic = false;
+        }
+        catch (const std::exception & i_exc)
+        {
+            detail::g_silent_panic = false;
+            panic_message = i_exc.what();
+            got_error = true;
+        }
+        catch (...)
+        {
+            detail::g_silent_panic = false;
         }
 
-        void ExpectsError(const char * i_topic, 
-            const std::function<void()> & i_function,
-            const char* i_expression_str, const char* i_expected_error)
+        if(!got_error)
+            Panic(GetMessageHeader(), " was supposed to panic");
+
+        if(panic_message != i_expected_message)
+            Panic(GetMessageHeader(), " was supposed to panic with the message:\n",
+                i_expected_message, ", but is gave:\n", panic_message);
+
+        if(i_topic != nullptr)
+            Book::Get().AddPanicProposition(i_topic, i_expected_message, i_cpp_source_code, nullptr);
+    }
+
+    void ExpectsPanic(const char * i_topic, const char * i_miu6_source_code,
+        const char * i_expected_message)
+    {
+        auto GetMessageHeader = [i_topic, i_miu6_source_code]{
+            return i_topic != nullptr ? 
+                std::string("ExpectsPanic - ") + i_topic + ": " + i_miu6_source_code :
+                std::string("ExpectsPanic - ") + i_miu6_source_code;
+        };
+
+        if(detail::g_silent_panic)
+            Panic(GetMessageHeader(), ", recursion is not allowed");
+
+        std::string panic_message;
+        bool got_error = false;
+        try
         {
-            if(g_silent_panic)
-                Panic("ExpectsError - recursion is not allowed");
-
-            std::string error;
-            bool got_error = false;
-            try
-            {
-                g_silent_panic = true;
-                i_function();
-                g_silent_panic = false;
-            }
-            catch (const std::exception & i_exc)
-            {
-                g_silent_panic = false;
-                error = i_exc.what();
-                got_error = true;
-            }
-            catch (...)
-            {
-                g_silent_panic = false;
-            }
-
-            if(!got_error)
-                Panic(i_topic, " - The expression ", i_expression_str, " was supposed to error");
-
-            if(error != i_expected_error)
-            {
-                if(i_topic != nullptr)
-                    Panic(i_topic, " - The expression ", i_expression_str, 
-                        " was supposed to raise the error:\n", i_expected_error, 
-                        "\nbut it raised:\n", error);
-                else
-                    Panic("The expression ", i_expression_str, 
-                        " was supposed to raise the error:\n", i_expected_error, 
-                        "\nbut it raised:\n", error);
-            }
-
-            if(i_topic != nullptr)
-                Book::Get().AddPanicProposition(i_topic, i_expression_str, i_expected_error);
+            detail::g_silent_panic = true;
+            Tensor tensor(i_miu6_source_code);
+            detail::g_silent_panic = false;
         }
+        catch (const std::exception & i_exc)
+        {
+            detail::g_silent_panic = false;
+            panic_message = i_exc.what();
+            got_error = true;
+        }
+        catch (...)
+        {
+            detail::g_silent_panic = false;
+        }
+
+        if(!got_error)
+            Panic(GetMessageHeader(), " was supposed to panic");
+
+        if(panic_message != i_expected_message)
+            Panic(GetMessageHeader(), " was supposed to panic with the message:\n",
+                i_expected_message, ", but is gave:\n", panic_message);
+
+        if(i_topic != nullptr)
+            Book::Get().AddPanicProposition(i_topic, i_expected_message, nullptr, i_miu6_source_code);
     }
 
     std::ostream& operator << (std::ostream& i_ostream, ScalarType i_scalar_type)

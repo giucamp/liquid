@@ -8,7 +8,8 @@
 #include "private_common.h"
 #include "operator.h"
 #include "liquid/tensor.h"
-#include <memory>
+#include <unordered_map>
+#include <variant>
 
 namespace liquid
 {
@@ -23,6 +24,25 @@ namespace liquid
 
         using Element = std::variant<std::string_view, Tensor>;
 
+        struct Paragraphs
+        {
+            std::vector<Element> m_elements;
+        };
+
+        struct Proposition
+        {
+            Tensor m_bool_expression;
+            std::string m_cpp_source_code;
+            std::string m_miu6_source_code;
+        };
+
+        struct PanicProposition
+        {
+            std::string m_panic_message;
+            std::string m_cpp_source_code;
+            std::string m_miu6_source_code;
+        };
+
         void AddParagraph(std::string_view i_title, Span<Element const> i_elements);
 
         template <typename... ELEMENT, typename = std::enable_if_t<
@@ -32,20 +52,26 @@ namespace liquid
             AddParagraph(i_topic, {i_elements...});
         }
 
-        void AddProposition(const char * i_topic, const Tensor & i_bool_expression, const char * i_cpp_expression);
+        void AddProposition(const char * i_topic, const Tensor & i_bool_expression, 
+            const char * i_cpp_source_code, const char * i_miu6_source_code);
 
-        void AddPanicProposition(const char * i_topic, const char * i_cpp_expression, const char * i_message);
+        void AddPanicProposition(const char * i_topic, const char * i_panic_message,
+            const char * i_cpp_source_code, const char * i_miu6_source_code);
 
         const Operator & GetOperator(const std::string & i_name) const;
 
         std::vector<std::string> GetAllTopics() const;
 
     private:
+
         Book();
-        ~Book();
+
+        void AddOperator(const Operator & i_operator);
 
     private:
-        struct Content;
-        std::unique_ptr<Content> m_content;
+        std::unordered_map<std::string, const Operator &> m_operators;
+        std::unordered_map<std::string, const Paragraphs> m_paragraphs;
+        std::unordered_multimap<std::string, const Proposition> m_propositions;
+        std::unordered_multimap<std::string, const PanicProposition> m_panic_propositions;
     };
 }

@@ -21,7 +21,6 @@ namespace liquid
     void TestIf()
     {
         std::cout << "Test If...";
-
         const char topic[] = "If";
 
         {
@@ -41,6 +40,20 @@ namespace liquid
         }
 
         {
+            Tensor t2 = {2.0, 1.0};
+            Tensor t3 = {0.0, 4.0};
+
+            LIQUID_EXPECTS(t2 > 0);
+            LIQUID_EXPECTS(t3 >= 0);
+
+            LIQUID_EXPECTS((t3 > t2) == Tensor({false, true}));
+            LIQUID_EXPECTS((t3 < t2) == Tensor({true, false}));
+            LIQUID_EXPECTS((t3 >= t2) == Tensor({false, true}));
+            LIQUID_EXPECTS((t3 <= t2) == Tensor({true, false}));
+            LIQUID_EXPECTS(t2 != t3);
+        }
+
+        {
             LIQUID_EXPECTS_DOC(topic, If(2) == 2);
             LIQUID_EXPECTS_DOC(topic, If(true, 2, 1) == 2);
             LIQUID_EXPECTS_DOC(topic, If(false, 2, 1.0) == 1);
@@ -48,7 +61,7 @@ namespace liquid
             LIQUID_EXPECTS_DOC(topic, If(false, 2, false, 3, 1) == 1);
             LIQUID_EXPECTS_DOC(topic, If(false, 2, false, 3, true, 1, 42) == 1);
 
-            LIQUID_EXPECTS_ERROR_DOC(topic, If(1, 1, 1), 
+            LIQUID_EXPECTS_PANIC_DOC(topic, If(1, 1, 1), 
                 "If: could not find an overload matching the argument types: int[], int[], int[]");
         }
 

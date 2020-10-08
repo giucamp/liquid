@@ -12,6 +12,7 @@ namespace liquid
     void TestFixedShape();
     void TestScalarType();
     void TestTensor();
+    void TestAdd();
     void TestIf();
     void TestMiu6();
 
@@ -21,6 +22,7 @@ namespace liquid
         TestFixedShape();
         TestScalarType();
         TestTensor();
+        TestAdd();
         TestIf();
         TestMiu6();
     }

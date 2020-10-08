@@ -4,15 +4,19 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#pragma once
-#include "private_common.h"
+#include "miu6.h"
+#include "miu6/parser.h"
 #include "miu6/lexer.h"
 
 namespace liquid
 {
     namespace miu6
     {
-        std::optional<Tensor> TryParseExpression(Lexer & i_lexer);
-        Tensor ParseExpression(Lexer & i_lexer);
-    }
-} // namespace liquid
+        Tensor ParseExpression(std::string_view i_source)
+        {
+            Lexer lexer(i_source);
+            return ParseExpression(lexer);
+        }
+
+    } // namespace miu6
+}

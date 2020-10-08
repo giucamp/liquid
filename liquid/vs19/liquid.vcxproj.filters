@@ -66,6 +66,9 @@
     <ClInclude Include="..\private\book.h">
       <Filter>private</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\miu6\miu6.h">
+      <Filter>private\miu6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
@@ -174,6 +177,12 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\private\tests\test_shape.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\miu6\miu6.cpp">
+      <Filter>private\miu6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\test_add.cpp">
       <Filter>private\tests</Filter>
     </ClCompile>
   </ItemGroup>

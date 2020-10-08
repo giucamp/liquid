@@ -6,6 +6,7 @@
 
 #include "liquid/tensor.h"
 #include "expression.h"
+#include "miu6/miu6.h"
 
 namespace liquid
 {
@@ -77,14 +78,15 @@ namespace liquid
     }
 
     Tensor::Tensor(std::string_view i_miu6_code, ScalarType i_scalar_type)
+        : Tensor(miu6::ParseExpression(i_miu6_code))
     {
-        Panic("To do");
+        
     }
 
     Tensor::Tensor(std::string_view i_miu6_code, Span<const Integer> i_shape,
         ScalarType i_scalar_type)
+        : Tensor(miu6::ParseExpression(i_miu6_code))
     {
-        Panic("To do");
     }
 
     ScalarType Tensor::GetScalarType() const

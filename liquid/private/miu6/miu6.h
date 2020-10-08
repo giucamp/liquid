@@ -12,7 +12,7 @@ namespace liquid
 {
     namespace miu6
     {
-        std::optional<Tensor> TryParseExpression(Lexer & i_lexer);
-        Tensor ParseExpression(Lexer & i_lexer);
+        Tensor ParseExpression(std::string_view i_source);
     }
+    
 } // namespace liquid

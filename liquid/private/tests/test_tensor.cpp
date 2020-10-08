@@ -73,7 +73,7 @@ namespace liquid
             LIQUID_EXPECTS(( Add(t) == Tensor({1, 2}) ));
             LIQUID_EXPECTS(( Add(t, t) == t * 2 ));
 
-            LIQUID_EXPECTS_ERROR(Add(true), "Add: could not find an overload matching the argument types: bool[]");
+            LIQUID_EXPECTS_PANIC(Add(true), "Add: could not find an overload matching the argument types: bool[]");
         }
 
         std::cout << "done" << std::endl;
