@@ -29,6 +29,18 @@ namespace liquid
             lexer.Accept(Token::Kind::EndOfSource);
         }
 
+        Expects("2 + 3*5 == 17");
+        Expects("2 + 3*5*(2+3) == 77");
+        Expects("(2+-3)*2+ 40 == 38");
+        Expects("4^3^2+1==262145");
+        Expects("2+3*3>0");
+        Expects("(2+3*3)*0>=0");        
+        Expects("-5==-(5)");        
+        Expects("40/5*2 ==16");
+        Expects("-3^2==9");
+        Expects("(2+-3^2)==11");
+        Expects("-(2+-3^2)*2+ 40/5*2 ==-6");
+
         std::cout << "done" << std::endl;
     }
 }

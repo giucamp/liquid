@@ -32,11 +32,16 @@ namespace liquid
 
     void Expects(const char * i_topic, const char * i_miu6_source_code);
 
+    void Expects(const char * i_miu6_source_code);
+
     void ExpectsPanic(const char * i_topic, 
         const std::function<void()> & i_function,
         const char * i_cpp_source_code, const char * i_expected_message);
 
     void ExpectsPanic(const char * i_topic, const char * i_miu6_source_code, 
+        const char * i_expected_message);
+
+    void ExpectsPanic(const char * i_miu6_source_code, 
         const char * i_expected_message);
 
     #define LIQUID_ASSERT(expr) if(!(expr)) Panic("Assert failure: " #expr);

@@ -13,6 +13,11 @@
 
 namespace liquid
 {
+    struct PanicException : public std::exception
+    {
+        using exception::exception;
+    };
+
     namespace detail
     {
         thread_local bool g_silent_panic = false;
@@ -55,6 +60,11 @@ namespace liquid
             Book::Get().AddProposition(i_topic, bool_tensor, nullptr, i_miu6_source_code);
     }
 
+    void Expects(const char * i_miu6_source_code)
+    {
+        Expects(nullptr, i_miu6_source_code);
+    }
+
     void ExpectsPanic(const char * i_topic, 
         const std::function<void()> & i_function,
         const char * i_cpp_source_code, const char * i_expected_message)
@@ -76,7 +86,7 @@ namespace liquid
             i_function();
             detail::g_silent_panic = false;
         }
-        catch (const std::exception & i_exc)
+        catch (const PanicException & i_exc)
         {
             detail::g_silent_panic = false;
             panic_message = i_exc.what();
@@ -92,7 +102,7 @@ namespace liquid
 
         if(panic_message != i_expected_message)
             Panic(GetMessageHeader(), " was supposed to panic with the message:\n",
-                i_expected_message, ", but is gave:\n", panic_message);
+                i_expected_message, ", but it gave:\n", panic_message);
 
         if(i_topic != nullptr)
             Book::Get().AddPanicProposition(i_topic, i_expected_message, i_cpp_source_code, nullptr);
@@ -118,7 +128,7 @@ namespace liquid
             Tensor tensor(i_miu6_source_code);
             detail::g_silent_panic = false;
         }
-        catch (const std::exception & i_exc)
+        catch (const PanicException & i_exc)
         {
             detail::g_silent_panic = false;
             panic_message = i_exc.what();
@@ -140,7 +150,12 @@ namespace liquid
             Book::Get().AddPanicProposition(i_topic, i_expected_message, nullptr, i_miu6_source_code);
     }
 
-    std::ostream& operator << (std::ostream& i_ostream, ScalarType i_scalar_type)
+    void ExpectsPanic(const char * i_miu6_source_code, const char * i_expected_message)
+    {
+        ExpectsPanic(nullptr, i_miu6_source_code, i_expected_message);
+    }
+
+    std::ostream & operator << (std::ostream& i_ostream, ScalarType i_scalar_type)
     {
         switch (i_scalar_type)
         {
@@ -153,7 +168,6 @@ namespace liquid
         return i_ostream;
     }
 
-
     void Panic(const std::string & i_error)
     {
         if(!detail::g_silent_panic)
@@ -165,6 +179,6 @@ namespace liquid
                     DebugBreak();
             #endif
         }
-        throw std::exception(i_error.c_str());
+        throw PanicException(i_error.c_str());
     }
 }

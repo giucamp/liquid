@@ -87,6 +87,7 @@ namespace liquid
         ScalarType i_scalar_type)
         : Tensor(miu6::ParseExpression(i_miu6_code))
     {
+        Panic("to do");
     }
 
     ScalarType Tensor::GetScalarType() const

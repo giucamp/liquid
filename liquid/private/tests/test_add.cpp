@@ -17,7 +17,6 @@ namespace liquid
         const char topic[] = "Add";
 
         Expects(topic, "2 + 3 == 5");
-        // Expects(topic, "2 + 3*5 == 17");
 
         std::cout << "done" << std::endl;
     }

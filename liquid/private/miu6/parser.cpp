@@ -13,11 +13,11 @@ namespace liquid
     {
         // https://en.wikipedia.org/wiki/Operator-precedence_parser
 
-        class Parser { /* we use a class with statci functions to avoid forward declarations
-         (class members ) */
+        class Parser { /* we use a class with static functions to avoid forward declarations
+            (class members can see each other regardless of the order) */
         public:
 
-        // any|real|int|bool
+        // parses any|real|int|bool
         static ScalarType ParseScalarType(Lexer & i_lexer)
         {
             if(i_lexer.TryAccept(Token::Kind::Real))
@@ -32,7 +32,7 @@ namespace liquid
                 return ScalarType::Any; // any is implicit
         }
 
-        // any|real|int|bool [expr...,*]
+        // parses any|real|int|bool [expr...,*]
         static TensorType ParseTensorType(Lexer & i_lexer)
         {
             ScalarType const scalar_type = ParseScalarType(i_lexer);
@@ -46,24 +46,24 @@ namespace liquid
                 return scalar_type;
         }
 
-        // expr...,*
+        // parses expr...,*
         static std::vector<Tensor> ParseExpressionList(Lexer & i_lexer)
         {
             std::vector<Tensor> result;
-            if(auto first_expression = TryParseExpression(i_lexer))
+            if(auto first_expression = TryParseExpression(i_lexer, 0))
             {
                 result.push_back(*first_expression);
                 while (i_lexer.TryAccept(Token::Kind::Comma))
-                    result.push_back(ParseExpression(i_lexer));
+                    result.push_back(ParseExpression(i_lexer, 0));
             }
             return result;
         }
 
         // tries to parse a complete expression
-        static std::optional<Tensor> TryParseExpression(Lexer & i_lexer)
+        static std::optional<Tensor> TryParseExpression(Lexer & i_lexer, int32_t i_min_precedence)
         {
             if (auto const left_operand = TryParseLeftExpression(i_lexer))
-                return CombineWithOperator(i_lexer, *left_operand, 0);
+                return CombineWithOperator(i_lexer, *left_operand, i_min_precedence);
             else
                 return {};
         }
@@ -86,14 +86,14 @@ namespace liquid
             else if (auto token = i_lexer.TryAccept(Token::Kind::LeftParenthesis))
             {
                 // parentheses
-                Tensor expr = ParseExpression(i_lexer);
+                Tensor expr = ParseExpression(i_lexer, 0);
                 i_lexer.Accept(Token::Kind::RightParenthesis);
                 return expr;
             }
             else if (auto token = i_lexer.TryAccept(Token::Kind::Minus))
-                return -ParseExpression(i_lexer); // unary minus
+                return -ParseExpression(i_lexer, 500); // unary minus prcedence is 500
             else if (auto token = i_lexer.TryAccept(Token::Kind::Plus))
-                return ParseExpression(i_lexer); // unary plus
+                return ParseExpression(i_lexer, 500); // unary plus prcedence is 500
             else
                 return {};
         }
@@ -104,21 +104,22 @@ namespace liquid
         {
             Tensor result = i_left_operand;
 
-            while (GetBinaryOperatorPrecedence(i_lexer.GetCurrentToken().m_kind) >= i_min_precedence)
+            auto look_ahead = i_lexer.GetCurrentToken();
+            while (GetBinaryOperatorPrecedence(look_ahead.m_kind) >= i_min_precedence)
             {
-                Token operator_token = i_lexer.GetCurrentToken();
+                Token operator_token = look_ahead;
+                
                 i_lexer.Advance();
+                
+                auto right = *TryParseLeftExpression(i_lexer);
+                
+                look_ahead = i_lexer.GetCurrentToken();
 
-                auto const opt_right = TryParseLeftExpression(i_lexer);
-                if(!opt_right)
-                    Panic("Missing right hand side for operator ", static_cast<int>(operator_token.m_kind));
-                Tensor right = *opt_right;
-
-                while (ShouldParseDeeper(i_lexer, operator_token))
+                while (ShouldParseDeeper(look_ahead, operator_token))
                 {
-                    right = CombineWithOperator(i_lexer, i_left_operand, 
-                        GetBinaryOperatorPrecedence(i_lexer.GetCurrentToken().m_kind));
-                    operator_token = i_lexer.GetCurrentToken();
+                    right = CombineWithOperator(i_lexer, right, 
+                        GetBinaryOperatorPrecedence(look_ahead.m_kind));
+                    look_ahead = i_lexer.GetCurrentToken();
                 }
 
                 result = ApplyBinaryOperator(result, operator_token.m_kind, right);
@@ -162,26 +163,29 @@ namespace liquid
             }
         }
 
-        static bool ShouldParseDeeper(const Lexer & i_lexer, const Token & i_operator_token)
+        static bool ShouldParseDeeper(const Token & i_look_ahead, const Token & i_operator)
         {
-            int32_t op_precedence = GetBinaryOperatorPrecedence(i_operator_token.m_kind);
-            int32_t curr_precedence = GetBinaryOperatorPrecedence(i_lexer.GetCurrentToken().m_kind);
-            if(!IsOperatorLeftAssociative(i_lexer.GetCurrentToken().m_kind))
-                curr_precedence++;
+            int32_t const look_ahead_precedence = GetBinaryOperatorPrecedence(i_look_ahead.m_kind);
+            int32_t const op_precedence = GetBinaryOperatorPrecedence(i_operator.m_kind);
+            if(look_ahead_precedence < 0)
+                return false;
 
-            return curr_precedence > op_precedence;
+            if(IsOperatorRightAssociative(i_look_ahead.m_kind))
+                return look_ahead_precedence >= op_precedence;
+            else
+                return look_ahead_precedence > op_precedence;
         }
 
-        static Tensor ParseExpression(Lexer & i_lexer)
+        static Tensor ParseExpression(Lexer & i_lexer, int32_t i_min_precedence)
         {
-            if(auto expression = TryParseExpression(i_lexer))
+            if(auto expression = TryParseExpression(i_lexer, i_min_precedence))
                 return *expression;
             else
                 Panic("expected an expression");
         }
 
         /** returns wheter an operator has left-to-right associativity */
-        static bool IsOperatorLeftAssociative(Token::Kind i_token_kind)
+        static bool IsOperatorRightAssociative(Token::Kind i_token_kind)
         {
             return i_token_kind == Token::Kind::Pow;
         }
@@ -191,6 +195,7 @@ namespace liquid
             switch (i_token_kind)
             {
             case Token::Kind::Equal:
+            case Token::Kind::NotEqual:
             case Token::Kind::Less:
             case Token::Kind::LessOrEqual:
             case Token::Kind::Greater:
@@ -217,12 +222,12 @@ namespace liquid
 
         std::optional<Tensor> TryParseExpression(Lexer & i_lexer)
         {
-            return Parser::TryParseExpression(i_lexer);
+            return Parser::TryParseExpression(i_lexer, 0);
         }
 
         Tensor ParseExpression(Lexer & i_lexer)
         {
-            return Parser::ParseExpression(i_lexer);
+            return Parser::ParseExpression(i_lexer, 0);
         }
 
     } // namespace miu6
