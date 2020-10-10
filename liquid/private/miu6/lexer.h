@@ -57,6 +57,12 @@ namespace liquid
                 RightBracket,
                 LeftBrace,
                 RightBrace,
+
+                // if
+                If,
+                Then,
+                Elif,
+                Else,
             };
 
             Kind m_kind = Kind::EndOfSource;
@@ -82,6 +88,8 @@ namespace liquid
 
             Token Accept(Token::Kind i_token_kind);
 
+            friend std::ostream & operator << (std::ostream & i_dest, const Lexer & i_lexer);
+
         private:
 
             static bool TrySkipSpaces(std::string_view & io_source);
@@ -97,7 +105,7 @@ namespace liquid
         private:
             std::string_view m_whole_source;
             std::string_view m_remaining_source;
-            Token m_curr_token, m_next_token;
+            Token m_curr_token;
         };
 
     } // namespace miu6

@@ -46,7 +46,7 @@ namespace liquid
         Expects("[[1 2][3 4]] * 2 > 0");
         Expects("[[1 3+2][3 4]] * 2 == [[2 10][6 8]]");
 
-        Expects("real x * 0 == 0");
+        Expects("real x * 0 == 0"); 
 
         std::cout << "done" << std::endl;
     }

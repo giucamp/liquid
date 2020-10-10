@@ -40,6 +40,12 @@ namespace liquid
         }
 
         {
+            Expects(topic, "(if 5 > 6 then 1 else 2) == 2");
+
+            Expects(topic, "(if [-2 2] > 0 then 1 else 2) == [2 1]");
+        }
+
+        {
             Tensor t2 = {2.0, 1.0};
             Tensor t3 = {0.0, 4.0};
 

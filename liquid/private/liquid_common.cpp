@@ -100,7 +100,7 @@ namespace liquid
         if(!got_error)
             Panic(GetMessageHeader(), " was supposed to panic");
 
-        if(panic_message != i_expected_message)
+        if(panic_message.find(i_expected_message) == std::string::npos)
             Panic(GetMessageHeader(), " was supposed to panic with the message:\n",
                 i_expected_message, ", but it gave:\n", panic_message);
 
@@ -142,7 +142,7 @@ namespace liquid
         if(!got_error)
             Panic(GetMessageHeader(), " was supposed to panic");
 
-        if(panic_message != i_expected_message)
+        if(panic_message.find(i_expected_message) == std::string::npos)
             Panic(GetMessageHeader(), " was supposed to panic with the message:\n",
                 i_expected_message, ", but is gave:\n", panic_message);
 

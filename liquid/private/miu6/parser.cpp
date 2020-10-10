@@ -82,15 +82,32 @@ namespace liquid
                 else if(auto const value = std::get_if<Bool>(&token->m_value))
                     return Tensor(*value);
                 else
-                    Panic("unrecognized literal type");
+                    Panic(i_lexer, "unrecognized literal type");
             }
             else if(auto token = i_lexer.TryAccept(Token::Kind::LeftBracket))
             {
-                // tensor
+                // stack operatpr - creates tensors
                 std::vector<Tensor> tensors;
                 while(!i_lexer.TryAccept(Token::Kind::RightBracket))
                     tensors.push_back(ParseExpression(i_lexer, 0));
                 return Stack(tensors);
+            }
+            else if(i_lexer.TryAccept(Token::Kind::If))
+            {
+                std::vector<Tensor> operands;
+                
+                do {
+                    // condition then value
+                    operands.push_back(ParseExpression(i_lexer, 0));
+                    i_lexer.Accept(Token::Kind::Then);
+                    operands.push_back(ParseExpression(i_lexer, 0));
+                } while(i_lexer.TryAccept(Token::Kind::Elif));
+
+                // else fallback
+                i_lexer.Accept(Token::Kind::Else);
+                operands.push_back(ParseExpression(i_lexer, 0));
+
+                return If(operands);
             }
             else if (auto token = i_lexer.TryAccept(Token::Kind::LeftParenthesis))
             {
@@ -119,7 +136,8 @@ namespace liquid
 
         /* given a left operand, tries to parse a binary expression ignoring operators 
             whoose precedence is less than i_min_precedence */
-        static Tensor CombineWithOperator(Lexer & i_lexer, const Tensor & i_left_operand, int32_t i_min_precedence)
+        static Tensor CombineWithOperator(Lexer & i_lexer,
+            const Tensor & i_left_operand, int32_t i_min_precedence)
         {
             Tensor result = i_left_operand;
 
@@ -141,13 +159,14 @@ namespace liquid
                     look_ahead = i_lexer.GetCurrentToken();
                 }
 
-                result = ApplyBinaryOperator(result, operator_token.m_kind, right);
+                result = ApplyBinaryOperator(i_lexer, result, operator_token.m_kind, right);
             }
 
             return result;
         }
 
-        static Tensor ApplyBinaryOperator(const Tensor & i_left, Token::Kind i_op, const Tensor & i_right)
+        static Tensor ApplyBinaryOperator(Lexer & i_lexer,
+            const Tensor & i_left, Token::Kind i_op, const Tensor & i_right)
         {
             switch (i_op)
             {
@@ -178,7 +197,7 @@ namespace liquid
             case Token::Kind::Or:
                 return i_left || i_right;
             default:
-                Panic("ApplyBinaryOperator - token ", static_cast<int>(i_op), " is not a binary operator");
+                Panic(i_lexer, " ApplyBinaryOperator - token ", static_cast<int>(i_op), " is not a binary operator");
             }
         }
 
@@ -200,7 +219,7 @@ namespace liquid
             if(auto expression = TryParseExpression(i_lexer, i_min_precedence))
                 return *expression;
             else
-                Panic("expected an expression");
+                Panic(i_lexer, " expected an expression");
         }
 
         /** returns wheter an operator has left-to-right associativity */

@@ -157,6 +157,16 @@ namespace liquid
             else if(TryParseString(io_source, "}"))
                 return { Token::Kind::RightBrace };
 
+            // if
+            else if(TryParseString(io_source, "if"))
+                return { Token::Kind::If };
+            else if(TryParseString(io_source, "then"))
+                return { Token::Kind::Then };
+            else if(TryParseString(io_source, "elif"))
+                return { Token::Kind::Elif };
+            else if(TryParseString(io_source, "else"))
+                return { Token::Kind::Else };
+
             // literals
             else if(auto const literal = TryParseBool(io_source))
                 return { Token::Kind::Literal, *literal };
@@ -183,14 +193,12 @@ namespace liquid
         Lexer::Lexer(std::string_view i_source)
             : m_whole_source(i_source), m_remaining_source(i_source)
         {
-            m_next_token = TryParseToken(m_remaining_source);
-            Advance();
+            m_curr_token = TryParseToken(m_remaining_source);
         }
 
         void Lexer::Advance()
         {
-            m_curr_token = m_next_token;
-            m_next_token = TryParseToken(m_remaining_source);
+            m_curr_token = TryParseToken(m_remaining_source);
         }
 
         std::optional<Token> Lexer::TryAccept(Token::Kind i_token_kind)
@@ -210,7 +218,60 @@ namespace liquid
             auto result = TryAccept(i_token_kind);
             if(result)
                 return *result;
-            Panic("Unexpected token");
+            Panic(*this, " Unexpected token");
+        }
+
+        struct Line { std::string_view m_chars; size_t m_number; };
+
+        Line GetLineAt(std::string_view i_source, const char * i_at)
+        {
+            const char * curr_char = i_source.data();
+            const char * const end_of_source = curr_char + i_source.size();
+
+            if(i_at < curr_char || i_at > end_of_source)
+                Panic("GetLineAt - i_at is outside the source code");
+
+            const char * beginning_of_line = curr_char;
+            size_t line_number = 1;
+            while(curr_char < i_at)
+            {
+                if(*curr_char == '\n')
+                {
+                    line_number++;
+                    curr_char++;
+                    beginning_of_line = curr_char;
+                }
+                else if(*curr_char == '\r' &&
+                    curr_char + 1 < end_of_source &&
+                    curr_char[1] == '\n')
+                {
+                    line_number++;
+                    curr_char += 2;
+                    beginning_of_line = curr_char;
+                }
+                else
+                    curr_char++;
+            }
+
+            const char * end_of_line = curr_char;
+            while(end_of_line < end_of_source && *end_of_line != '\n')
+                end_of_line++;
+            if(end_of_line > i_source.data() && end_of_line[-1] == '\r')
+                end_of_line--;
+
+            return {std::string_view(beginning_of_line, end_of_line - beginning_of_line), line_number};
+        }
+
+        std::ostream & operator << (std::ostream & i_dest, const Lexer & i_lexer)
+        {
+            const char * at = i_lexer.m_curr_token.m_chars.data();
+            Line const line = GetLineAt(i_lexer.m_whole_source, at);
+            
+            std::string const prefix = "(" + std::to_string(line.m_number) + "): ";
+            i_dest << "\n" << prefix << line.m_chars;
+            i_dest << "\n" << std::string(prefix.size() + (at - line.m_chars.data()), ' ') << '^';
+
+            return i_dest;
         }
 
     } // namespace miu6
