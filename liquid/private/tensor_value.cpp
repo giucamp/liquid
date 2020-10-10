@@ -219,37 +219,45 @@ namespace liquid
         DynamicConstantWrapping();
     }
 
-    template <typename SCALAR_TYPE>
-        bool EqualsImpl(const FixedShape & i_shape, const TensorValue & i_first, const TensorValue & i_second)
+    template <typename COMMON_TYPE, typename LEFT_TYPE, typename RIGHT_TYPE>
+        bool EqualsImpl(const FixedShape & i_shape, const TensorValue & i_left, const TensorValue & i_right)
     {
         for (Indices indices = i_shape; indices; indices++)
-            if (indices.At<SCALAR_TYPE>(i_first) != indices.At<SCALAR_TYPE>(i_second))
-                return false;
+            if (static_cast<COMMON_TYPE>(indices.At<LEFT_TYPE>(i_left)) != 
+                static_cast<COMMON_TYPE>(indices.At<RIGHT_TYPE>(i_right)) )
+                    return false;
         return true;
     }
 
     bool operator == (const TensorValue & i_first, const TensorValue & i_second)
     {
-        if(i_first.GetScalarType() != i_second.GetScalarType())
-            return false;
+        if( (i_first.GetScalarType() == ScalarType::Bool) != 
+            (i_second.GetScalarType() == ScalarType::Bool) )
+                return false;
 
         auto const shape = TryBroadcast({i_first.GetShape(), i_second.GetShape()});
         if(!shape)
             return false;
 
-        switch (i_first.GetScalarType())
-        {
-        case ScalarType::Real:
-            return EqualsImpl<Real>(*shape, i_first, i_second);
+        std::pair const types = {i_first.GetScalarType(), i_second.GetScalarType()};
+        
+        if(types == std::pair{ScalarType::Bool, ScalarType::Bool})
+            return EqualsImpl<Bool, Bool, Bool>(*shape, i_first, i_second);
 
-        case ScalarType::Integer:
-            return EqualsImpl<Integer>(*shape, i_first, i_second);
+        else if(types == std::pair{ScalarType::Real, ScalarType::Real})
+            return EqualsImpl<Real, Real, Real>(*shape, i_first, i_second);
 
-        case ScalarType::Bool:
-            return EqualsImpl<Bool>(*shape, i_first, i_second);
+        else if(types == std::pair{ScalarType::Real, ScalarType::Integer})
+            return EqualsImpl<Real, Real, Integer>(*shape, i_first, i_second);
 
-        default:
-            Panic("TensorValue - operator == - Unexpected scalar type");
-        }
+        else if(types == std::pair{ScalarType::Integer, ScalarType::Real})
+            return EqualsImpl<Real, Integer, Real>(*shape, i_first, i_second);
+
+        else if(types == std::pair{ScalarType::Integer, ScalarType::Integer})
+            return EqualsImpl<Real, Integer, Integer>(*shape, i_first, i_second);
+
+        else
+            Panic("TensorValue - operator == - Unexpected scalar types: ",
+                types.first, " and ", types.second);
     }
 }

@@ -16,7 +16,7 @@ namespace liquid
     {
         for(const auto & operand : i_source.GetExpression()->GetOperands())
         {
-            if(AlwaysEqual(operand, 0) || AlwaysEqual(operand, 0.))
+            if(AlwaysEqual(operand, 0))
                 return 0;
         }
         return {};
