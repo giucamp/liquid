@@ -44,6 +44,7 @@
     <ClCompile Include="..\private\operators\shape.cpp" />
     <ClCompile Include="..\private\operators\stack.cpp" />
     <ClCompile Include="..\private\operators\variable.cpp" />
+    <ClCompile Include="..\private\scope.cpp" />
     <ClCompile Include="..\private\tensor_initializer.cpp" />
     <ClCompile Include="..\private\fixed_shape.cpp" />
     <ClCompile Include="..\private\tensor.cpp" />
@@ -56,6 +57,7 @@
     <ClCompile Include="..\private\tests\test_miu6.cpp" />
     <ClCompile Include="..\private\tests\test_scalar_type.cpp" />
     <ClCompile Include="..\private\tests\test_shape.cpp" />
+    <ClCompile Include="..\private\tests\test_substitute.cpp" />
     <ClCompile Include="..\private\tests\test_tensor.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -68,7 +70,9 @@
     <ClInclude Include="..\private\operator.h" />
     <ClInclude Include="..\private\fixed_shape.h" />
     <ClInclude Include="..\private\private_common.h" />
+    <ClInclude Include="..\private\scope.h" />
     <ClInclude Include="..\private\shared_array.h" />
+    <ClInclude Include="..\private\substitute_by_predicate.h" />
     <ClInclude Include="..\private\tensor_initializer.h" />
     <ClInclude Include="..\private\tensor_type.h" />
     <ClInclude Include="..\private\tensor_value.h" />

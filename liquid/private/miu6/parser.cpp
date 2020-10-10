@@ -6,6 +6,7 @@
 
 #include "miu6/parser.h"
 #include "tensor_type.h"
+#include "expression.h"
 
 namespace liquid
 {
@@ -73,7 +74,7 @@ namespace liquid
         {
             if (auto token = i_lexer.TryAccept(Token::Kind::Literal))
             {
-                // literal
+                // scalar literal
                 if(auto const value = std::get_if<Real>(&token->m_value))
                     return Tensor(*value);
                 else if(auto const value = std::get_if<Integer>(&token->m_value))
@@ -83,12 +84,30 @@ namespace liquid
                 else
                     Panic("unrecognized literal type");
             }
+            else if(auto token = i_lexer.TryAccept(Token::Kind::LeftBracket))
+            {
+                // tensor
+                std::vector<Tensor> tensors;
+                while(!i_lexer.TryAccept(Token::Kind::RightBracket))
+                    tensors.push_back(ParseExpression(i_lexer, 0));
+                return Stack(tensors);
+            }
             else if (auto token = i_lexer.TryAccept(Token::Kind::LeftParenthesis))
             {
                 // parentheses
                 Tensor expr = ParseExpression(i_lexer, 0);
                 i_lexer.Accept(Token::Kind::RightParenthesis);
                 return expr;
+            }
+            else if(i_lexer.IsCurrentToken(Token::Kind::Any) ||
+                i_lexer.IsCurrentToken(Token::Kind::Real) ||
+                i_lexer.IsCurrentToken(Token::Kind::Integer) ||
+                i_lexer.IsCurrentToken(Token::Kind::Bool))
+            {
+                // variable
+                auto const type = ParseTensorType(i_lexer);
+                auto const name = i_lexer.Accept(Token::Kind::Name);
+                return MakeVariable(type, name.m_chars);
             }
             else if (auto token = i_lexer.TryAccept(Token::Kind::Minus))
                 return -ParseExpression(i_lexer, 500); // unary minus prcedence is 500

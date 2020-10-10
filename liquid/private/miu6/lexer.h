@@ -72,7 +72,8 @@ namespace liquid
 
             const Token & GetCurrentToken() const { return m_curr_token; }
 
-            const Token & GetNextToken() const { return m_next_token; }
+            bool IsCurrentToken(Token::Kind i_token_kind) const
+                { return GetCurrentToken().m_kind == i_token_kind; }
 
             void Advance();
 

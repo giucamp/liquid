@@ -11,16 +11,14 @@
 namespace liquid
 {
     TensorType ConstantDeduceType(const std::any& i_attachment, 
-        [[maybe_unused]] Span<const Tensor> i_operands, 
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+        [[maybe_unused]] Span<const Tensor> i_operands)
     {
         return std::any_cast<const TensorValue &>(i_attachment).GetType();
     }
 
     TensorValue ConstantEvaluate(const std::any & i_attachment,
         [[maybe_unused]] const TensorType & i_result_type,
-        [[maybe_unused]] Span<const TensorValue> i_operands,
-        [[maybe_unused]] Span<const TensorValue> i_attributes)
+        [[maybe_unused]] Span<const TensorValue> i_operands)
     {
         return std::any_cast<TensorValue>(i_attachment);
     }
@@ -35,7 +33,7 @@ namespace liquid
 
     Tensor MakeConstant(const TensorValue & i_value)
     {
-        return GetOperatorConstant().Invoke({}, {}, i_value);
+        return GetOperatorConstant().Invoke({}, i_value);
     }
 
     bool IsConstant(const Tensor & i_tensor)

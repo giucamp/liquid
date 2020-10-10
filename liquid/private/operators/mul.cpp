@@ -12,6 +12,16 @@
 
 namespace liquid
 {
+    std::optional<Tensor> MulCanonicalize(const Tensor & i_source)
+    {
+        for(const auto & operand : i_source.GetExpression()->GetOperands())
+        {
+            if(AlwaysEqual(operand, 0) || AlwaysEqual(operand, 0.))
+                return 0;
+        }
+        return {};
+    }
+
     template <typename SCALAR_TYPE>
         TensorValue MulEvaluate(const TensorType & i_result_type, Span<const TensorValue> i_operands)
     {
@@ -49,6 +59,7 @@ namespace liquid
         static auto const op = Operator("Mul")
             .SetDoc(g_mul_description, g_mul_return_type)
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
+            .SetCanonicalize(MulCanonicalize)
             .SetIdentityElement(1)
             .AddOverload(MulEvaluate<Real>, { {GetScalarType<Real>(), "Factor"} }, 1)
             .AddOverload(MulEvaluate<Integer>, { {GetScalarType<Integer>(), "Factor"} }, 1)

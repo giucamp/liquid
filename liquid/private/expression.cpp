@@ -14,16 +14,14 @@ namespace liquid
         const Operator& i_operator,
         const Operator::Overload & i_overload,
         Span<Tensor const> i_operands,
-        Span<Tensor const> i_attributes,
         const std::any& i_attachment)
-    : m_name(i_name),
-      m_doc(i_doc),
-      m_type(i_type),
-      m_operator(i_operator),
-      m_overload(i_overload),
-      m_operands(i_operands.begin(), i_operands.end()),
-      m_attributes(i_attributes.begin(), i_operands.end()),
-      m_attachment(i_attachment)
+            : m_name(i_name),
+              m_doc(i_doc),
+              m_type(i_type),
+              m_operator(i_operator),
+              m_overload(i_overload),
+              m_operands(i_operands.begin(), i_operands.end()),
+              m_attachment(i_attachment)
     {
 
     }

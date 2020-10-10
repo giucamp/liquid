@@ -13,8 +13,7 @@
 namespace liquid
 {
     TensorType StackDeduceType([[maybe_unused]] const std::any & i_attachment,
-        Span<const Tensor> i_operands,
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+        Span<const Tensor> i_operands)
     {
         auto const common_type = DeduceType(i_operands);
 

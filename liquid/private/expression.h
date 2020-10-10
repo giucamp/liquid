@@ -26,7 +26,6 @@ namespace liquid
             const Operator & i_operator,
             const Operator::Overload & i_overload,
             Span<Tensor const> i_operands,
-            Span<Tensor const> i_attributes,
             const std::any & i_attachment);
 
         const Operator & GetOperator() const { return m_operator; }
@@ -34,7 +33,6 @@ namespace liquid
         const std::string & GetName() const { return m_name; }
         const std::string & GetDoc() const { return m_doc; }
         const TensorType & GetType() const { return m_type; }
-        const std::vector<Tensor> & GetAttributes() const { return m_attributes; }
         const std::vector<Tensor> & GetOperands() const { return m_operands; }
         const std::any & GetAttachment() const { return m_attachment; }
 
@@ -47,13 +45,16 @@ namespace liquid
         const Operator & m_operator;
         const Operator::Overload & m_overload;
         std::vector<Tensor> m_operands;
-        std::vector<Tensor> m_attributes;
         std::any m_attachment;
     };
 
     Tensor MakeConstant(const TensorValue & i_value);
 
     const TensorValue & GetConstantValue(const Tensor & i_tensor);
+
+    Tensor MakeVariable(const TensorType & i_type, std::string_view i_name);
+
+    bool IsVariable(const Tensor & i_tensor);
 
     bool AlwaysEqual(const Tensor & i_tensor, const TensorValue & i_value);
 

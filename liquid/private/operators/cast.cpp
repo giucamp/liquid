@@ -24,9 +24,7 @@ namespace liquid
             return {};
     }
 
-    TensorType CastDeduceType(const std::any & i_attachment,
-        Span<const Tensor> i_operands,
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+    TensorType CastDeduceType(const std::any & i_attachment, Span<const Tensor> i_operands)
     {
         auto const dest_scalar_type = std::any_cast<ScalarType>(i_attachment);
         auto const & source_shape = i_operands.at(0).GetExpression()->GetType().GetShape();
@@ -48,8 +46,7 @@ namespace liquid
     template <typename SOURCE_TYPE>
         TensorValue CastEvaluate(const std::any & i_attachment,
             const TensorType & i_result_type,
-            Span<const TensorValue> i_operands,
-            [[maybe_unused]] Span<const TensorValue> i_attributes)
+            Span<const TensorValue> i_operands)
     {
         const FixedShape & result_shape = i_result_type.GetFixedShape();        
         auto const dest_type = std::any_cast<ScalarType>(i_attachment);
@@ -81,6 +78,6 @@ namespace liquid
 
     Tensor Cast(ScalarType i_dest_scalar_type, const Tensor & i_source)
     {
-        return GetOperatorCast().Invoke({i_source}, {}, i_dest_scalar_type);
+        return GetOperatorCast().Invoke({i_source}, i_dest_scalar_type);
     }
 }

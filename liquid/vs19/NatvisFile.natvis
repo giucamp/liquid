@@ -25,7 +25,7 @@
     <DisplayString>{m_dimensions.m_elements._Ptr, [m_dimensions.m_size]}</DisplayString>
   </Type>
   <Type Name="liquid::TensorType">
-    <DisplayString Condition="m_shape._Which==0">any</DisplayString>
+    <DisplayString Condition="m_shape._Which==0">shapeless</DisplayString>
     <DisplayString Condition="m_shape._Which==1">{m_shape._Tail._Head} {m_scalar_type}</DisplayString>
     <DisplayString Condition="m_shape._Which==2">{m_shape._Tail._Tail._Head} {m_scalar_type}</DisplayString>
   </Type>

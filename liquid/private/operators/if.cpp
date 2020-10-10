@@ -12,7 +12,7 @@
 
 namespace liquid
 {
-    TensorType IfDeduceType(const std::any& i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
+    TensorType IfDeduceType(const std::any& i_attachment, Span<const Tensor> i_operands)
     {
         size_t const condition_count = i_operands.size() / 2;
 

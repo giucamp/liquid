@@ -13,22 +13,20 @@
 namespace liquid
 {
     TensorType RankDeduceType( [[maybe_unused]] const std::any & i_attachment,
-        [[maybe_unused]] Span<const Tensor> i_operands,
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+        [[maybe_unused]] Span<const Tensor> i_operands)
     {
         return { ScalarType::Integer, FixedShape::Scalar() };
     }
 
     bool RankEligibleForPropagation(const std::any & i_attachment,
-        Span<const Tensor> i_operands, Span<const Tensor> i_attributes)
+        Span<const Tensor> i_operands)
     {
         const TensorType & type = i_operands.at(0).GetExpression()->GetType();
         return type.HasFixedShape();
     }
 
     TensorValue RankEvaluate([[maybe_unused]] const std::any & i_attachment,
-        const TensorType & i_result_type, Span<const Tensor> i_operands,
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+        const TensorType & i_result_type, Span<const Tensor> i_operands)
     {
         const Tensor & operand = i_operands.at(0);
         const FixedShape & shape = operand.GetExpression()->GetType().GetFixedShape();

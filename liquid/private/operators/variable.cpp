@@ -10,9 +10,14 @@
 
 namespace liquid
 {
+    bool VariableEligibleForPropagation([[maybe_unused]] const std::any & i_attachment, 
+        [[maybe_unused]] Span<const Tensor> i_operands)
+    {
+        return false;
+    }
+
     TensorType VariableDeduceType(const std::any& i_attachment,
-        [[maybe_unused]] Span<const Tensor> i_operands,
-        [[maybe_unused]] Span<const Tensor> i_attributes)
+        [[maybe_unused]] Span<const Tensor> i_operands)
     {
         return std::any_cast<TensorType>(i_attachment);
     }
@@ -20,13 +25,15 @@ namespace liquid
     extern const Operator & GetOperatorVariable()
     {
         static auto const op = Operator("Variable")
-            .SetDeduceType(VariableDeduceType);
+            .SetDeduceType(VariableDeduceType)
+            .AddOverload({}, {})
+            .SetEligibleForPropagation(VariableEligibleForPropagation);
         return op;
     }
 
     Tensor MakeVariable(const TensorType & i_type, std::string_view i_name)
     {
-        return GetOperatorVariable().Invoke({}, {}, i_type);
+        return GetOperatorVariable().Invoke(i_name, {}, {}, i_type);
     }
 
     bool IsVariable(const Tensor& i_tensor)

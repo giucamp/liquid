@@ -14,6 +14,7 @@ namespace liquid
     void TestTensor();
     void TestAdd();
     void TestIf();
+    void TestSubstutute();
     void TestMiu6();
 
     void TestLiquid()
@@ -24,6 +25,7 @@ namespace liquid
         TestTensor();
         TestAdd();
         TestIf();
+        TestSubstutute();
         TestMiu6();
     }
 }

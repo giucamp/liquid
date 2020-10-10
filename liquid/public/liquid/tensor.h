@@ -44,6 +44,9 @@ namespace liquid
 
     public:
 
+        Tensor(const std::shared_ptr<const class Expression> & i_expression)
+            : m_expression(i_expression) { }
+
         Tensor(std::shared_ptr<const class Expression> && i_expression)
             : m_expression(std::move(i_expression)) { }
 
@@ -181,6 +184,16 @@ namespace liquid
     Tensor Square(const Tensor & i_base);
 
     Tensor Stack(Span<Tensor const> i_tensors);
+
+    Tensor Substitute(const Tensor & i_where, const Tensor & i_what,
+        const Tensor & i_with, const Tensor & i_when = true);
+
+    struct Rule
+    {
+        Tensor const m_what, m_with, m_when = true;
+    };
+
+    Tensor Substitute(const Tensor & i_where, Span<const Rule> i_rules);
 
     std::ostream & operator << (std::ostream & i_dest, const Tensor & i_tensor);
 }

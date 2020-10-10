@@ -13,8 +13,7 @@
 namespace liquid
 {
     TensorType LessDeduceType( [[maybe_unused]] const std::any & i_attachment,
-        [[maybe_unused]] Span<const Tensor> i_operands,
-        Span<const Tensor> i_attributes)
+        [[maybe_unused]] Span<const Tensor> i_operands)
     {
         const TensorType & first_type = i_operands.at(0).GetExpression()->GetType();
         const TensorType & second_type = i_operands.at(1).GetExpression()->GetType();

@@ -23,12 +23,10 @@ namespace liquid
 
         const std::string & GetName() const      { return m_name; }
 
-        Tensor Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
-            const std::any & i_attachment = {} ) const;
+        Tensor Invoke(Span<const Tensor> i_operands, const std::any & i_attachment = {} ) const;
 
         Tensor Invoke(std::string_view i_name, std::string_view i_doc,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes = {},
-            const std::any & i_attachment = {}) const;
+            Span<const Tensor> i_operands, const std::any & i_attachment = {}) const;
 
                 // doc
 
@@ -51,7 +49,8 @@ namespace liquid
 
                 // type deduction
 
-        using DeduceTypeFunction = TensorType(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+        using DeduceTypeFunction = TensorType(*)(const std::any & i_attachment, 
+            Span<const Tensor> i_operands);
 
         Operator & SetDeduceType(DeduceTypeFunction i_func);
         
@@ -59,23 +58,18 @@ namespace liquid
                 // evaluation
 
         using EvaluateWithAttachmentFunction = TensorValue(*)(const std::any & i_attachment,
-            const TensorType & i_result_type, Span<const TensorValue> i_operands,
-            Span<const TensorValue> i_attributes);
+            const TensorType & i_result_type, Span<const TensorValue> i_operands);
 
         using EvaluateFromVariablesFunction = TensorValue(*)(const std::any & i_attachment,
-            const TensorType & i_result_type, Span<const Tensor> i_operands,
-            Span<const Tensor> i_attributes);
+            const TensorType & i_result_type, Span<const Tensor> i_operands);
 
         using EvaluateFunction = TensorValue(*)(const TensorType & i_result_type,
-            Span<const TensorValue> i_operands, Span<const TensorValue> i_attributes);
-
-        using EvaluateNoAttributesFunction = TensorValue(*)(const TensorType & i_result_type,
             Span<const TensorValue> i_operands);
 
         using EvaluateSingleArgument = TensorValue(*)(const TensorType & i_result_type,
             const TensorValue & i_operand);
 
-        using VarEvaluateFunction = std::variant<EvaluateFunction, EvaluateNoAttributesFunction, 
+        using VarEvaluateFunction = std::variant<EvaluateFunction, 
             EvaluateSingleArgument, EvaluateWithAttachmentFunction,
             EvaluateFromVariablesFunction>;
 
@@ -110,7 +104,7 @@ namespace liquid
 
             // eligible for propagation
 
-        using EligibleForPropagation = bool(*)(const std::any & i_attachment, Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+        using EligibleForPropagation = bool(*)(const std::any & i_attachment, Span<const Tensor> i_operands);
 
         Operator & SetEligibleForPropagation(EligibleForPropagation i_func);
 
@@ -129,7 +123,7 @@ namespace liquid
     private:
 
         static TensorType DefaultDeduceType(const std::any & i_attachment,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes);
+            Span<const Tensor> i_operands);
 
         enum class OverloadMatchFlags
         {
@@ -144,7 +138,7 @@ namespace liquid
             { return CombineFlags(i_first, i_second); }
 
         bool IsEligibleForPropagation(const std::any & i_attachment, 
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const;
+            Span<const Tensor> i_operands) const;
 
         static bool OverloadMatch(const Operator::Overload & i_overload, 
             Span<const Tensor> i_operands, OverloadMatchFlags i_flags,
@@ -158,12 +152,10 @@ namespace liquid
 
         std::optional<Tensor> TryConstantPropagation(
             const Overload & i_overload, const TensorType & i_result_type,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-            const std::any & i_attachment) const;
+            Span<const Tensor> i_operands, const std::any & i_attachment) const;
 
         TensorValue Evaluate(const Overload & i_overload, const TensorType & i_result_type,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-            const std::any & i_attachment) const;
+            Span<const Tensor> i_operands, const std::any & i_attachment) const;
 
         static std::vector<TensorValue> ToValues(Span<const Tensor> i_tensors);
 

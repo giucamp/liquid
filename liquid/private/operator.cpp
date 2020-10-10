@@ -71,8 +71,9 @@ namespace liquid
         return *this;
     }
 
-    TensorType Operator::DefaultDeduceType([[maybe_unused]] const std::any & i_attachment,
-        Span<const Tensor> i_operands, [[maybe_unused]] Span<const Tensor> i_attributes)
+    TensorType Operator::DefaultDeduceType(
+        [[maybe_unused]] const std::any & i_attachment,
+        Span<const Tensor> i_operands)
     {
         std::vector<TensorType> types;
         types.reserve(i_operands.size());
@@ -169,10 +170,10 @@ namespace liquid
             ToSpan(Transform(i_operands, [](auto & i_op){ return i_op.GetExpression()->GetType(); } )) );
     }
 
-    Tensor Operator::Invoke(Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-        const std::any& i_attachment) const
+    Tensor Operator::Invoke(Span<const Tensor> i_operands,
+        const std::any & i_attachment) const
     {
-        return Invoke({}, {}, i_operands, i_attributes, i_attachment);
+        return Invoke({}, {}, i_operands, i_attachment);
     }
 
     std::vector<TensorValue> Operator::ToValues(Span<const Tensor> i_tensors)
@@ -185,33 +186,30 @@ namespace liquid
     }
 
     bool Operator::IsEligibleForPropagation(const std::any & i_attachment,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes) const
+            Span<const Tensor> i_operands) const
     {
         if (m_eligible_for_propagation)
         {
-            return m_eligible_for_propagation(i_attachment, i_operands, i_attributes);
+            return m_eligible_for_propagation(i_attachment, i_operands);
         }
         else
         {
             return this != &GetOperatorConstant() &&
-                std::all_of(i_operands.begin(), i_operands.end(), IsConstant) &&
-                std::all_of(i_attributes.begin(), i_attributes.end(), IsConstant);
+                std::all_of(i_operands.begin(), i_operands.end(), IsConstant);
         }
     }
 
     TensorValue Operator::Evaluate(const Overload & i_overload, const TensorType & i_result_type,
-            Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-            const std::any & i_attachment) const
+            Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
         if (std::holds_alternative<EvaluateFromVariablesFunction>(i_overload.m_evaluate))
         {
             return std::get<EvaluateFromVariablesFunction>(i_overload.m_evaluate)
-                (i_attachment, i_result_type, i_operands, i_attributes);
+                (i_attachment, i_result_type, i_operands);
         }
 
         auto const operand_values = ToValues(i_operands);
-        auto const attribute_values = ToValues(i_attributes);
-
+        
         if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
         {
             if(operand_values.size() != 1)
@@ -220,23 +218,15 @@ namespace liquid
             return std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
                 (i_result_type, operand_values.at(0));
         }
-        else if (std::holds_alternative<EvaluateNoAttributesFunction>(i_overload.m_evaluate))
-        {
-            if (attribute_values.size() != 0)
-                Panic(m_name, ": evaluate dos not supports attributes, ", attribute_values.size(), " provided");
-
-            return std::get<EvaluateNoAttributesFunction>(i_overload.m_evaluate)
-                (i_result_type, operand_values);
-        }
         else if(std::holds_alternative<EvaluateFunction>(i_overload.m_evaluate))
         {
             return std::get<EvaluateFunction>(i_overload.m_evaluate)
-                (i_result_type, operand_values, attribute_values);
+                (i_result_type, operand_values);
         }
         else if (std::holds_alternative<EvaluateWithAttachmentFunction>(i_overload.m_evaluate))
         {
             return std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
-                (i_attachment, i_result_type, operand_values, attribute_values);
+                (i_attachment, i_result_type, operand_values);
         }
 
         Panic("Operator - internal error - unhandled evaluate function type");
@@ -244,34 +234,32 @@ namespace liquid
 
     std::optional<Tensor> Operator::TryConstantPropagation(
         const Overload & i_overload, const TensorType & i_result_type,
-        Span<const Tensor> i_operands, Span<const Tensor> i_attributes, 
-        const std::any & i_attachment) const
+        Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
-        if (IsEligibleForPropagation(i_attachment, i_operands, i_attributes))
+        if (IsEligibleForPropagation(i_attachment, i_operands))
         {
             return MakeConstant(Evaluate(i_overload, i_result_type, 
-                i_operands, i_attributes, i_attachment));
+                i_operands, i_attachment));
         }
         return {};
     }
 
     Tensor Operator::Invoke(std::string_view i_name, std::string_view i_doc,
-        Span<const Tensor> i_operands, Span<const Tensor> i_attributes,
-        const std::any& i_attachment) const
+        Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
         std::vector<Tensor> parameters;
         const Overload & overload = FindOverload(i_operands, parameters);
         OverloadMatch(overload, i_operands, 
             OverloadMatchFlags::AllowNumericPromotion | OverloadMatchFlags::ProcessArguments, parameters);
 
-        const TensorType type = m_deduce_type_func(i_attachment, parameters, i_attributes);
+        const TensorType type = m_deduce_type_func(i_attachment, parameters);
 
-        if(auto constant = TryConstantPropagation(overload, type, parameters, i_attributes, i_attachment))
+        if(auto constant = TryConstantPropagation(overload, type, parameters, i_attachment))
             return *constant;
 
         Tensor result(std::make_shared<Expression>(
             i_name, i_doc, type, *this, overload, 
-            parameters, i_attributes, i_attachment ));
+            parameters, i_attachment ));
 
         if(m_canonicalize_func != nullptr)
         {
