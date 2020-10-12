@@ -269,5 +269,44 @@ namespace liquid
 
         return result;
     }
+
+    Operator & Operator::SetAttachmentComparer(AttachmentComparer i_attachment_comparer)
+    {
+        m_attachment_comparer = i_attachment_comparer;
+        return *this;
+    }
+
+    bool Operator::AttachmentsEqual(const std::any & i_left, const std::any & i_right) const
+    {
+        if(i_left.has_value() != i_right.has_value())
+            return false;
+
+        if(!i_left.has_value())
+            return true;
+
+        if(m_attachment_comparer == nullptr)
+            Panic("Operator::AttachmentsEqual - ", m_name, ": no attachment comparer");
+
+        return m_attachment_comparer(i_left, i_right);
+    }
+
+    Operator & Operator::SetAttachmentHasher(AttachmentHasher i_attachment_hasher)
+    {
+        m_attachment_hasher = i_attachment_hasher;
+        return *this;
+    }
+
+    void Operator::HashAttachment(Hash & i_dest, const std::any & i_attachment) const
+    {
+        if(m_attachment_hasher == nullptr)
+            Panic("Operator ", m_name, ": attachment hasher not set" );
+        m_attachment_hasher(i_dest, i_attachment);
+    }
+
+    Hash & operator << (Hash & i_dest, const Operator & i_source)
+    {
+        i_dest << i_source.m_name;
+        return i_dest;
+    }
 }
 

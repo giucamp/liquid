@@ -139,4 +139,9 @@ namespace liquid
         i_ostream << "[" << i_shape.GetDimensions() << "]";
         return i_ostream;
     }
+
+    Hash & operator << (Hash & i_dest, const FixedShape & i_source)
+    {
+        return i_dest << i_source.m_dimensions;
+    }
 }

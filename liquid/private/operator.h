@@ -8,6 +8,7 @@
 #include "private_common.h"
 #include "tensor_value.h"
 #include "tensor_type.h"
+#include "hash.h"
 #include <optional>
 #include <any>
 #include <variant>
@@ -120,6 +121,45 @@ namespace liquid
 
         Operator & SetIdentityElement(const TensorValue & i_value);
 
+            // attachment compare
+
+        using AttachmentComparer = bool (*)(const std::any & i_left, const std::any & i_right);
+
+        Operator & SetAttachmentComparer(AttachmentComparer i_attachment_comparer);
+
+        template <typename ATTACHMENT_TYPE>
+            Operator & SetAttachmentComparer()
+        {
+            return SetAttachmentComparer([](const std::any & i_left, const std::any & i_right) {
+                return std::any_cast<const ATTACHMENT_TYPE &>(i_left) ==
+                    std::any_cast<const ATTACHMENT_TYPE &>(i_right);
+            });
+        }
+
+        bool AttachmentsEqual(const std::any & i_left, const std::any & i_right) const;
+
+
+            // attachment hash
+
+        using AttachmentHasher = void (*)(Hash & i_dest, const std::any & i_attachment);
+
+        Operator & SetAttachmentHasher(AttachmentHasher i_attachment_hasher);
+
+        template <typename ATTACHMENT_TYPE>
+            Operator & SetAttachmentHasher()
+        {
+            return SetAttachmentHasher([](Hash & i_dest, const std::any & i_attachment) {
+                i_dest << std::any_cast<const ATTACHMENT_TYPE &>(i_attachment);
+            });
+        }
+
+        void HashAttachment(Hash & i_dest, const std::any & i_attachment) const;
+
+
+            // hash
+
+        friend Hash & operator << (Hash & i_dest, const Operator & i_source);
+
     private:
 
         static TensorType DefaultDeduceType(const std::any & i_attachment,
@@ -169,6 +209,8 @@ namespace liquid
         std::vector<Overload> m_overloads = {};
         CanonicalizeFunction m_canonicalize_func = {};
         GradientOfOperandFunction m_gradient_of_input_func = {};
+        AttachmentComparer m_attachment_comparer = {};
+        AttachmentHasher m_attachment_hasher = {};
         std::optional<TensorValue> m_identity_element;
     };
 }

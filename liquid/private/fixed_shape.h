@@ -12,6 +12,7 @@
 #include "private_common.h"
 #include "liquid/span.h"
 #include "shared_array.h"
+#include "hash.h"
 
 namespace liquid
 {
@@ -55,6 +56,8 @@ namespace liquid
             static const FixedShape scalar({});
             return scalar;
         }
+
+        friend Hash & operator << (Hash & i_dest, const FixedShape & i_source);
 
     private:
         SharedArray<Integer> m_dimensions;

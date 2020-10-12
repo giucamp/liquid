@@ -15,8 +15,8 @@ namespace liquid
     TensorType ShapeDeduceType(const std::any & i_attachment,
         Span<const Tensor> i_operands)
     {
-        Tensor const rank( {Rank(i_operands.at(0))} );
-        auto v = GetConstantValue(rank);
+        // rank must be a vector
+        Tensor const rank = { { Rank(i_operands.at(0)) } };
         return { ScalarType::Integer, rank };
     }
 

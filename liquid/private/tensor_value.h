@@ -73,6 +73,8 @@ namespace liquid
             return !(i_first == i_second);
         }
 
+        friend Hash & operator << (Hash & i_dest, const TensorValue & i_source);
+
                 // constants
 
         static const TensorValue & True()

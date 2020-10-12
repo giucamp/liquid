@@ -98,4 +98,17 @@ namespace liquid
     > > > > : std::true_type { };
     template <typename CONTAINER, typename ELEMENT_TYPE>
         constexpr bool IsContigousContainerOfV = IsContigousContainerOf<CONTAINER, ELEMENT_TYPE>::value;
+
+
+    template <typename CONTAINER, typename = std::void_t<>>
+        struct ContainerElementType { };
+    template <typename CONTAINER>
+        struct ContainerElementType<CONTAINER, std::void_t<
+            decltype(*std::begin(std::declval<CONTAINER>()))>>
+    { 
+        using type = decltype(*std::begin(std::declval<CONTAINER>()));
+    };
+
+    template <typename CONTAINER>
+        using ContainerElementTypeT = typename ContainerElementType<CONTAINER>::type;
 }

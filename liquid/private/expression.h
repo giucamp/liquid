@@ -13,6 +13,7 @@
 #include "shared_array.h"
 #include "tensor_type.h"
 #include "operator.h"
+#include "hash.h"
 
 namespace liquid
 {
@@ -35,6 +36,7 @@ namespace liquid
         const TensorType & GetType() const { return m_type; }
         const std::vector<Tensor> & GetOperands() const { return m_operands; }
         const std::any & GetAttachment() const { return m_attachment; }
+        const Hash & GetHash() const { return m_hash; }
 
         bool OperatorIs(const Operator & i_op) const { return &m_operator == &i_op; }
 
@@ -46,6 +48,7 @@ namespace liquid
         const Operator::Overload & m_overload;
         std::vector<Tensor> m_operands;
         std::any m_attachment;
+        Hash m_hash;
     };
 
     Tensor MakeConstant(const TensorValue & i_value);
@@ -58,5 +61,19 @@ namespace liquid
 
     bool AlwaysEqual(const Tensor & i_tensor, const TensorValue & i_value);
 
+    bool ExpressionEqual(const Expression & i_left, const Expression & i_right);
+
     TensorType DeduceType(Span<const Tensor> i_operands);
+
+    inline Hash & operator << (Hash & i_dest, const Expression & i_source)
+    {
+        i_dest << i_source.GetHash();
+        return i_dest;
+    }
+
+    inline Hash & operator << (Hash & i_dest, const Tensor & i_source)
+    {
+        i_dest << i_source.GetExpression()->GetHash();
+        return i_dest;
+    }
 }

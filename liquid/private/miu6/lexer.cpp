@@ -170,9 +170,9 @@ namespace liquid
             // literals
             else if(auto const literal = TryParseBool(io_source))
                 return { Token::Kind::Literal, *literal };
-            else if(auto const literal = TryParseInteger(io_source))
+            else if(auto const literal = TryParseReal(io_source))
                 return { Token::Kind::Literal, *literal };
-            else if(auto const literal = TryParseBool(io_source))
+            else if(auto const literal = TryParseInteger(io_source))
                 return { Token::Kind::Literal, *literal };
 
             // misc

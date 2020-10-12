@@ -23,7 +23,9 @@ namespace liquid
               m_operands(i_operands.begin(), i_operands.end()),
               m_attachment(i_attachment)
     {
-
+        m_hash = Hash(m_name, m_type, m_operands, m_operator, m_operands);
+        if(m_attachment.has_value())
+            m_operator.HashAttachment(m_hash, m_attachment);
     }
 
     bool AlwaysEqual(const Tensor & i_tensor, const TensorValue& i_value)
@@ -36,4 +38,19 @@ namespace liquid
         return DeduceType(Transform(i_operands, 
             [](const Tensor & i_tensor){ return i_tensor.GetExpression()->GetType(); }));
     }
+
+    bool ShallowExpressionEqual(const Expression & i_left, const Expression & i_right)
+    {
+        return
+            i_left.GetHash() == i_right.GetHash() &&
+            &i_left.GetOperator() == &i_right.GetOperator() &&
+            i_left.GetName() == i_right.GetName() &&            
+            i_left.GetType() == i_right.GetType() &&
+            i_left.GetOperator().AttachmentsEqual(i_left.GetAttachment(), i_right.GetAttachment());
+    }
+
+    /*bool ExpressionEqual(const Expression & i_left, const Expression & i_right)
+    {
+        return true;
+    }*/
 }

@@ -8,6 +8,7 @@
 
 namespace liquid
 {
+    void TestHash();
     void TestIndices();
     void TestFixedShape();
     void TestScalarType();
@@ -19,6 +20,7 @@ namespace liquid
 
     void TestLiquid()
     {
+        TestHash();
         TestIndices();
         TestFixedShape();
         TestScalarType();

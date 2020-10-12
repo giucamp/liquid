@@ -27,7 +27,9 @@ namespace liquid
         static auto const op = Operator("Variable")
             .SetDeduceType(VariableDeduceType)
             .AddOverload({}, {})
-            .SetEligibleForPropagation(VariableEligibleForPropagation);
+            .SetEligibleForPropagation(VariableEligibleForPropagation)
+            .SetAttachmentComparer<TensorType>()
+            .SetAttachmentHasher<TensorType>();
         return op;
     }
 

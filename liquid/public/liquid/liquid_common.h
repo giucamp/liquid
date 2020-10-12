@@ -68,4 +68,7 @@ namespace liquid
             Panic("NumericCast - Bad cast of ", i_source);
         return result;
     }
+
+    template <typename FIRST, typename...>
+        using FirstOf = FIRST;
 }

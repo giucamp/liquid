@@ -72,6 +72,8 @@ namespace liquid
             .SetDeduceType(CastDeduceType)
             .AddOverload(CastEvaluate<Real>, { { GetScalarType<Real>(), "Source" } })
             .AddOverload(CastEvaluate<Integer>, { { GetScalarType<Integer>(), "Source" } })
+            .SetAttachmentComparer<ScalarType>()
+            .SetAttachmentHasher<ScalarType>()
             .SetCanonicalize(CastCanonicalize);
         return op;
     }

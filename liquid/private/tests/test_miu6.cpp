@@ -42,11 +42,14 @@ namespace liquid
         Expects("-100---50==    (-(2+-3^2^((2)))*2+ 40/(((5)))*2)");
         Expects("-(2+-3^2)*2+ 40/5*2 ==-6");
 
+        // this is wrong, must fix unary minus
+        Expects("[1 -2] == [-1]");
+
         Expects("[1 2] * 2 == [2 4]");
         Expects("[[1 2][3 4]] * 2 > 0");
         Expects("[[1 3+2][3 4]] * 2 == [[2 10][6 8]]");
 
-        Expects("real x * 0 == 0"); 
+        Expects("real x * 0 * real y == 0"); 
 
         std::cout << "done" << std::endl;
     }

@@ -254,10 +254,17 @@ namespace liquid
             return EqualsImpl<Real, Integer, Real>(*shape, i_first, i_second);
 
         else if(types == std::pair{ScalarType::Integer, ScalarType::Integer})
-            return EqualsImpl<Real, Integer, Integer>(*shape, i_first, i_second);
+            return EqualsImpl<Integer, Integer, Integer>(*shape, i_first, i_second);
 
         else
             Panic("TensorValue - operator == - Unexpected scalar types: ",
                 types.first, " and ", types.second);
+    }
+
+    Hash & operator << (Hash & i_dest, const TensorValue & i_source)
+    {
+        i_dest << i_source.m_type;
+        std::visit([&i_dest](const auto & i_scalars){ i_dest << i_scalars; }, i_source.m_scalars);
+        return i_dest;
     }
 }

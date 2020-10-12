@@ -27,7 +27,9 @@ namespace liquid
     {
         static auto const op = Operator("Constant")
             .SetDeduceType(ConstantDeduceType)
-            .AddOverload({ ConstantEvaluate, { } });
+            .AddOverload({ ConstantEvaluate, { } })
+            .SetAttachmentComparer<TensorValue>()
+            .SetAttachmentHasher<TensorValue>();
         return op;
     }
 

@@ -77,6 +77,11 @@ namespace liquid
         std::shared_ptr<const Expression> m_expression;
     };
 
+    inline Tensor operator ""_miu6(const char * i_string, size_t i_length)
+    {
+        return Tensor(std::string_view{i_string, i_length});
+    }
+
     Tensor Rank(const Tensor & i_tensor);
 
     Tensor Shape(const Tensor & i_tensor);

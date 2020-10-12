@@ -64,10 +64,9 @@ namespace liquid
         {
             const Tensor & tensor = GetVariableShape();
 
-            /* This check fails because of ShapeDeduceType - to do: implement Tensor nesting
             const TensorType & tensor_type = tensor.GetExpression()->GetType();
             if(tensor_type.GetFixedShape().GetRank() != 1)
-                Panic("The shape of a tensor must be a vector");*/
+                Panic("The shape of a tensor must be a vector");
 
             // the shape is not really variable
             auto dimensions = ConstantToVector<Integer>(tensor);
@@ -125,5 +124,35 @@ namespace liquid
             i_ostream << i_tensor_type.GetFixedShape();
 
         return i_ostream;
+    }
+
+    Hash & operator << (Hash & i_dest, const TensorType & i_source)
+    {
+        i_dest << i_source.m_scalar_type;
+
+        struct Visitor
+        {
+            Hash & m_dest;
+            const TensorType & m_source;
+
+            void operator () (std::monostate) const
+            {
+                m_dest << 42;
+            }
+
+            void operator () (const FixedShape & i_shape) const
+            {
+                m_dest << i_shape;
+            }
+
+            void operator () (const Tensor & i_shape) const
+            {
+                m_dest << *i_shape.GetExpression();
+            }
+        };
+
+        std::visit(Visitor{i_dest, i_source}, i_source.m_shape);
+
+        return i_dest;
     }
 }

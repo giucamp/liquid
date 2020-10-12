@@ -10,6 +10,7 @@
 #include "private_common.h"
 #include "liquid/tensor.h"
 #include "fixed_shape.h"
+#include "hash.h"
 
 namespace liquid
 {
@@ -43,6 +44,8 @@ namespace liquid
         bool IsSupercaseOf(const TensorType & i_other) const;
 
         friend std::ostream & operator << (std::ostream & i_ostream, const TensorType & i_tensor_type);
+
+        friend Hash & operator << (Hash & i_dest, const TensorType & i_source);
 
     private:
         ScalarType m_scalar_type;

@@ -75,6 +75,9 @@
     <ClInclude Include="..\private\substitute_by_predicate.h">
       <Filter>private</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\hash.h">
+      <Filter>private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">
@@ -195,6 +198,9 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\private\tests\test_substitute.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tests\test_hash.cpp">
       <Filter>private\tests</Filter>
     </ClCompile>
   </ItemGroup>

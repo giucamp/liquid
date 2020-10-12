@@ -51,6 +51,7 @@
     <ClCompile Include="..\private\tensor_type.cpp" />
     <ClCompile Include="..\private\tensor_value.cpp" />
     <ClCompile Include="..\private\tests\tests.cpp" />
+    <ClCompile Include="..\private\tests\test_hash.cpp" />
     <ClCompile Include="..\private\tests\test_add.cpp" />
     <ClCompile Include="..\private\tests\test_if.cpp" />
     <ClCompile Include="..\private\tests\test_indices.cpp" />
@@ -63,6 +64,7 @@
   <ItemGroup>
     <ClInclude Include="..\private\book.h" />
     <ClInclude Include="..\private\expression.h" />
+    <ClInclude Include="..\private\hash.h" />
     <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\miu6\lexer.h" />
     <ClInclude Include="..\private\miu6\miu6.h" />

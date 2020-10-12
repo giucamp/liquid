@@ -41,8 +41,7 @@ namespace liquid
 
         {
             Expects(topic, "(if 5 > 6 then 1 else 2) == 2");
-
-            Expects(topic, "(if [-2 2] > 0 then 1 else 2) == [2 1]");
+            Expects(topic, "(if [-2 2.] > 0 then 1 else 2) == [2 1]");
         }
 
         {
