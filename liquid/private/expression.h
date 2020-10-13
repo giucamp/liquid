@@ -61,7 +61,7 @@ namespace liquid
 
     bool AlwaysEqual(const Tensor & i_tensor, const TensorValue & i_value);
 
-    bool ExpressionEqual(const Expression & i_left, const Expression & i_right);
+    bool AreIdentical(const Expression & i_left, const Expression & i_right);
 
     TensorType DeduceType(Span<const Tensor> i_operands);
 

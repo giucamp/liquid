@@ -78,6 +78,9 @@
     <ClInclude Include="..\private\hash.h">
       <Filter>private</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\miu6\alphabet.h">
+      <Filter>private\miu6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">

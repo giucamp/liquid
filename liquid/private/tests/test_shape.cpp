@@ -28,7 +28,7 @@ namespace liquid
             " [ *, *, *], * x  -->   [ *, *, *], *  [ x, x, x],"
             " [ *, *, *]]            [ *, *, *]]    [ x, x, x]]"
             
-            );
+        );
 
         LIQUID_EXPECTS_DOC(topic, Shape({4, 5}) == Tensor({2}));
 

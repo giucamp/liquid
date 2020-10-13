@@ -13,15 +13,38 @@ namespace liquid
 {
     namespace miu6
     {
-        bool Lexer::TrySkipSpaces(std::string_view & io_source)
+        std::string_view Lexer::TryParseSpaces(std::string_view & io_source)
         {
-            bool some_spaces = false;
+            const char * beginning = io_source.data();
             while(!io_source.empty() && std::isspace(io_source[0]))
-            {
                 io_source = io_source.substr(1);
-                some_spaces = true;
+            return std::string_view(beginning, io_source.data() - beginning);
+        }
+
+        /* returns true if two sequences of spaces are simmetrical, that is 
+            if i_prefix == reverse(i_postfix). The sequence \r\n is considered
+            a single space, and must not be reversed in the postix. */
+        bool Lexer::WhiteSimmetry(std::string_view i_prefix, std::string_view i_postfix)
+        {
+            if(i_prefix.length() != i_postfix.length())
+                return false;
+
+            size_t const length = i_prefix.length();
+            for(size_t i = 0; i < length; i++)
+            {
+                if(i_prefix[i] == '\r' && i + 1 < length &&
+                    i_prefix[i] == '\n')
+                {
+                    if(i_postfix[length - 2 - i] != '\r' ||
+                       i_postfix[length - 1 - i] != '\n')
+                        return false;
+                    else
+                        i++;
+                }
+                else if(i_prefix[i] != i_postfix[length - 1 - i])
+                    return false;
             }
-            return some_spaces;
+            return true;
         }
 
         bool Lexer::TryParseString(std::string_view & io_source, std::string_view i_what)
@@ -89,105 +112,59 @@ namespace liquid
 
         Token Lexer::TryParseToken(std::string_view & io_source)
         {
-            TrySkipSpaces(io_source);
+            auto const spaces = TryParseSpaces(io_source);
 
             const char * first_char = io_source.data();
-            Token token = TryParseTokenImpl(io_source);
+            Token token = TryParseTokenImpl(spaces, io_source);
             token.m_chars = { first_char, static_cast<size_t>(io_source.data() - first_char) };
             return token;
         }
 
-        Token Lexer::TryParseTokenImpl(std::string_view & io_source)
+        Token Lexer::TryParseTokenImpl(std::string_view i_prefix_spaces, std::string_view & io_source)
         {
-            // scalar types
-            if(TryParseString(io_source, "any"))
-                return { Token::Kind::Any };
-            else if(TryParseString(io_source, "real"))
-                return { Token::Kind::Real };
-            else if(TryParseString(io_source, "int"))
-                return { Token::Kind::Integer };
-            else if(TryParseString(io_source, "bool"))
-                return { Token::Kind::Bool };
-
-            // comparison
-            else if(TryParseString(io_source, "=="))
-                return { Token::Kind::Equal };
-            else if(TryParseString(io_source, "!="))
-                return { Token::Kind::NotEqual };
-            else if(TryParseString(io_source, ">="))
-                return { Token::Kind::GreaterOrEqual };
-            else if(TryParseString(io_source, "<="))
-                return { Token::Kind::LessOrEqual };
-            else if(TryParseString(io_source, ">"))
-                return { Token::Kind::Greater};
-            else if(TryParseString(io_source, "<"))
-                return { Token::Kind::Less };
-
-            // boolean operators
-            else if(TryParseString(io_source, "&&"))
-                return { Token::Kind::And };
-            else if(TryParseString(io_source, "||"))
-                return { Token::Kind::Or };
-            else if(TryParseString(io_source, "!"))
-                return { Token::Kind::Not };
-
-            // arithmetic operators
-            else if(TryParseString(io_source, "+"))
-                return { Token::Kind::Plus };
-            else if(TryParseString(io_source, "-"))
-                return { Token::Kind::Minus };
-            else if(TryParseString(io_source, "*"))
-                return { Token::Kind::Times };
-            else if(TryParseString(io_source, "/"))
-                return { Token::Kind::Div };
-            else if(TryParseString(io_source, "^"))
-                return { Token::Kind::Pow };
-
-            // bracket
-            else if(TryParseString(io_source, "("))
-                return { Token::Kind::LeftParenthesis };
-            else if(TryParseString(io_source, ")"))
-                return { Token::Kind::RightParenthesis };
-            else if(TryParseString(io_source, "["))
-                return { Token::Kind::LeftBracket };
-            else if(TryParseString(io_source, "]"))
-                return { Token::Kind::RightBracket };
-            else if(TryParseString(io_source, "{"))
-                return { Token::Kind::LeftBrace };
-            else if(TryParseString(io_source, "}"))
-                return { Token::Kind::RightBrace };
-
-            // if
-            else if(TryParseString(io_source, "if"))
-                return { Token::Kind::If };
-            else if(TryParseString(io_source, "then"))
-                return { Token::Kind::Then };
-            else if(TryParseString(io_source, "elif"))
-                return { Token::Kind::Elif };
-            else if(TryParseString(io_source, "else"))
-                return { Token::Kind::Else };
+            for(const Symbol & symbol : g_alphabet)
+            {
+                if(HasFlags(symbol.m_flags, SymbolFlags::BinaryOperator))
+                {
+                    // binary operator - enforce white space symmetry
+                    auto new_source = io_source;
+                    if(TryParseString(new_source, symbol.m_chars))
+                    {
+                        std::string_view postfix_spaces = TryParseSpaces(new_source);
+                        if(WhiteSimmetry(i_prefix_spaces, postfix_spaces))
+                        {
+                            io_source = new_source;
+                            return { symbol.m_id, {}, symbol.m_flags, symbol.m_precedence };
+                        }
+                    }                    
+                }
+                else
+                {
+                    // non-binary operator
+                    if(TryParseString(io_source, symbol.m_chars))
+                        return { symbol.m_id, {}, symbol.m_flags, symbol.m_precedence };
+                }
+            }
 
             // literals
-            else if(auto const literal = TryParseBool(io_source))
-                return { Token::Kind::Literal, *literal };
+            if(auto const literal = TryParseBool(io_source))
+                return { SymbolId::Literal, *literal };
             else if(auto const literal = TryParseReal(io_source))
-                return { Token::Kind::Literal, *literal };
+                return { SymbolId::Literal, *literal };
             else if(auto const literal = TryParseInteger(io_source))
-                return { Token::Kind::Literal, *literal };
+                return { SymbolId::Literal, *literal };
 
-            // misc
+            // name
             else if(auto const name = TryParseName(io_source))
-                return { Token::Kind::Name };
-            else if(TryParseString(io_source, ","))
-                return { Token::Kind::Comma };
+                return { SymbolId::Name };
 
             // end
             else if(io_source.empty())
-                return { Token::Kind::EndOfSource };
+                return { SymbolId::EndOfSource };
 
             // unrecognized
             else
-                return { Token::Kind::Unrecognized };
+                return { SymbolId::Unrecognized };
         }
 
         Lexer::Lexer(std::string_view i_source)
@@ -201,9 +178,9 @@ namespace liquid
             m_curr_token = TryParseToken(m_remaining_source);
         }
 
-        std::optional<Token> Lexer::TryAccept(Token::Kind i_token_kind)
+        std::optional<Token> Lexer::TryAccept(SymbolId i_symbol_id)
         {
-            if (m_curr_token.m_kind == i_token_kind)
+            if (m_curr_token.m_symbol_id == i_symbol_id)
             {
                 auto const result = m_curr_token;
                 Advance();
@@ -213,53 +190,58 @@ namespace liquid
                 return {};
         }
 
-        Token Lexer::Accept(Token::Kind i_token_kind)
+        Token Lexer::Accept(SymbolId i_symbol_id)
         {
-            auto result = TryAccept(i_token_kind);
+            auto result = TryAccept(i_symbol_id);
             if(result)
                 return *result;
             Panic(*this, " Unexpected token");
         }
 
-        struct Line { std::string_view m_chars; size_t m_number; };
-
-        Line GetLineAt(std::string_view i_source, const char * i_at)
+        namespace 
         {
-            const char * curr_char = i_source.data();
-            const char * const end_of_source = curr_char + i_source.size();
+            // range of source chars delimited by line-enders or source bounds
+            struct Line { std::string_view m_chars; size_t m_number; };
 
-            if(i_at < curr_char || i_at > end_of_source)
-                Panic("GetLineAt - i_at is outside the source code");
-
-            const char * beginning_of_line = curr_char;
-            size_t line_number = 1;
-            while(curr_char < i_at)
+            // finds the line containing the character pointed by i_at
+            Line GetLineAt(std::string_view i_source, const char * i_at)
             {
-                if(*curr_char == '\n')
+                const char * curr_char = i_source.data();
+                const char * const end_of_source = curr_char + i_source.size();
+
+                if(i_at < curr_char || i_at > end_of_source)
+                    Panic("GetLineAt - i_at is outside the source code");
+
+                const char * beginning_of_line = curr_char;
+                size_t line_number = 1;
+                while(curr_char < i_at)
                 {
-                    line_number++;
-                    curr_char++;
-                    beginning_of_line = curr_char;
+                    if(*curr_char == '\n')
+                    {
+                        line_number++;
+                        curr_char++;
+                        beginning_of_line = curr_char;
+                    }
+                    else if(*curr_char == '\r' &&
+                        curr_char + 1 < end_of_source &&
+                        curr_char[1] == '\n')
+                    {
+                        line_number++;
+                        curr_char += 2;
+                        beginning_of_line = curr_char;
+                    }
+                    else
+                        curr_char++;
                 }
-                else if(*curr_char == '\r' &&
-                    curr_char + 1 < end_of_source &&
-                    curr_char[1] == '\n')
-                {
-                    line_number++;
-                    curr_char += 2;
-                    beginning_of_line = curr_char;
-                }
-                else
-                    curr_char++;
+
+                const char * end_of_line = curr_char;
+                while(end_of_line < end_of_source && *end_of_line != '\n')
+                    end_of_line++;
+                if(end_of_line > i_source.data() && end_of_line[-1] == '\r')
+                    end_of_line--;
+
+                return {std::string_view(beginning_of_line, end_of_line - beginning_of_line), line_number};
             }
-
-            const char * end_of_line = curr_char;
-            while(end_of_line < end_of_source && *end_of_line != '\n')
-                end_of_line++;
-            if(end_of_line > i_source.data() && end_of_line[-1] == '\r')
-                end_of_line--;
-
-            return {std::string_view(beginning_of_line, end_of_line - beginning_of_line), line_number};
         }
 
         std::ostream & operator << (std::ostream & i_dest, const Lexer & i_lexer)

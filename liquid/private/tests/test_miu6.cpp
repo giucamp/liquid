@@ -19,31 +19,34 @@ namespace liquid
         {
             using namespace miu6;
 
-            Lexer lexer(" \r\n  real int\tbool   ");
+            Lexer lexer(" \r\n  real int\t+bool a + b ");
 
-            LIQUID_EXPECTS_PANIC(lexer.Accept(Token::Kind::Plus), "Unexpected token");
+            LIQUID_EXPECTS_PANIC(lexer.Accept(SymbolId::BinaryMinus), "Unexpected token");
             
-            lexer.Accept(Token::Kind::Real);
-            lexer.Accept(Token::Kind::Integer);
-            lexer.Accept(Token::Kind::Bool);
-            lexer.Accept(Token::Kind::EndOfSource);
+            lexer.Accept(SymbolId::Real);
+            lexer.Accept(SymbolId::Integer);
+            lexer.Accept(SymbolId::UnaryPlus);
+            lexer.Accept(SymbolId::Bool);
+            lexer.Accept(SymbolId::Name);
+            lexer.Accept(SymbolId::BinaryPlus);
+            lexer.Accept(SymbolId::Name);
+            lexer.Accept(SymbolId::EndOfSource);
         }
 
         Expects("2 + 3*5 == 17");
         Expects("2 + 3*5*(2+3) == 77");
-        Expects("(2+-3)*2+ 40 == 38");
+        Expects("(2+-3)*2 + 40 == 38");
         Expects("4^3^2+1==262145");
         Expects("2+3*3>0");
         Expects("(2+3*3)*0>=0");        
         Expects("-5==-(5)");        
-        Expects("40/5*2 ==16");
+        Expects("40/5*2 == 16");
         Expects("-3^2==9");
         Expects("(2+-3^2)==11");
-        Expects("-100---50==    (-(2+-3^2^((2)))*2+ 40/(((5)))*2)");
-        Expects("-(2+-3^2)*2+ 40/5*2 ==-6");
+        Expects("-100---50    ==    (-(2+-3^2^((2)))*2 + 40/(((5)))*2)");
+        Expects("-(2+-3^2)*2 + 40/5*2 == -6");
 
-        // this is wrong, must fix unary minus
-        Expects("[1 -2] == [-1]");
+        Expects("[1 -2] == [(1) (1-3)]");
 
         Expects("[1 2] * 2 == [2 4]");
         Expects("[[1 2][3 4]] * 2 > 0");

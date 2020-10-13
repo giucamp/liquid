@@ -31,7 +31,7 @@ namespace liquid
             return *this;
         }
 
-        uint64_t GetValue() const    { return m_value; }
+        auto GetValue() const    { return m_value; }
 
         bool operator == (const Hash & i_right) const
             { return m_value == i_right.m_value; }
@@ -51,8 +51,10 @@ namespace liquid
         bool operator >= (const Hash & i_right) const
             { return m_value >= i_right.m_value; }
 
+        using Word = uint64_t;
+
     private:
-        uint64_t m_value = 5381;
+        Word m_value = 5381;
     };
 
     template <typename TYPE, typename = std::enable_if_t<

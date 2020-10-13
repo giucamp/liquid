@@ -5,6 +5,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #include "miu6/parser.h"
+#include "miu6/alphabet.h"
 #include "tensor_type.h"
 #include "expression.h"
 
@@ -21,13 +22,13 @@ namespace liquid
         // parses any|real|int|bool
         static ScalarType ParseScalarType(Lexer & i_lexer)
         {
-            if(i_lexer.TryAccept(Token::Kind::Real))
+            if(i_lexer.TryAccept(SymbolId::Real))
                 return ScalarType::Real;
-            else if(i_lexer.TryAccept(Token::Kind::Integer))
+            else if(i_lexer.TryAccept(SymbolId::Integer))
                 return ScalarType::Integer;
-            else if(i_lexer.TryAccept(Token::Kind::Bool))
+            else if(i_lexer.TryAccept(SymbolId::Bool))
                 return ScalarType::Bool;
-            else if(i_lexer.TryAccept(Token::Kind::Any))
+            else if(i_lexer.TryAccept(SymbolId::Any))
                 return ScalarType::Any;
             else
                 return ScalarType::Any; // any is implicit
@@ -37,10 +38,10 @@ namespace liquid
         static TensorType ParseTensorType(Lexer & i_lexer)
         {
             ScalarType const scalar_type = ParseScalarType(i_lexer);
-            if (i_lexer.TryAccept(Token::Kind::LeftBracket))
+            if (i_lexer.TryAccept(SymbolId::LeftBracket))
             {
                 Tensor const shape_vector = Stack(ParseExpressionList(i_lexer));
-                i_lexer.Accept(Token::Kind::RightBracket);
+                i_lexer.Accept(SymbolId::RightBracket);
                 return TensorType(scalar_type, shape_vector);
             }
             else
@@ -54,7 +55,7 @@ namespace liquid
             if(auto first_expression = TryParseExpression(i_lexer, 0))
             {
                 result.push_back(*first_expression);
-                while (i_lexer.TryAccept(Token::Kind::Comma))
+                while (i_lexer.TryAccept(SymbolId::Comma))
                     result.push_back(ParseExpression(i_lexer, 0));
             }
             return result;
@@ -72,7 +73,7 @@ namespace liquid
         // tries to parse an expression that may be the left-hand-side of a binary operator
         static std::optional<Tensor> TryParseLeftExpression(Lexer & i_lexer)
         {
-            if (auto token = i_lexer.TryAccept(Token::Kind::Literal))
+            if (auto token = i_lexer.TryAccept(SymbolId::Literal))
             {
                 // scalar literal
                 if(auto const value = std::get_if<Real>(&token->m_value))
@@ -84,52 +85,56 @@ namespace liquid
                 else
                     Panic(i_lexer, "unrecognized literal type");
             }
-            else if(auto token = i_lexer.TryAccept(Token::Kind::LeftBracket))
+            else if(auto token = i_lexer.TryAccept(SymbolId::LeftBracket))
             {
                 // stack operatpr - creates tensors
                 std::vector<Tensor> tensors;
-                while(!i_lexer.TryAccept(Token::Kind::RightBracket))
+                while(!i_lexer.TryAccept(SymbolId::RightBracket))
                     tensors.push_back(ParseExpression(i_lexer, 0));
                 return Stack(tensors);
             }
-            else if(i_lexer.TryAccept(Token::Kind::If))
+            else if(i_lexer.TryAccept(SymbolId::If))
             {
                 std::vector<Tensor> operands;
                 
                 do {
                     // condition then value
                     operands.push_back(ParseExpression(i_lexer, 0));
-                    i_lexer.Accept(Token::Kind::Then);
+                    i_lexer.Accept(SymbolId::Then);
                     operands.push_back(ParseExpression(i_lexer, 0));
-                } while(i_lexer.TryAccept(Token::Kind::Elif));
+                } while(i_lexer.TryAccept(SymbolId::Elif));
 
                 // else fallback
-                i_lexer.Accept(Token::Kind::Else);
+                i_lexer.Accept(SymbolId::Else);
                 operands.push_back(ParseExpression(i_lexer, 0));
 
                 return If(operands);
             }
-            else if (auto token = i_lexer.TryAccept(Token::Kind::LeftParenthesis))
+            else if (auto token = i_lexer.TryAccept(SymbolId::LeftParenthesis))
             {
                 // parentheses
                 Tensor expr = ParseExpression(i_lexer, 0);
-                i_lexer.Accept(Token::Kind::RightParenthesis);
+                i_lexer.Accept(SymbolId::RightParenthesis);
                 return expr;
             }
-            else if(i_lexer.IsCurrentToken(Token::Kind::Any) ||
-                i_lexer.IsCurrentToken(Token::Kind::Real) ||
-                i_lexer.IsCurrentToken(Token::Kind::Integer) ||
-                i_lexer.IsCurrentToken(Token::Kind::Bool))
+            else if(i_lexer.IsCurrentToken(SymbolId::Any) ||
+                i_lexer.IsCurrentToken(SymbolId::Real) ||
+                i_lexer.IsCurrentToken(SymbolId::Integer) ||
+                i_lexer.IsCurrentToken(SymbolId::Bool))
             {
                 // variable
                 auto const type = ParseTensorType(i_lexer);
-                auto const name = i_lexer.Accept(Token::Kind::Name);
+                auto const name = i_lexer.Accept(SymbolId::Name);
                 return MakeVariable(type, name.m_chars);
             }
-            else if (auto token = i_lexer.TryAccept(Token::Kind::Minus))
-                return -ParseExpression(i_lexer, 500); // unary minus prcedence is 500
-            else if (auto token = i_lexer.TryAccept(Token::Kind::Plus))
-                return ParseExpression(i_lexer, 500); // unary plus prcedence is 500
+            else if (auto token = i_lexer.TryAccept(SymbolId::UnaryMinus))
+                return -ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryMinus).m_precedence);
+            else if (auto token = i_lexer.TryAccept(SymbolId::UnaryPlus))
+                return ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryPlus).m_precedence);
+            else if (auto token = i_lexer.TryAccept(SymbolId::BinaryMinus))
+                return -ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryMinus).m_precedence);
+            else if (auto token = i_lexer.TryAccept(SymbolId::BinaryPlus))
+                return ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryPlus).m_precedence);
             else
                 return {};
         }
@@ -142,76 +147,77 @@ namespace liquid
             Tensor result = i_left_operand;
 
             auto look_ahead = i_lexer.GetCurrentToken();
-            while (GetBinaryOperatorPrecedence(look_ahead.m_kind) >= i_min_precedence)
+            while (HasFlags(look_ahead.m_flags, SymbolFlags::BinaryOperator)
+                && look_ahead.m_precedence >= i_min_precedence)
             {
                 Token operator_token = look_ahead;
                 
                 i_lexer.Advance();
-                
-                auto right = *TryParseLeftExpression(i_lexer);
-                
+
+                auto right = TryParseLeftExpression(i_lexer);
+                if(!right)
+                    Panic(i_lexer, "expected right operand");
                 look_ahead = i_lexer.GetCurrentToken();
 
-                while (ShouldParseDeeper(look_ahead, operator_token))
+                while (HasFlags(look_ahead.m_flags, SymbolFlags::BinaryOperator)
+                    && ShouldParseDeeper(look_ahead, operator_token))
                 {
-                    right = CombineWithOperator(i_lexer, right, 
-                        GetBinaryOperatorPrecedence(look_ahead.m_kind));
+                    right = CombineWithOperator(i_lexer, *right, 
+                        look_ahead.m_precedence);
                     look_ahead = i_lexer.GetCurrentToken();
                 }
 
-                result = ApplyBinaryOperator(i_lexer, result, operator_token.m_kind, right);
+                result = ApplyBinaryOperator(i_lexer, result, operator_token.m_symbol_id, *right);
             }
 
             return result;
         }
 
         static Tensor ApplyBinaryOperator(Lexer & i_lexer,
-            const Tensor & i_left, Token::Kind i_op, const Tensor & i_right)
+            const Tensor & i_left, SymbolId i_op, const Tensor & i_right)
         {
             switch (i_op)
             {
-            case Token::Kind::Plus:
+            case SymbolId::BinaryPlus:
                 return i_left + i_right;
-            case Token::Kind::Minus:
+            case SymbolId::BinaryMinus:
                 return i_left - i_right;
-            case Token::Kind::Times:
+            case SymbolId::Mul:
                 return i_left * i_right;
-            case Token::Kind::Div:
+            case SymbolId::Div:
                 return i_left / i_right;
-            case Token::Kind::Pow:
+            case SymbolId::Pow:
                 return Pow(i_left, i_right);
-            case Token::Kind::Equal:
+            case SymbolId::Equal:
                 return i_left == i_right;
-            case Token::Kind::NotEqual:
+            case SymbolId::NotEqual:
                 return i_left != i_right;
-            case Token::Kind::Less:
+            case SymbolId::Less:
                 return i_left < i_right;
-            case Token::Kind::Greater:
+            case SymbolId::Greater:
                 return i_left > i_right;
-            case Token::Kind::LessOrEqual:
+            case SymbolId::LessOrEqual:
                 return i_left <= i_right;
-            case Token::Kind::GreaterOrEqual:
+            case SymbolId::GreaterOrEqual:
                 return i_left >= i_right;
-            case Token::Kind::And:
+            case SymbolId::And:
                 return i_left && i_right;
-            case Token::Kind::Or:
+            case SymbolId::Or:
                 return i_left || i_right;
             default:
-                Panic(i_lexer, " ApplyBinaryOperator - token ", static_cast<int>(i_op), " is not a binary operator");
+                Panic(i_lexer, " ApplyBinaryOperator - symbol ", GetSymbolName(i_op), " is not a binary operator");
             }
         }
 
         static bool ShouldParseDeeper(const Token & i_look_ahead, const Token & i_operator)
         {
-            int32_t const look_ahead_precedence = GetBinaryOperatorPrecedence(i_look_ahead.m_kind);
-            int32_t const op_precedence = GetBinaryOperatorPrecedence(i_operator.m_kind);
-            if(look_ahead_precedence < 0)
+            if(i_look_ahead.m_precedence < 0)
                 return false;
 
-            if(IsOperatorRightAssociative(i_look_ahead.m_kind))
-                return look_ahead_precedence >= op_precedence;
+            if(HasFlags(i_look_ahead.m_flags, SymbolFlags::RightAssociativeBinary))
+                return i_look_ahead.m_precedence >= i_operator.m_precedence;
             else
-                return look_ahead_precedence > op_precedence;
+                return i_look_ahead.m_precedence > i_operator.m_precedence;
         }
 
         static Tensor ParseExpression(Lexer & i_lexer, int32_t i_min_precedence)
@@ -220,40 +226,6 @@ namespace liquid
                 return *expression;
             else
                 Panic(i_lexer, " expected an expression");
-        }
-
-        /** returns wheter an operator has left-to-right associativity */
-        static bool IsOperatorRightAssociative(Token::Kind i_token_kind)
-        {
-            return i_token_kind == Token::Kind::Pow;
-        }
-
-        static int32_t GetBinaryOperatorPrecedence(Token::Kind i_token_kind)
-        {
-            switch (i_token_kind)
-            {
-            case Token::Kind::Equal:
-            case Token::Kind::NotEqual:
-            case Token::Kind::Less:
-            case Token::Kind::LessOrEqual:
-            case Token::Kind::Greater:
-            case Token::Kind::GreaterOrEqual:
-                return 100;
-
-            case Token::Kind::Plus:
-            case Token::Kind::Minus:
-                return 200;
-
-            case Token::Kind::Times:
-            case Token::Kind::Div:
-                return 300;
-
-            case Token::Kind::Pow:
-                return 400;
-
-            default:
-                return -1000;
-            }
         }
 
         }; // class Parser

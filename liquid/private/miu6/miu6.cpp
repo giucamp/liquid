@@ -15,7 +15,13 @@ namespace liquid
         Tensor ParseExpression(std::string_view i_source)
         {
             Lexer lexer(i_source);
-            return ParseExpression(lexer);
+            Tensor const result = ParseExpression(lexer);
+            
+            if(!lexer.IsSourceOver())
+                Panic(lexer, "expected end of source, ", 
+                    GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+            
+            return result;
         }
 
     } // namespace miu6
