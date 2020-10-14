@@ -40,7 +40,7 @@ namespace liquid
             void Advance();
 
             /* if the current token matches the specified kind, returns it and the advances */
-            [[nodiscard]] std::optional<Token> TryAccept(SymbolId i_symbol_id);
+            std::optional<Token> TryAccept(SymbolId i_symbol_id);
 
             Token Accept(SymbolId i_symbol_id);
 

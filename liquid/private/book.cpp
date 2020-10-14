@@ -35,12 +35,21 @@ namespace liquid
             Panic("Book - operator ", i_operator.GetName(), " already exists");
     }
 
-    const Operator & Book::GetOperator(const std::string & i_name) const
+    const Operator * Book::TryGetOperator(std::string_view i_name) const
     {
-        auto const it = m_operators.find(i_name);
+        // sadly until C++20 we can't lookup with a string_view
+        auto const it = m_operators.find(std::string(i_name));
         if(it == m_operators.end())
-            Panic("Book - operator ", i_name, " mot found");
-        return it->second;
+            return nullptr;
+        else
+            return &it->second;
+    }
+
+    const Operator & Book::GetOperator(std::string_view i_name) const
+    {
+        if(auto const op = TryGetOperator(i_name))
+            return *op;
+        Panic("Book - operator ", i_name, " mot found");
     }
 
     void Book::AddParagraph(std::string_view i_topic, Span<Element const> i_elements)

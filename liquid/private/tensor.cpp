@@ -6,7 +6,7 @@
 
 #include "liquid/tensor.h"
 #include "expression.h"
-#include "miu6/miu6.h"
+#include "miu6/parser.h"
 
 namespace liquid
 {

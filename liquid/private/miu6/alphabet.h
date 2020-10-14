@@ -38,6 +38,7 @@ namespace liquid
 
             // misc
             Comma,
+            Of,
 
             // dynamic symbols
             Name, Literal,
@@ -117,6 +118,7 @@ namespace liquid
 
             // misc
             { ",",          SymbolId::Comma                                                         },
+            { "of ",        SymbolId::Of                                                            },
         };
 
         constexpr const Symbol & FindSymbol(SymbolId i_symbol_id)

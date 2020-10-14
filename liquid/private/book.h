@@ -58,7 +58,9 @@ namespace liquid
         void AddPanicProposition(const char * i_topic, const char * i_panic_message,
             const char * i_cpp_source_code, const char * i_miu6_source_code);
 
-        const Operator & GetOperator(const std::string & i_name) const;
+        const Operator & GetOperator(std::string_view i_name) const;
+
+        const Operator * TryGetOperator(std::string_view i_name) const;
 
         std::vector<std::string> GetAllTopics() const;
 

@@ -5,6 +5,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #include "miu6/parser.h"
+#include "miu6/lexer.h"
 #include "miu6/alphabet.h"
 #include "tensor_type.h"
 #include "expression.h"
@@ -19,59 +20,42 @@ namespace liquid
             (class members can see each other regardless of the order) */
         public:
 
-        // parses any|real|int|bool
-        static ScalarType ParseScalarType(Lexer & i_lexer)
+        // tries to parses real|int|bool|any
+        static std::optional<ScalarType> TryParseScalarType(Lexer & i_lexer)
         {
-            if(i_lexer.TryAccept(SymbolId::Real))
-                return ScalarType::Real;
-            else if(i_lexer.TryAccept(SymbolId::Integer))
-                return ScalarType::Integer;
-            else if(i_lexer.TryAccept(SymbolId::Bool))
-                return ScalarType::Bool;
-            else if(i_lexer.TryAccept(SymbolId::Any))
-                return ScalarType::Any;
-            else
-                return ScalarType::Any; // any is implicit
+            if(i_lexer.TryAccept(SymbolId::Real))           return ScalarType::Real;
+            else if(i_lexer.TryAccept(SymbolId::Integer))   return ScalarType::Integer;
+            else if(i_lexer.TryAccept(SymbolId::Bool))      return ScalarType::Bool;
+            else if(i_lexer.TryAccept(SymbolId::Any))       return ScalarType::Any;
+            else return {};
         }
 
-        // parses any|real|int|bool [expr...,*]
-        static TensorType ParseTensorType(Lexer & i_lexer)
-        {
-            ScalarType const scalar_type = ParseScalarType(i_lexer);
-            if (i_lexer.TryAccept(SymbolId::LeftBracket))
-            {
-                Tensor const shape_vector = Stack(ParseExpressionList(i_lexer));
-                i_lexer.Accept(SymbolId::RightBracket);
-                return TensorType(scalar_type, shape_vector);
-            }
-            else
-                return scalar_type;
-        }
-
-        // parses expr...,*
-        static std::vector<Tensor> ParseExpressionList(Lexer & i_lexer)
+        // parses a space-separated or comma-separated list of expressions
+        static std::vector<Tensor> ParseExpressionList(Lexer & i_lexer, 
+            const std::shared_ptr<const Scope> & i_scope, SymbolId i_terminator_symbol)
         {
             std::vector<Tensor> result;
-            if(auto first_expression = TryParseExpression(i_lexer, 0))
+            while(!i_lexer.TryAccept(i_terminator_symbol))
             {
-                result.push_back(*first_expression);
-                while (i_lexer.TryAccept(SymbolId::Comma))
-                    result.push_back(ParseExpression(i_lexer, 0));
+                result.push_back(ParseExpression(i_lexer, i_scope, 0));
+                i_lexer.TryAccept(SymbolId::Comma);
             }
             return result;
         }
 
         // tries to parse a complete expression
-        static std::optional<Tensor> TryParseExpression(Lexer & i_lexer, int32_t i_min_precedence)
+        static std::optional<Tensor> TryParseExpression(Lexer & i_lexer,
+            const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
         {
-            if (auto const left_operand = TryParseLeftExpression(i_lexer))
-                return CombineWithOperator(i_lexer, *left_operand, i_min_precedence);
+            if (auto const left_operand = TryParseLeftExpression(i_lexer, i_scope))
+                return CombineWithOperator(i_lexer, i_scope, *left_operand, i_min_precedence);
             else
                 return {};
         }
 
         // tries to parse an expression that may be the left-hand-side of a binary operator
-        static std::optional<Tensor> TryParseLeftExpression(Lexer & i_lexer)
+        static std::optional<Tensor> TryParseLeftExpression(Lexer & i_lexer,
+            const std::shared_ptr<const Scope> & i_scope)
         {
             if (auto token = i_lexer.TryAccept(SymbolId::Literal))
             {
@@ -87,11 +71,8 @@ namespace liquid
             }
             else if(auto token = i_lexer.TryAccept(SymbolId::LeftBracket))
             {
-                // stack operatpr - creates tensors
-                std::vector<Tensor> tensors;
-                while(!i_lexer.TryAccept(SymbolId::RightBracket))
-                    tensors.push_back(ParseExpression(i_lexer, 0));
-                return Stack(tensors);
+                // stack operator - creates tensors
+                return Stack(ParseExpressionList(i_lexer, i_scope, SymbolId::RightBracket));
             }
             else if(i_lexer.TryAccept(SymbolId::If))
             {
@@ -99,49 +80,92 @@ namespace liquid
                 
                 do {
                     // condition then value
-                    operands.push_back(ParseExpression(i_lexer, 0));
+                    operands.push_back(ParseExpression(i_lexer, i_scope, 0));
                     i_lexer.Accept(SymbolId::Then);
-                    operands.push_back(ParseExpression(i_lexer, 0));
+                    operands.push_back(ParseExpression(i_lexer, i_scope, 0));
                 } while(i_lexer.TryAccept(SymbolId::Elif));
 
                 // else fallback
                 i_lexer.Accept(SymbolId::Else);
-                operands.push_back(ParseExpression(i_lexer, 0));
+                operands.push_back(ParseExpression(i_lexer, i_scope, 0));
 
                 return If(operands);
             }
             else if (auto token = i_lexer.TryAccept(SymbolId::LeftParenthesis))
             {
                 // parentheses
-                Tensor expr = ParseExpression(i_lexer, 0);
+                Tensor expr = ParseExpression(i_lexer, i_scope, 0);
                 i_lexer.Accept(SymbolId::RightParenthesis);
                 return expr;
             }
-            else if(i_lexer.IsCurrentToken(SymbolId::Any) ||
-                i_lexer.IsCurrentToken(SymbolId::Real) ||
-                i_lexer.IsCurrentToken(SymbolId::Integer) ||
-                i_lexer.IsCurrentToken(SymbolId::Bool))
+            else if (auto token = i_lexer.TryAccept(SymbolId::LeftBrace))
             {
-                // variable
-                auto const type = ParseTensorType(i_lexer);
-                auto const name = i_lexer.Accept(SymbolId::Name);
-                return MakeVariable(type, name.m_chars);
+                // scope operator
+                auto const scope = ParseScope(i_lexer, i_scope);
+                i_lexer.Accept(SymbolId::RightBrace);
+                if(scope->GetValues().size() != 1)
+                    Panic(i_lexer, "scope with ", scope->GetValues().size(), 
+                        " values, expected a single-value scope");
+                return scope->GetValues()[0];
             }
+            else if(auto const scalar_type = TryParseScalarType(i_lexer))
+            {
+                // variable declaration: both shape and name are optional
+                auto const shape_vector = TryParseExpression(i_lexer, i_scope, 0);
+                auto const name = i_lexer.TryAccept(SymbolId::Name);
+
+                // if shape_vector non-null but not a vector, the following will panic...
+                TensorType const type = shape_vector ? TensorType{*scalar_type, *shape_vector} : *scalar_type;
+                return MakeVariable(type, name ? name->m_chars : "");
+            }
+
+            // unary plus\minus
             else if (auto token = i_lexer.TryAccept(SymbolId::UnaryMinus))
-                return -ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryMinus).m_precedence);
+                return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
             else if (auto token = i_lexer.TryAccept(SymbolId::UnaryPlus))
-                return ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryPlus).m_precedence);
+                return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
+
+            // context-sensitive unary-to-binary promotion
             else if (auto token = i_lexer.TryAccept(SymbolId::BinaryMinus))
-                return -ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryMinus).m_precedence);
+                return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
             else if (auto token = i_lexer.TryAccept(SymbolId::BinaryPlus))
-                return ParseExpression(i_lexer, FindSymbol(SymbolId::UnaryPlus).m_precedence);
-            else
-                return {};
+                return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
+
+            else if (auto name_token = i_lexer.IsCurrentToken(SymbolId::Name))
+            {
+                auto const member = i_scope->TryLookup(i_lexer.GetCurrentToken().m_chars);
+                if(std::holds_alternative<std::reference_wrapper<const Operator>>(member))
+                {
+                    i_lexer.Advance();
+                    return ParseInvokeOperator(i_lexer, i_scope, 
+                        std::get<std::reference_wrapper<const Operator>>(member).get());
+                }
+                else if(std::holds_alternative<Tensor>(member))
+                {
+                    i_lexer.Advance();
+                    return std::get<Tensor>(member);
+                }
+                else
+                    return {};
+            }
+
+        return {};
+        }
+
+        static Tensor ParseInvokeOperator(Lexer & i_lexer, 
+            const std::shared_ptr<const Scope> & i_scope,
+            const Operator & i_operator)
+        {
+            if(i_lexer.TryAccept(SymbolId::LeftParenthesis))
+                return i_operator.Invoke( { ParseExpressionList(i_lexer, i_scope, SymbolId::RightParenthesis) } );
+
+            i_lexer.TryAccept(SymbolId::Of); // "of" is optional
+            return i_operator.Invoke( { ParseExpression(i_lexer, i_scope, 0) } );
         }
 
         /* given a left operand, tries to parse a binary expression ignoring operators 
             whoose precedence is less than i_min_precedence */
-        static Tensor CombineWithOperator(Lexer & i_lexer,
+        static Tensor CombineWithOperator(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_scope,
             const Tensor & i_left_operand, int32_t i_min_precedence)
         {
             Tensor result = i_left_operand;
@@ -154,7 +178,7 @@ namespace liquid
                 
                 i_lexer.Advance();
 
-                auto right = TryParseLeftExpression(i_lexer);
+                auto right = TryParseLeftExpression(i_lexer, i_scope);
                 if(!right)
                     Panic(i_lexer, "expected right operand");
                 look_ahead = i_lexer.GetCurrentToken();
@@ -162,12 +186,13 @@ namespace liquid
                 while (HasFlags(look_ahead.m_flags, SymbolFlags::BinaryOperator)
                     && ShouldParseDeeper(look_ahead, operator_token))
                 {
-                    right = CombineWithOperator(i_lexer, *right, 
-                        look_ahead.m_precedence);
+                    right = CombineWithOperator(i_lexer, i_scope,
+                        *right, look_ahead.m_precedence);
                     look_ahead = i_lexer.GetCurrentToken();
                 }
 
-                result = ApplyBinaryOperator(i_lexer, result, operator_token.m_symbol_id, *right);
+                result = ApplyBinaryOperator(i_lexer, result, 
+                    operator_token.m_symbol_id, *right);
             }
 
             return result;
@@ -220,24 +245,45 @@ namespace liquid
                 return i_look_ahead.m_precedence > i_operator.m_precedence;
         }
 
-        static Tensor ParseExpression(Lexer & i_lexer, int32_t i_min_precedence)
+        static Tensor ParseExpression(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
         {
-            if(auto expression = TryParseExpression(i_lexer, i_min_precedence))
+            if(auto expression = TryParseExpression(i_lexer, i_scope, i_min_precedence))
                 return *expression;
             else
                 Panic(i_lexer, " expected an expression");
         }
 
-        }; // class Parser
-
-        std::optional<Tensor> TryParseExpression(Lexer & i_lexer)
+        static std::shared_ptr<const Scope> ParseScope(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_parent_scope)
         {
-            return Parser::TryParseExpression(i_lexer, 0);
+            std::vector<Rule> rules;
+            std::vector<Tensor> values;
+            return i_parent_scope->MakeInner(rules, values);
         }
 
-        Tensor ParseExpression(Lexer & i_lexer)
+        }; // class Parser
+
+        Tensor ParseExpression(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
         {
-            return Parser::ParseExpression(i_lexer, 0);
+            Lexer lexer(i_source);
+            Tensor const result = Parser::ParseExpression(lexer, i_scope, 0);
+
+            if(!lexer.IsSourceOver())
+                Panic(lexer, "expected end of source, ", 
+                    GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+
+            return result;
+        }
+        
+        std::shared_ptr<const Scope> ParseScope(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
+        {
+            Lexer lexer(i_source);
+            std::shared_ptr<const Scope> const result = Parser::ParseScope(lexer, i_scope);
+
+            if(!lexer.IsSourceOver())
+                Panic(lexer, "expected end of source, ", 
+                    GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+
+            return result;
         }
 
     } // namespace miu6

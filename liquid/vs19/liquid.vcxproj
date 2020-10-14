@@ -24,7 +24,6 @@
     <ClCompile Include="..\private\liquid_common.cpp" />
     <ClCompile Include="..\private\book.cpp" />
     <ClCompile Include="..\private\miu6\lexer.cpp" />
-    <ClCompile Include="..\private\miu6\miu6.cpp" />
     <ClCompile Include="..\private\miu6\parser.cpp" />
     <ClCompile Include="..\private\operator.cpp" />
     <ClCompile Include="..\private\operators\add.cpp" />
@@ -67,7 +66,6 @@
     <ClInclude Include="..\private\hash.h" />
     <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\miu6\lexer.h" />
-    <ClInclude Include="..\private\miu6\miu6.h" />
     <ClInclude Include="..\private\miu6\parser.h" />
     <ClInclude Include="..\private\miu6\alphabet.h" />
     <ClInclude Include="..\private\operator.h" />
