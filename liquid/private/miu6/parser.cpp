@@ -18,9 +18,10 @@ namespace liquid
 
         class Parser { /* we use a class with static functions to avoid forward declarations
             (class members can see each other regardless of the order) */
+
         public:
 
-        // tries to parses real|int|bool|any
+        // tries to parse real|int|bool|any
         static std::optional<ScalarType> TryParseScalarType(Lexer & i_lexer)
         {
             if(i_lexer.TryAccept(SymbolId::Real))           return ScalarType::Real;
@@ -43,12 +44,42 @@ namespace liquid
             return result;
         }
 
+        /* given an (already parsed) operator, parse a parenthesized argument list,
+            or a naked single argument, possibly prefixed by "of" */
+        static Tensor ParseInvokeOperator(Lexer & i_lexer, 
+            const std::shared_ptr<const Scope> & i_scope,
+            const Operator & i_operator)
+        {
+            if(i_lexer.TryAccept(SymbolId::LeftParenthesis))
+                return i_operator.Invoke( { ParseExpressionList(i_lexer, i_scope, SymbolId::RightParenthesis) } );
+
+            i_lexer.TryAccept(SymbolId::Of); // 'of' is optional, meaningless, i.e. cosmetic
+            return i_operator.Invoke( { ParseExpression(i_lexer, i_scope, 0) } );
+        }
+
         // tries to parse a complete expression
         static std::optional<Tensor> TryParseExpression(Lexer & i_lexer,
             const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
         {
             if (auto const left_operand = TryParseLeftExpression(i_lexer, i_scope))
-                return CombineWithOperator(i_lexer, i_scope, *left_operand, i_min_precedence);
+            {
+                // combine with any regular binary operator
+                auto result = CombineWithOperator(i_lexer, i_scope, 
+                    *left_operand, i_min_precedence);
+
+                /* try parse 'is'. 'is' is special because the second operand 
+                    is a type, and has lower precedence than regular binary operators. 
+                    Clinton's law: "it depends on what the meaning of ‘is’ is" */
+                if(i_lexer.TryAccept(SymbolId::Is))
+                {
+                    auto scalar_type = TryParseScalarType(i_lexer);
+                    if(!scalar_type)
+                        Panic(i_lexer, "expected scalar type");
+                    result = Is(result, *scalar_type);
+                }
+
+                return result;
+            }
             else
                 return {};
         }
@@ -71,7 +102,7 @@ namespace liquid
             }
             else if(auto token = i_lexer.TryAccept(SymbolId::LeftBracket))
             {
-                // stack operator - creates tensors
+                // stack operator - creates a tensor
                 return Stack(ParseExpressionList(i_lexer, i_scope, SymbolId::RightBracket));
             }
             else if(i_lexer.TryAccept(SymbolId::If))
@@ -114,7 +145,7 @@ namespace liquid
                 auto const shape_vector = TryParseExpression(i_lexer, i_scope, 0);
                 auto const name = i_lexer.TryAccept(SymbolId::Name);
 
-                // if shape_vector non-null but not a vector, the following will panic...
+                // if shape_vector is non-null but not a vector, the following will panic...
                 TensorType const type = shape_vector ? TensorType{*scalar_type, *shape_vector} : *scalar_type;
                 return MakeVariable(type, name ? name->m_chars : "");
             }
@@ -149,18 +180,7 @@ namespace liquid
                     return {};
             }
 
-        return {};
-        }
-
-        static Tensor ParseInvokeOperator(Lexer & i_lexer, 
-            const std::shared_ptr<const Scope> & i_scope,
-            const Operator & i_operator)
-        {
-            if(i_lexer.TryAccept(SymbolId::LeftParenthesis))
-                return i_operator.Invoke( { ParseExpressionList(i_lexer, i_scope, SymbolId::RightParenthesis) } );
-
-            i_lexer.TryAccept(SymbolId::Of); // "of" is optional
-            return i_operator.Invoke( { ParseExpression(i_lexer, i_scope, 0) } );
+            return {};
         }
 
         /* given a left operand, tries to parse a binary expression ignoring operators 

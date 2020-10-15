@@ -71,7 +71,7 @@ namespace liquid
         void AddOperator(const Operator & i_operator);
 
     private:
-        std::unordered_map<std::string, const Operator &> m_operators;
+        std::unordered_map<std::string, const Operator *> m_operators;
         std::unordered_map<std::string, const Paragraphs> m_paragraphs;
         std::unordered_multimap<std::string, const Proposition> m_propositions;
         std::unordered_multimap<std::string, const PanicProposition> m_panic_propositions;

@@ -17,6 +17,7 @@ namespace liquid
     extern const Operator & GetOperatorEqual();
     extern const Operator & GetOperatorExp();
     extern const Operator & GetOperatorIf();
+    extern const Operator & GetOperatorIs();
     extern const Operator & GetOperatorLess();
     extern const Operator & GetOperatorLog();
     extern const Operator & GetOperatorMul();
@@ -30,7 +31,8 @@ namespace liquid
 
     void Book::AddOperator(const Operator & i_operator)
     {
-        bool const inserted = m_operators.insert(std::make_pair(i_operator.GetName(), i_operator)).second;
+        bool const inserted = m_operators.insert(std::make_pair(
+            i_operator.GetName(), &i_operator)).second;
         if(!inserted)
             Panic("Book - operator ", i_operator.GetName(), " already exists");
     }
@@ -42,7 +44,7 @@ namespace liquid
         if(it == m_operators.end())
             return nullptr;
         else
-            return &it->second;
+            return it->second;
     }
 
     const Operator & Book::GetOperator(std::string_view i_name) const
@@ -89,6 +91,7 @@ namespace liquid
         AddOperator(GetOperatorEqual());
         AddOperator(GetOperatorExp());
         AddOperator(GetOperatorIf());
+        AddOperator(GetOperatorIs());
         AddOperator(GetOperatorLess());
         AddOperator(GetOperatorLog());
         AddOperator(GetOperatorMul());

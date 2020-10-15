@@ -37,8 +37,7 @@ namespace liquid
             If, Then, Elif, Else,
 
             // misc
-            Comma,
-            Of,
+            Comma, Of, Is,
 
             // dynamic symbols
             Name, Literal,
@@ -119,6 +118,7 @@ namespace liquid
             // misc
             { ",",          SymbolId::Comma                                                         },
             { "of ",        SymbolId::Of                                                            },
+            { "is",         SymbolId::Is                                                            },
         };
 
         constexpr const Symbol & FindSymbol(SymbolId i_symbol_id)

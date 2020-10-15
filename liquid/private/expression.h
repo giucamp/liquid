@@ -65,6 +65,8 @@ namespace liquid
 
     TensorType DeduceType(Span<const Tensor> i_operands);
 
+    Tensor Is(const Tensor & i_tensor, const TensorType & i_type);
+
     inline Hash & operator << (Hash & i_dest, const Expression & i_source)
     {
         i_dest << i_source.GetHash();

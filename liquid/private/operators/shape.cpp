@@ -15,9 +15,9 @@ namespace liquid
     TensorType ShapeDeduceType(const std::any & i_attachment,
         Span<const Tensor> i_operands)
     {
-        // rank must be a vector
-        Tensor const rank = { { Rank(i_operands.at(0)) } };
-        return { ScalarType::Integer, rank };
+        // shape_of_shape is a vector
+        Tensor const shape_of_shape = { { Rank(i_operands.at(0)) } };
+        return { ScalarType::Integer, shape_of_shape };
     }
 
     bool ShapeEligibleForPropagation(const std::any & i_attachment,

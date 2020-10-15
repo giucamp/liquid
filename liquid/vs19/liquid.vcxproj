@@ -33,6 +33,7 @@
     <ClCompile Include="..\private\operators\equal.cpp" />
     <ClCompile Include="..\private\operators\exp.cpp" />
     <ClCompile Include="..\private\operators\if.cpp" />
+    <ClCompile Include="..\private\operators\is.cpp" />
     <ClCompile Include="..\private\operators\less.cpp" />
     <ClCompile Include="..\private\operators\log.cpp" />
     <ClCompile Include="..\private\operators\mul.cpp" />
@@ -52,6 +53,7 @@
     <ClCompile Include="..\private\tests\tests.cpp" />
     <ClCompile Include="..\private\tests\test_hash.cpp" />
     <ClCompile Include="..\private\tests\test_add.cpp" />
+    <ClCompile Include="..\private\tests\test_is.cpp" />
     <ClCompile Include="..\private\tests\test_if.cpp" />
     <ClCompile Include="..\private\tests\test_indices.cpp" />
     <ClCompile Include="..\private\tests\test_miu6.cpp" />
