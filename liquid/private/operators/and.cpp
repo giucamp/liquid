@@ -33,7 +33,7 @@ namespace liquid
         static auto const op = Operator("And")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(true)
-            .AddOverload(AndEvaluate, { { GetScalarType<Bool>(), "BoolOp" } }, 1);
+            .AddOverload(AndEvaluate, { { ScalarType::Bool, "BoolOp" } }, 1);
         return op;
     }
 

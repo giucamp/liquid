@@ -40,8 +40,8 @@ namespace liquid
         static auto const op = Operator("Add")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(0)
-            .AddOverload(AddEvaluate<Real>, { {GetScalarType<Real>(), "Addend"} }, 1)
-            .AddOverload(AddEvaluate<Integer>, { {GetScalarType<Integer>(), "Addend"} }, 1)
+            .AddOverload(AddEvaluate<Real>, { {ScalarType::Real, "Addend"} }, 1)
+            .AddOverload(AddEvaluate<Integer>, { {ScalarType::Integer, "Addend"} }, 1)
             .SetGradientOfOperand(AddGradient);
         return op;
     }

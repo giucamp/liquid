@@ -70,8 +70,8 @@ namespace liquid
     {
         static auto const op = Operator("Add")
             .SetDeduceType(CastDeduceType)
-            .AddOverload(CastEvaluate<Real>, { { GetScalarType<Real>(), "Source" } })
-            .AddOverload(CastEvaluate<Integer>, { { GetScalarType<Integer>(), "Source" } })
+            .AddOverload(CastEvaluate<Real>, { { ScalarType::Real, "Source" } })
+            .AddOverload(CastEvaluate<Integer>, { { ScalarType::Integer, "Source" } })
             .SetAttachmentComparer<ScalarType>()
             .SetAttachmentHasher<ScalarType>()
             .SetCanonicalize(CastCanonicalize);

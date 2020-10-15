@@ -86,9 +86,9 @@ namespace liquid
             { ">",          SymbolId::Greater,           SymbolFlags::BinaryOperator,           100 },
 
             // boolean operators
-            { "||",         SymbolId::Or,                SymbolFlags::BinaryOperator,           200 },
-            { "&&",         SymbolId::And,               SymbolFlags::BinaryOperator,           300 },
-            { "!",          SymbolId::Not,               SymbolFlags::None,                     300 },
+            { "or",         SymbolId::Or,                SymbolFlags::BinaryOperator,           200 },
+            { "and",        SymbolId::And,               SymbolFlags::BinaryOperator,           300 },
+            { "not",        SymbolId::Not,               SymbolFlags::None,                     300 },
 
             // arithmetic binary operators
             { "+",          SymbolId::BinaryPlus,        SymbolFlags::BinaryOperator,           500 },
@@ -118,7 +118,7 @@ namespace liquid
             // misc
             { ",",          SymbolId::Comma                                                         },
             { "of ",        SymbolId::Of                                                            },
-            { "is",         SymbolId::Is                                                            },
+            { "is",         SymbolId::Is,                SymbolFlags::BinaryOperator,           400 },
         };
 
         constexpr const Symbol & FindSymbol(SymbolId i_symbol_id)

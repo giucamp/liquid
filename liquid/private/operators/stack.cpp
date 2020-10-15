@@ -63,9 +63,9 @@ namespace liquid
     {
         static auto const op = Operator("Stack")
             .SetDeduceType(StackDeduceType)
-            .AddOverload(StackEvaluate<Real>, { {GetScalarType<Real>(), "Source"} }, 1 )
-            .AddOverload(StackEvaluate<Integer>, { {GetScalarType<Integer>(), "Source"} }, 1 )
-            .AddOverload(StackEvaluate<Bool>, { {GetScalarType<Bool>(), "Source"} }, 1 );
+            .AddOverload(StackEvaluate<Real>, { {ScalarType::Real, "Source"} }, 1 )
+            .AddOverload(StackEvaluate<Integer>, { {ScalarType::Integer, "Source"} }, 1 )
+            .AddOverload(StackEvaluate<Bool>, { {ScalarType::Bool, "Source"} }, 1 );
         return op;
     }
 

@@ -45,9 +45,9 @@ namespace liquid
         static auto const op = Operator("Equal")
             .AddFlags(Operator::Flags::Commutative)
             .SetDeduceType(EqualDeduceType)
-            .AddOverload(EqualEvaluate<Real>, { { GetScalarType<Real>(), "First" }, { GetScalarType<Real>(), "Second" } })
-            .AddOverload(EqualEvaluate<Integer>, { { GetScalarType<Integer>(), "First" }, { GetScalarType<Integer>(), "Second" } })
-            .AddOverload(EqualEvaluate<Bool>, { { GetScalarType<Bool>(), "First" }, { GetScalarType<Bool>(), "Second" } });
+            .AddOverload(EqualEvaluate<Real>, { { ScalarType::Real, "First" }, { ScalarType::Real, "Second" } })
+            .AddOverload(EqualEvaluate<Integer>, { { ScalarType::Integer, "First" }, { ScalarType::Integer, "Second" } })
+            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "First" }, { ScalarType::Bool, "Second" } });
         return op;
     }
 

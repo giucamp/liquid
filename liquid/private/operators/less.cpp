@@ -44,9 +44,9 @@ namespace liquid
     {
         static auto const op = Operator("Less")
             .SetDeduceType(LessDeduceType)
-            .AddOverload(LessEvaluate<Real>, { { GetScalarType<Real>(), "First" }, { GetScalarType<Real>(), "Second" } })
-            .AddOverload(LessEvaluate<Integer>, { { GetScalarType<Integer>(), "First" }, { GetScalarType<Integer>(), "Second" } })
-            .AddOverload(LessEvaluate<Bool>, { { GetScalarType<Bool>(), "First" }, { GetScalarType<Bool>(), "Second" } });
+            .AddOverload(LessEvaluate<Real>, { { ScalarType::Real, "First" }, { ScalarType::Real, "Second" } })
+            .AddOverload(LessEvaluate<Integer>, { { ScalarType::Integer, "First" }, { ScalarType::Integer, "Second" } })
+            .AddOverload(LessEvaluate<Bool>, { { ScalarType::Bool, "First" }, { ScalarType::Bool, "Second" } });
         return op;
     }
 

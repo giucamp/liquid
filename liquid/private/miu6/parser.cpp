@@ -67,17 +67,6 @@ namespace liquid
                 auto result = CombineWithOperator(i_lexer, i_scope, 
                     *left_operand, i_min_precedence);
 
-                /* try parse 'is'. 'is' is special because the second operand 
-                    is a type, and has lower precedence than regular binary operators. 
-                    Clinton's law: "it depends on what the meaning of ‘is’ is" */
-                if(i_lexer.TryAccept(SymbolId::Is))
-                {
-                    auto scalar_type = TryParseScalarType(i_lexer);
-                    if(!scalar_type)
-                        Panic(i_lexer, "expected scalar type");
-                    result = Is(result, *scalar_type);
-                }
-
                 return result;
             }
             else
@@ -150,6 +139,12 @@ namespace liquid
                 return MakeVariable(type, name ? name->m_chars : "");
             }
 
+            else if (auto token = i_lexer.TryAccept(SymbolId::Not))
+            {
+                // not
+                return !ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::Not).m_precedence);
+            }
+
             // unary plus\minus
             else if (auto token = i_lexer.TryAccept(SymbolId::UnaryMinus))
                 return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
@@ -190,32 +185,55 @@ namespace liquid
         {
             Tensor result = i_left_operand;
 
-            auto look_ahead = i_lexer.GetCurrentToken();
-            while (HasFlags(look_ahead.m_flags, SymbolFlags::BinaryOperator)
-                && look_ahead.m_precedence >= i_min_precedence)
+            while (HasFlags(i_lexer.GetCurrentToken().m_flags, SymbolFlags::BinaryOperator)
+                && i_lexer.GetCurrentToken().m_precedence >= i_min_precedence)
             {
-                Token operator_token = look_ahead;
-                
+                /* now we have the left-hand operatand and the operator. We
+                   just need the right-hand operatand. */
+                Token const operator_token = i_lexer.GetCurrentToken();
+
+                // we have accepted the operator, so we must move to the lext token
                 i_lexer.Advance();
 
-                auto right = TryParseLeftExpression(i_lexer, i_scope);
-                if(!right)
-                    Panic(i_lexer, "expected right operand");
-                look_ahead = i_lexer.GetCurrentToken();
-
-                while (HasFlags(look_ahead.m_flags, SymbolFlags::BinaryOperator)
-                    && ShouldParseDeeper(look_ahead, operator_token))
+                if(operator_token.m_symbol_id == SymbolId::Is)
                 {
-                    right = CombineWithOperator(i_lexer, i_scope,
-                        *right, look_ahead.m_precedence);
-                    look_ahead = i_lexer.GetCurrentToken();
+                    /* 'is' is special because the second operand is a type.
+                       Clinton's law: "it depends on what the meaning of 'is' is" */
+                    auto scalar_type = TryParseScalarType(i_lexer);
+                    if(!scalar_type)
+                        Panic(i_lexer, " expected scalar type");
+                    
+                    result = Is(result, *scalar_type);
                 }
+                else
+                {
+                    auto right = TryParseLeftExpression(i_lexer, i_scope);
+                    if(!right)
+                        Panic(i_lexer, " expected right operand");
 
-                result = ApplyBinaryOperator(i_lexer, result, 
-                    operator_token.m_symbol_id, *right);
+                    while (ShouldParseDeeper(i_lexer.GetCurrentToken(), operator_token))
+                    {
+                        right = CombineWithOperator(i_lexer, i_scope,
+                            *right, i_lexer.GetCurrentToken().m_precedence);
+                    }
+
+                    result = ApplyBinaryOperator(i_lexer, result, 
+                        operator_token.m_symbol_id, *right);
+                }
             }
 
             return result;
+        }
+
+        static bool ShouldParseDeeper(const Token & i_look_ahead, const Token & i_operator)
+        {
+            if(!HasFlags(i_look_ahead.m_flags, SymbolFlags::BinaryOperator))
+                return false;
+
+            if(HasFlags(i_look_ahead.m_flags, SymbolFlags::RightAssociativeBinary))
+                return i_look_ahead.m_precedence >= i_operator.m_precedence;
+            else
+                return i_look_ahead.m_precedence > i_operator.m_precedence;
         }
 
         static Tensor ApplyBinaryOperator(Lexer & i_lexer,
@@ -254,17 +272,6 @@ namespace liquid
             }
         }
 
-        static bool ShouldParseDeeper(const Token & i_look_ahead, const Token & i_operator)
-        {
-            if(i_look_ahead.m_precedence < 0)
-                return false;
-
-            if(HasFlags(i_look_ahead.m_flags, SymbolFlags::RightAssociativeBinary))
-                return i_look_ahead.m_precedence >= i_operator.m_precedence;
-            else
-                return i_look_ahead.m_precedence > i_operator.m_precedence;
-        }
-
         static Tensor ParseExpression(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
         {
             if(auto expression = TryParseExpression(i_lexer, i_scope, i_min_precedence))
@@ -288,7 +295,7 @@ namespace liquid
             Tensor const result = Parser::ParseExpression(lexer, i_scope, 0);
 
             if(!lexer.IsSourceOver())
-                Panic(lexer, "expected end of source, ", 
+                Panic(lexer, " expected end of source, ", 
                     GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
 
             return result;
@@ -300,7 +307,7 @@ namespace liquid
             std::shared_ptr<const Scope> const result = Parser::ParseScope(lexer, i_scope);
 
             if(!lexer.IsSourceOver())
-                Panic(lexer, "expected end of source, ", 
+                Panic(lexer, " expected end of source, ", 
                     GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
 
             return result;

@@ -20,7 +20,8 @@ namespace liquid
             Expects(topic, "any is any");
             Expects(topic, "int is any");
             Expects(topic, "real is real");
-            Expects(topic, "Not real is int");
+            Expects(topic, "not real is int");
+            Expects(topic, "real is real and any is any");
         }
 
         std::cout << "done" << std::endl;

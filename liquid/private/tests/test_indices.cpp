@@ -54,7 +54,7 @@ namespace liquid
         }
         LIQUID_EXPECTS(linear_index == 72);
 
-        LIQUID_EXPECTS(GetScalarType<Real>() == ScalarType::Real);
+        LIQUID_EXPECTS(ScalarType::Real == ScalarType::Real);
 
         std::cout << "done" << std::endl;
     }

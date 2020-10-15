@@ -38,9 +38,9 @@ namespace liquid
         static auto const op = Operator("Rank")
             .SetDeduceType(RankDeduceType)
             .SetEligibleForPropagation(RankEligibleForPropagation)
-            .AddOverload({ RankEvaluate, {{ GetScalarType<Real>(), "Source" } }})
-            .AddOverload({ RankEvaluate, {{ GetScalarType<Integer>(), "Source" } }})
-            .AddOverload({ RankEvaluate, {{ GetScalarType<Bool>(), "Source" } }});
+            .AddOverload({ RankEvaluate, {{ ScalarType::Real, "Source" } }})
+            .AddOverload({ RankEvaluate, {{ ScalarType::Integer, "Source" } }})
+            .AddOverload({ RankEvaluate, {{ ScalarType::Bool, "Source" } }});
         return op;
     }
 

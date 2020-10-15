@@ -61,8 +61,8 @@ namespace liquid
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetCanonicalize(MulCanonicalize)
             .SetIdentityElement(1)
-            .AddOverload(MulEvaluate<Real>, { {GetScalarType<Real>(), "Factor"} }, 1)
-            .AddOverload(MulEvaluate<Integer>, { {GetScalarType<Integer>(), "Factor"} }, 1)
+            .AddOverload(MulEvaluate<Real>, { {ScalarType::Real, "Factor"} }, 1)
+            .AddOverload(MulEvaluate<Integer>, { {ScalarType::Integer, "Factor"} }, 1)
             .SetGradientOfOperand(MulGradient);
         return op;
     }
