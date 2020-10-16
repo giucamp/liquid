@@ -70,8 +70,8 @@ namespace liquid
         return GetOperatorPow().Invoke({i_base, i_exponent});
     }
 
-    Tensor Square(const Tensor & i_base)
+    Tensor Square(const Tensor & i_source)
     {
-        return Pow(i_base, 2);
+        return Pow(i_source, 2);
     }
 }

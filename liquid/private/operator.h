@@ -45,6 +45,14 @@ namespace liquid
         friend Flags operator | (Flags i_first, Flags i_second)
             { return static_cast<Flags>(static_cast<int>(i_first) | static_cast<int>(i_second)); }
 
+
+        bool Has(Flags i_flags) const { return liquid::HasFlags(m_flags, i_flags); }
+
+        /* a regular n-ary operator is associative, commutative, and has a single
+            variadic operand in all overloads. 'add', 'mul', 'and' and 'or' are
+            regular n-ary, whilst 'if' is not. */
+        bool IsRegularNAry() const;
+
         Operator & AddFlags(Flags i_flags);
 
 

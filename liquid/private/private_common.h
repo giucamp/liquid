@@ -44,6 +44,46 @@ namespace liquid
     void ExpectsPanic(const char * i_miu6_source_code, 
         const char * i_expected_message);
 
+    template <typename TYPE>
+        std::vector<TYPE> & Append(std::vector<TYPE> & i_dest, Span<const TYPE> i_source)
+    {
+        i_dest.insert(i_dest.end(), i_source.begin(), i_source.end());
+        return i_dest;
+    }
+
+    /** Concatenate many containers into a vector. This function does not partecipate in
+        overload resolution unless all argument are containers with the same element type. */
+    template <
+        typename FIRST_PIECE, typename... OTHER_PIECES,    
+        typename ELEMENT_TYPE = std::decay_t< decltype(*std::begin(std::declval<FIRST_PIECE>())) >,
+        typename = std::enable_if_t< IsContainerOfV<FIRST_PIECE, ELEMENT_TYPE>
+                && (IsContainerOfV<OTHER_PIECES, ELEMENT_TYPE> && ...) > 
+            > auto Concatenate(const FIRST_PIECE & i_first_piece, const OTHER_PIECES & ... i_pieces)
+    {
+        auto const size_of_result = (
+            std::distance(i_first_piece.begin(), i_first_piece.end())
+            + ... + std::distance(i_pieces.begin(), i_pieces.end()) );
+
+        std::vector<ELEMENT_TYPE> result;
+        result.reserve(size_of_result);
+
+        result.insert(result.end(), i_first_piece.begin(), i_first_piece.end());
+        (result.insert(result.end(), i_pieces.begin(), i_pieces.end()), ...);
+        return result;
+    }
+
+    template <typename SOURCE_CONTAINER, typename PREDICATE>
+        auto Transform(const SOURCE_CONTAINER & i_source_elements, const PREDICATE & i_predicate)
+    {
+        using DestType = decltype(i_predicate(*std::declval<SOURCE_CONTAINER>().begin()));
+        std::vector<DestType> result;
+        auto const size = std::size(i_source_elements);
+        result.reserve(size);
+        for(const auto & source : i_source_elements)
+            result.push_back(i_predicate(source));
+        return result;
+    }
+
     #define LIQUID_ASSERT(expr) if(!(expr)) Panic("Assert failure: " #expr);
 
     #define LIQUID_EXPECTS(expr) ::liquid::Expects(nullptr, expr, #expr)

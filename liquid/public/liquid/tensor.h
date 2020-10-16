@@ -186,7 +186,7 @@ namespace liquid
     Tensor Log(const Tensor & i_source);
     Tensor Exp(const Tensor & i_source);
     Tensor Pow(const Tensor & i_base, const Tensor & i_exponent);
-    Tensor Square(const Tensor & i_base);
+    Tensor Square(const Tensor & i_source);
 
     Tensor Stack(Span<Tensor const> i_tensors);
 

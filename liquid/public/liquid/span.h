@@ -140,6 +140,12 @@ namespace liquid
         size_t m_size{};
     };
 
+    // template argument deduction guides for Span
+    template <typename SOURCE_CONTAINER>
+        Span(SOURCE_CONTAINER & i_source_container) -> Span<ContainerElementTypeT<SOURCE_CONTAINER>>;
+    template <typename SOURCE_CONTAINER>
+        Span(const SOURCE_CONTAINER & i_source_container) -> Span<const ContainerElementTypeT<SOURCE_CONTAINER>>;
+
     template <typename TYPE>
         std::ostream & operator << (std::ostream & i_ostream, Span<TYPE> i_span)
     {
@@ -150,24 +156,5 @@ namespace liquid
             i_ostream << i_span[i];
         }
         return i_ostream;
-    }
-
-    template <typename SOURCE_CONTAINER>
-        auto ToSpan(SOURCE_CONTAINER && i_source_container)
-    {
-        using ElementType = std::remove_reference_t<decltype(*std::begin(i_source_container))>;
-        return Span<ElementType>(i_source_container);
-    }
-
-    template <typename SOURCE_CONTAINER, typename PREDICATE>
-        auto Transform(const SOURCE_CONTAINER & i_source_elements, const PREDICATE & i_predicate)
-    {
-        using DestType = decltype(i_predicate(*std::declval<SOURCE_CONTAINER>().begin()));
-        std::vector<DestType> result;
-        auto const size = std::size(i_source_elements);
-        result.reserve(size);
-        for(const auto & source : i_source_elements)
-            result.push_back(i_predicate(source));
-        return result;
     }
 }

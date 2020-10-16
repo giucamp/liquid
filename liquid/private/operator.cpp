@@ -6,6 +6,7 @@
 
 #include "operator.h"
 #include "expression.h"
+#include <algorithm>
 
 namespace liquid
 {
@@ -48,6 +49,19 @@ namespace liquid
     {
         m_flags = m_flags | i_flags;
         return *this;
+    }
+
+    bool Operator::IsRegularNAry() const
+    {
+        if(!HasFlags(m_flags, Flags::Commutative | Flags::Associative))
+            return false;
+            
+        for (const Overload & overload : m_overloads)
+            if(overload.m_parameters.size() != 1 ||
+                overload.m_variadic_parameters_count != 1)
+                    return false;
+
+        return true;
     }
 
     Operator & Operator::AddOverload(const Overload & i_overload)
@@ -167,7 +181,7 @@ namespace liquid
             return *overload;
 
         Panic(m_name, ": could not find an overload matching the argument types: ",
-            ToSpan(Transform(i_operands, [](auto & i_op){ return i_op.GetExpression()->GetType(); } )) );
+            Span(Transform(i_operands, [](auto & i_op){ return i_op.GetExpression()->GetType(); } )) );
     }
 
     Tensor Operator::Invoke(Span<const Tensor> i_operands,
@@ -247,19 +261,40 @@ namespace liquid
     Tensor Operator::Invoke(std::string_view i_name, std::string_view i_doc,
         Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
-        std::vector<Tensor> parameters;
-        const Overload & overload = FindOverload(i_operands, parameters);
+        std::vector<Tensor> operands;
+        const Overload & overload = FindOverload(i_operands, operands);
         OverloadMatch(overload, i_operands, 
-            OverloadMatchFlags::AllowNumericPromotion | OverloadMatchFlags::ProcessArguments, parameters);
+            OverloadMatchFlags::AllowNumericPromotion | OverloadMatchFlags::ProcessArguments, operands);
 
-        const TensorType type = m_deduce_type_func(i_attachment, parameters);
+        const TensorType type = m_deduce_type_func(i_attachment, operands);
 
-        if(auto constant = TryConstantPropagation(overload, type, parameters, i_attachment))
+        if(auto constant = TryConstantPropagation(overload, type, operands, i_attachment))
             return *constant;
+
+        // common commutative-associative canonicalizations
+        if(Has(Flags::Commutative | Flags::Associative))
+        {
+            // flatten: add(x... add(y...) z...) -> add(x... y... z...)
+            for(size_t op_index = 0; op_index < operands.size(); op_index++)
+            {
+                const Tensor & operand = operands[op_index];
+                if(operand.GetExpression()->OperatorIs(*this))
+                {
+                    operands = Concatenate(
+                        Span(operands).subspan(0, op_index),
+                        operand.GetExpression()->GetOperands(),
+                        Span(operands).subspan(op_index + 1) );
+                }
+            }
+
+            // sort operands by hash
+            std::sort(operands.begin(), operands.end(), [](const Tensor & i_left, const Tensor & i_right)
+                { return i_left.GetExpression()->GetHash() < i_right.GetExpression()->GetHash(); } );
+        }
 
         Tensor result(std::make_shared<Expression>(
             i_name, i_doc, type, *this, overload, 
-            parameters, i_attachment ));
+            operands, i_attachment ));
 
         if(m_canonicalize_func != nullptr)
         {

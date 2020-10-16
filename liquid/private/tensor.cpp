@@ -25,21 +25,21 @@ namespace liquid
             {
                 case ScalarType::Real:
                 {
-                    TensorValue value(ToSpan(value.GetAs<Real>()), FixedShape(i_shape));
+                    TensorValue value(Span(value.GetAs<Real>()), FixedShape(i_shape));
                     m_expression = MakeConstant(value).GetExpression();
                     break;
                 }
 
                 case ScalarType::Integer:
                 {
-                    TensorValue value(ToSpan(value.GetAs<Integer>()), FixedShape(i_shape));
+                    TensorValue value(Span(value.GetAs<Integer>()), FixedShape(i_shape));
                     m_expression = MakeConstant(value).GetExpression();
                     break;
                 }
 
                 case ScalarType::Bool:
                 {
-                    TensorValue value(ToSpan(value.GetAs<Bool>()), FixedShape(i_shape));
+                    TensorValue value(Span(value.GetAs<Bool>()), FixedShape(i_shape));
                     m_expression = MakeConstant(value).GetExpression();
                     break;
                 }
