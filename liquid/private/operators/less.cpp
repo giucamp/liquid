@@ -42,11 +42,11 @@ namespace liquid
 
     extern const Operator & GetOperatorLess()
     {
-        static auto const op = Operator("Less")
+        static auto const op = Operator("less")
             .SetDeduceType(LessDeduceType)
-            .AddOverload(LessEvaluate<Real>, { { ScalarType::Real, "First" }, { ScalarType::Real, "Second" } })
-            .AddOverload(LessEvaluate<Integer>, { { ScalarType::Integer, "First" }, { ScalarType::Integer, "Second" } })
-            .AddOverload(LessEvaluate<Bool>, { { ScalarType::Bool, "First" }, { ScalarType::Bool, "Second" } });
+            .AddOverload(LessEvaluate<Real>, { { ScalarType::Real, "first" }, { ScalarType::Real, "second" } })
+            .AddOverload(LessEvaluate<Integer>, { { ScalarType::Integer, "first" }, { ScalarType::Integer, "second" } })
+            .AddOverload(LessEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } });
         return op;
     }
 

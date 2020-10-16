@@ -17,11 +17,21 @@ namespace liquid
         const char topic[] = "Is";
 
         {
-            Expects(topic, "any is any");
+            Expects(topic, "4 is int");
+            Expects(topic, "5.2 is real");
+            Expects(topic, "1/2 is real");
             Expects(topic, "int is any");
+            Expects(topic, "any is any");
             Expects(topic, "real is real");
-            Expects(topic, "not real is int");
-            Expects(topic, "real is real and any is any");
+            Expects(topic, "not real is bool");
+
+            Expects(topic, "(real == real) is bool");
+            Expects(topic, "(rank of any) is int");
+            Expects(topic, "(any is real) is bool");
+
+            // Expects(topic, "real is real or not any is real");
+            
+            Expects(topic, "real is any and any is any");
         }
 
         std::cout << "done" << std::endl;

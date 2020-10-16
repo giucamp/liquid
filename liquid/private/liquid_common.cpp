@@ -155,7 +155,7 @@ namespace liquid
         ExpectsPanic(nullptr, i_miu6_source_code, i_expected_message);
     }
 
-    std::ostream & operator << (std::ostream& i_ostream, ScalarType i_scalar_type)
+    std::ostream & operator << (std::ostream & i_ostream, ScalarType i_scalar_type)
     {
         switch (i_scalar_type)
         {

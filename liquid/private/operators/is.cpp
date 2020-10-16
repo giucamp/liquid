@@ -78,16 +78,18 @@ namespace liquid
             }
         };
 
-        bool const shape_equal = std::visit(Visitor{right}, left.GetShape());
+        bool const shape_equal = !right.HasShape() || std::visit(Visitor{right}, left.GetShape());
         return shape_equal;
     }
 
     extern const Operator & GetOperatorIs()
     {
-        static auto const op = Operator("Is")
+        static auto const op = Operator("is")
             .SetDeduceType(IsDeduceType)
             .SetEligibleForPropagation(IsEligibleForPropagation)
-            .AddOverload(IsEvaluate, {{ ScalarType::Any, "Source" }} );
+            .AddOverload(IsEvaluate, {{ ScalarType::Any, "source" }} )
+            .SetAttachmentComparer<TensorType>()
+            .SetAttachmentHasher<TensorType>();
         return op;
     }
 

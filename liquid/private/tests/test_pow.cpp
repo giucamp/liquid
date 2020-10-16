@@ -11,13 +11,17 @@
 
 namespace liquid
 {
-    void TestAdd()
+    void TestPow()
     {
-        std::cout << "Test Add...";
-        const char topic[] = "Add";
+        std::cout << "Test Pow...";
+        const char topic[] = "Pow";
 
-        Expects(topic, "2 + 3 == 5");
-        Expects(topic, "2 + 3 + 2 == 7");
+        Expects(topic, "3^2 == 9");
+
+        // ^ is right-associative
+        //Expects(topic, "real x ^ real y ^ real z == x^(y^x)");
+        
+        Expects(topic, "2 + 3 + 2 == 7.");
         Expects(topic, "add() == 0");
         Expects(topic, "add(5 6 5) == 16");
         Expects(topic, "add([5 6 5]) == [5 6 5]");

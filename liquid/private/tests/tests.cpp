@@ -14,6 +14,7 @@ namespace liquid
     void TestScalarType();
     void TestTensor();
     void TestAdd();
+    void TestPow();
     void TestIf();
     void TestIs();
     void TestSubstutute();
@@ -27,6 +28,7 @@ namespace liquid
         TestScalarType();
         TestTensor();
         TestAdd();
+        TestPow();
         TestIf();
         TestIs();
         TestSubstutute();

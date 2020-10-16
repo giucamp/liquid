@@ -25,7 +25,7 @@ namespace liquid
 
     extern const Operator & GetOperatorConstant()
     {
-        static auto const op = Operator("Constant")
+        static auto const op = Operator("constant")
             .SetDeduceType(ConstantDeduceType)
             .AddOverload({ ConstantEvaluate, { } })
             .SetAttachmentComparer<TensorValue>()

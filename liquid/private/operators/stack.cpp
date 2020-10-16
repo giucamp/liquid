@@ -61,11 +61,11 @@ namespace liquid
 
     extern const Operator & GetOperatorStack()
     {
-        static auto const op = Operator("Stack")
+        static auto const op = Operator("stack")
             .SetDeduceType(StackDeduceType)
-            .AddOverload(StackEvaluate<Real>, { {ScalarType::Real, "Source"} }, 1 )
-            .AddOverload(StackEvaluate<Integer>, { {ScalarType::Integer, "Source"} }, 1 )
-            .AddOverload(StackEvaluate<Bool>, { {ScalarType::Bool, "Source"} }, 1 );
+            .AddOverload(StackEvaluate<Real>, { {ScalarType::Real, "source"} }, 1 )
+            .AddOverload(StackEvaluate<Integer>, { {ScalarType::Integer, "source"} }, 1 )
+            .AddOverload(StackEvaluate<Bool>, { {ScalarType::Bool, "source"} }, 1 );
         return op;
     }
 

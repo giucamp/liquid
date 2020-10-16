@@ -24,7 +24,7 @@ namespace liquid
 
     extern const Operator & GetOperatorVariable()
     {
-        static auto const op = Operator("Variable")
+        static auto const op = Operator("variable")
             .SetDeduceType(VariableDeduceType)
             .AddOverload({}, {})
             .SetEligibleForPropagation(VariableEligibleForPropagation)

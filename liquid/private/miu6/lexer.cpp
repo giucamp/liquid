@@ -13,6 +13,19 @@ namespace liquid
 {
     namespace miu6
     {
+        namespace
+        {
+            template <typename PREDICATE>
+                size_t CountIf(std::string_view i_source, const PREDICATE & i_predicate)
+            {
+                for(size_t i = 0; i < i_source.length(); i++)
+                    if(!i_predicate(i_source[i]))
+                        return i;
+
+                return i_source.length();
+            }
+        }
+
         std::string_view Lexer::TryParseSpaces(std::string_view & io_source)
         {
             const char * beginning = io_source.data();
@@ -73,12 +86,16 @@ namespace liquid
 
         std::optional<Integer> Lexer::TryParseInteger(std::string_view & io_source)
         {
-            char * end_ptr = nullptr;
-            auto const value = std::strtoimax(io_source.data(), &end_ptr, 10);
-            if(end_ptr == io_source.data())
+            size_t const digits = CountIf(io_source, isdigit);
+            if(digits == 0)
                 return {};
 
-            io_source = io_source.substr(end_ptr - io_source.data());
+            if(digits < io_source.length() &&
+                (io_source[digits] == '.' || isalpha(io_source[digits])))
+                    return {};
+
+            auto const value = std::strtoimax(std::string(io_source.substr(0, digits)).c_str(), nullptr, 10);
+            io_source = io_source.substr(digits);
             return NumericCast<Integer>(value);
         }
 
@@ -149,9 +166,9 @@ namespace liquid
             // literals
             if(auto const literal = TryParseBool(io_source))
                 return { SymbolId::Literal, *literal };
-            else if(auto const literal = TryParseReal(io_source))
-                return { SymbolId::Literal, *literal };
             else if(auto const literal = TryParseInteger(io_source))
+                return { SymbolId::Literal, *literal };
+            else if(auto const literal = TryParseReal(io_source))
                 return { SymbolId::Literal, *literal };
 
             // name

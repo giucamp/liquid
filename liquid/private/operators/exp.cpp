@@ -35,8 +35,8 @@ namespace liquid
 
     extern const Operator & GetOperatorExp()
     {
-        static auto const op = Operator("Exp")
-            .AddOverload(ExpEvaluate, { {ScalarType::Real, "Operand"} } )
+        static auto const op = Operator("exp")
+            .AddOverload(ExpEvaluate, { {ScalarType::Real, "operand"} } )
             .SetGradientOfOperand(ExpGradient);
         return op;
     }

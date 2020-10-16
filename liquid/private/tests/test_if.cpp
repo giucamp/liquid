@@ -41,7 +41,7 @@ namespace liquid
 
         {
             Expects(topic, "(if 5 > 6 then 1 else 2) == 2");
-            Expects(topic, "(if [-2 2.] > 0 then 1 else 2) == [2 1]");
+            Expects(topic, "(if [-2 2.] > 0 then 100 else 200) == [200 100]");
         }
 
         {
@@ -67,7 +67,7 @@ namespace liquid
             LIQUID_EXPECTS_DOC(topic, If(false, 2, false, 3, true, 1, 42) == 1);
 
             LIQUID_EXPECTS_PANIC_DOC(topic, If(1, 1, 1), 
-                "If: could not find an overload matching the argument types: int[], int[], int[]");
+                "if: could not find an overload matching the argument types: int[], int[], int[]");
         }
 
         {

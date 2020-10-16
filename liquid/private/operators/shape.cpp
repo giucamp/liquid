@@ -43,12 +43,12 @@ namespace liquid
 
     extern const Operator & GetOperatorShape()
     {
-        static auto const op = Operator("Shape")
+        static auto const op = Operator("shape")
             .SetDeduceType(ShapeDeduceType)
             .SetEligibleForPropagation(ShapeEligibleForPropagation)
-            .AddOverload(ShapeEvaluate, {{ ScalarType::Real, "Source" }} )
-            .AddOverload(ShapeEvaluate, {{ ScalarType::Integer, "Source" }} )
-            .AddOverload(ShapeEvaluate, {{ ScalarType::Bool, "Source" }} );
+            .AddOverload(ShapeEvaluate, {{ ScalarType::Real, "source" }} )
+            .AddOverload(ShapeEvaluate, {{ ScalarType::Integer, "source" }} )
+            .AddOverload(ShapeEvaluate, {{ ScalarType::Bool, "source" }} );
         return op;
     }
 

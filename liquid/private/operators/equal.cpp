@@ -42,12 +42,12 @@ namespace liquid
 
     extern const Operator & GetOperatorEqual()
     {
-        static auto const op = Operator("Equal")
+        static auto const op = Operator("equal")
             .AddFlags(Operator::Flags::Commutative)
             .SetDeduceType(EqualDeduceType)
-            .AddOverload(EqualEvaluate<Real>, { { ScalarType::Real, "First" }, { ScalarType::Real, "Second" } })
-            .AddOverload(EqualEvaluate<Integer>, { { ScalarType::Integer, "First" }, { ScalarType::Integer, "Second" } })
-            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "First" }, { ScalarType::Bool, "Second" } });
+            .AddOverload(EqualEvaluate<Real>, { { ScalarType::Real, "first" }, { ScalarType::Real, "second" } })
+            .AddOverload(EqualEvaluate<Integer>, { { ScalarType::Integer, "first" }, { ScalarType::Integer, "second" } })
+            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } });
         return op;
     }
 

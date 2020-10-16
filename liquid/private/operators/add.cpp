@@ -37,11 +37,11 @@ namespace liquid
 
     extern const Operator & GetOperatorAdd()
     {
-        static auto const op = Operator("Add")
+        static auto const op = Operator("add")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(0)
-            .AddOverload(AddEvaluate<Real>, { {ScalarType::Real, "Addend"} }, 1)
-            .AddOverload(AddEvaluate<Integer>, { {ScalarType::Integer, "Addend"} }, 1)
+            .AddOverload(AddEvaluate<Real>, { {ScalarType::Real, "addend"} }, 1)
+            .AddOverload(AddEvaluate<Integer>, { {ScalarType::Integer, "addend"} }, 1)
             .SetGradientOfOperand(AddGradient);
         return op;
     }

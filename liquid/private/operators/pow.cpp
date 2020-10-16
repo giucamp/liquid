@@ -58,9 +58,9 @@ namespace liquid
 
     extern const Operator & GetOperatorPow()
     {
-        static auto const op = Operator("Pow")
-            .AddOverload(PowEvaluate, { {ScalarType::Real, "Base"}, {ScalarType::Integer, "Exponent"} } )
-            .AddOverload(PowEvaluate, { {ScalarType::Real, "Base"}, {ScalarType::Real, "Exponent"} } )
+        static auto const op = Operator("pow")
+            .AddOverload(PowEvaluate, { {ScalarType::Real, "base"}, {ScalarType::Integer, "exponent"} } )
+            .AddOverload(PowEvaluate, { {ScalarType::Real, "base"}, {ScalarType::Real, "exponent"} } )
             .SetGradientOfOperand(PowGradient);
         return op;
     }

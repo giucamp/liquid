@@ -56,13 +56,13 @@ namespace liquid
 
     extern const Operator & GetOperatorMul()
     {
-        static auto const op = Operator("Mul")
+        static auto const op = Operator("mul")
             .SetDoc(g_mul_description, g_mul_return_type)
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetCanonicalize(MulCanonicalize)
             .SetIdentityElement(1)
-            .AddOverload(MulEvaluate<Real>, { {ScalarType::Real, "Factor"} }, 1)
-            .AddOverload(MulEvaluate<Integer>, { {ScalarType::Integer, "Factor"} }, 1)
+            .AddOverload(MulEvaluate<Real>, { {ScalarType::Real, "factor"} }, 1)
+            .AddOverload(MulEvaluate<Integer>, { {ScalarType::Integer, "factor"} }, 1)
             .SetGradientOfOperand(MulGradient);
         return op;
     }

@@ -157,7 +157,7 @@ namespace liquid
             else if (auto token = i_lexer.TryAccept(SymbolId::BinaryPlus))
                 return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
 
-            else if (auto name_token = i_lexer.IsCurrentToken(SymbolId::Name))
+            else if (i_lexer.IsCurrentToken(SymbolId::Name))
             {
                 auto const member = i_scope->TryLookup(i_lexer.GetCurrentToken().m_chars);
                 if(std::holds_alternative<std::reference_wrapper<const Operator>>(member))
@@ -188,8 +188,8 @@ namespace liquid
             while (HasFlags(i_lexer.GetCurrentToken().m_flags, SymbolFlags::BinaryOperator)
                 && i_lexer.GetCurrentToken().m_precedence >= i_min_precedence)
             {
-                /* now we have the left-hand operatand and the operator. We
-                   just need the right-hand operatand. */
+                /* now we have the left-hand operatand and the operator.
+                   we just need the right-hand operand. */
                 Token const operator_token = i_lexer.GetCurrentToken();
 
                 // we have accepted the operator, so we must move to the lext token
@@ -209,7 +209,7 @@ namespace liquid
                 {
                     auto right = TryParseLeftExpression(i_lexer, i_scope);
                     if(!right)
-                        Panic(i_lexer, " expected right operand");
+                        Panic(i_lexer, " expected right operand for ", GetSymbolName(operator_token.m_symbol_id));
 
                     while (ShouldParseDeeper(i_lexer.GetCurrentToken(), operator_token))
                     {

@@ -35,12 +35,10 @@ namespace liquid
 
     extern const Operator & GetOperatorRank()
     {
-        static auto const op = Operator("Rank")
+        static auto const op = Operator("rank")
             .SetDeduceType(RankDeduceType)
             .SetEligibleForPropagation(RankEligibleForPropagation)
-            .AddOverload({ RankEvaluate, {{ ScalarType::Real, "Source" } }})
-            .AddOverload({ RankEvaluate, {{ ScalarType::Integer, "Source" } }})
-            .AddOverload({ RankEvaluate, {{ ScalarType::Bool, "Source" } }});
+            .AddOverload({ RankEvaluate, {{ ScalarType::Any, "source" } }});
         return op;
     }
 

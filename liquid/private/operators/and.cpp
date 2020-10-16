@@ -30,10 +30,10 @@ namespace liquid
 
     extern const Operator & GetOperatorAnd()
     {
-        static auto const op = Operator("And")
+        static auto const op = Operator("and")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(true)
-            .AddOverload(AndEvaluate, { { ScalarType::Bool, "BoolOp" } }, 1);
+            .AddOverload(AndEvaluate, { { ScalarType::Bool, "bool_expr" } }, 1);
         return op;
     }
 

@@ -30,10 +30,10 @@ namespace liquid
 
     extern const Operator & GetOperatorOr()
     {
-        static auto const op = Operator("Or")
+        static auto const op = Operator("or")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetIdentityElement(false)
-            .AddOverload({ OrEvaluate, { { ScalarType::Bool, "BoolOp" } }, 1 });
+            .AddOverload({ OrEvaluate, { { ScalarType::Bool, "bool_expr" } }, 1 });
         return op;
     }
 

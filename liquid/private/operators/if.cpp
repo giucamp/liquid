@@ -123,21 +123,21 @@ namespace liquid
 
     extern const Operator & GetOperatorIf()
     {
-        static auto const op = Operator("If")
+        static auto const op = Operator("if")
             .SetDoc(g_if_description, g_if_return_type)
             .SetDeduceType(IfDeduceType)
             .AddOverload(IfEvaluate<Real>, {
-                { ScalarType::Bool, "Condition" },
-                { ScalarType::Real, "Value" },
-                { ScalarType::Real, "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
+                { ScalarType::Bool, "condition" },
+                { ScalarType::Real, "value" },
+                { ScalarType::Real, "fallback" }  }, 2) // the first 2 parameters are the variadic pack
             .AddOverload(IfEvaluate<Integer>, {
-                { ScalarType::Bool, "Condition" },
-                { ScalarType::Integer, "Value" },
-                { ScalarType::Integer, "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
+                { ScalarType::Bool, "condition" },
+                { ScalarType::Integer, "value" },
+                { ScalarType::Integer, "fallback" }  }, 2) // the first 2 parameters are the variadic pack
             .AddOverload(IfEvaluate<Bool>, {
-                { ScalarType::Bool, "Condition" },
-                { ScalarType::Bool, "Value" },
-                { ScalarType::Bool, "Fallback" }  }, 2) // the first 2 parameters are the variadic pack
+                { ScalarType::Bool, "condition" },
+                { ScalarType::Bool, "value" },
+                { ScalarType::Bool, "fallback" }  }, 2) // the first 2 parameters are the variadic pack
             .SetGradientOfOperand(IfGradient);
         return op;
     }

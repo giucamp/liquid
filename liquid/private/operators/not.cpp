@@ -26,8 +26,8 @@ namespace liquid
 
     extern const Operator & GetOperatorNot()
     {
-        static auto const op = Operator("Not")
-            .AddOverload(NotEvaluate, {{ ScalarType::Bool, "BoolOp" }});
+        static auto const op = Operator("not")
+            .AddOverload(NotEvaluate, {{ ScalarType::Bool, "bool_expr" }});
         return op;
     }
 

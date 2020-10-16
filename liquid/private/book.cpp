@@ -87,6 +87,9 @@ namespace liquid
 
     Book::Book()
     {
+        AddOperator(GetOperatorAdd());
+        AddOperator(GetOperatorAnd());
+        AddOperator(GetOperatorCast());
         AddOperator(GetOperatorConstant());
         AddOperator(GetOperatorEqual());
         AddOperator(GetOperatorExp());
