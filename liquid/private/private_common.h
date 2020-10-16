@@ -55,17 +55,16 @@ namespace liquid
         overload resolution unless all argument are containers with the same element type. */
     template <
         typename FIRST_PIECE, typename... OTHER_PIECES,    
-        typename ELEMENT_TYPE = std::decay_t< decltype(*std::begin(std::declval<FIRST_PIECE>())) >,
+        typename ELEMENT_TYPE = ContainerElementTypeT<FIRST_PIECE>,
         typename = std::enable_if_t< IsContainerOfV<FIRST_PIECE, ELEMENT_TYPE>
                 && (IsContainerOfV<OTHER_PIECES, ELEMENT_TYPE> && ...) > 
             > auto Concatenate(const FIRST_PIECE & i_first_piece, const OTHER_PIECES & ... i_pieces)
     {
-        auto const size_of_result = (
-            std::distance(i_first_piece.begin(), i_first_piece.end())
-            + ... + std::distance(i_pieces.begin(), i_pieces.end()) );
+        auto const size = (
+            std::size(i_first_piece) + ... + std::size(i_pieces) );
 
         std::vector<ELEMENT_TYPE> result;
-        result.reserve(size_of_result);
+        result.reserve(size);
 
         result.insert(result.end(), i_first_piece.begin(), i_first_piece.end());
         (result.insert(result.end(), i_pieces.begin(), i_pieces.end()), ...);
