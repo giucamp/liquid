@@ -57,19 +57,21 @@ namespace liquid
             return { scalar_type };
     }
 
-    TensorType::TensorType(ScalarType i_scalar_type, const std::variant<std::monostate, FixedShape, Tensor> & i_shape)
+    TensorType::TensorType(ScalarType i_scalar_type, const ShapeVector & i_shape)
         : m_scalar_type(i_scalar_type), m_shape(i_shape)
     {
         if (HasVariableShape() && IsConstant(GetVariableShape()))
         {
-            const Tensor & tensor = GetVariableShape();
-
-            const TensorType & tensor_type = tensor.GetExpression()->GetType();
-            if(tensor_type.GetFixedShape().GetRank() != 1)
+            // the shape is not really variable
+            const Tensor & shape_vector = GetVariableShape();
+            const TensorType & type_of_shape = shape_vector.GetExpression()->GetType();
+            if(type_of_shape.GetFixedShape().GetRank() != 1)
                 Panic("The shape of a tensor must be a vector");
 
-            // the shape is not really variable
-            auto dimensions = ConstantToVector<Integer>(tensor);
+            if(type_of_shape.GetScalarType() != ScalarType::Integer)
+                Panic("The shape vector must be integral, scalar type is ", type_of_shape.GetScalarType());
+
+            auto dimensions = ConstantToVector<Integer>(shape_vector);
             m_shape = FixedShape(dimensions);
         }
     }

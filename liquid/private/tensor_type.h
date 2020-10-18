@@ -18,8 +18,9 @@ namespace liquid
     {
     public:
 
-        TensorType(ScalarType i_scalar_type = ScalarType::Any, 
-            const std::variant<std::monostate, FixedShape, Tensor> & i_shape = {});
+        using ShapeVector = std::variant<std::monostate, FixedShape, Tensor>;
+
+        TensorType(ScalarType i_scalar_type = ScalarType::Any, const ShapeVector & i_shape = {});
 
         ScalarType GetScalarType() const { return m_scalar_type; }
 
@@ -31,7 +32,7 @@ namespace liquid
 
         bool HasVariableShape() const { return std::holds_alternative<Tensor>(m_shape); }
 
-        const std::variant<std::monostate, FixedShape, Tensor> & GetShape() const { return m_shape; }
+        const ShapeVector & GetShape() const { return m_shape; }
         
         const FixedShape & GetFixedShape() const;
 
@@ -49,7 +50,7 @@ namespace liquid
 
     private:
         ScalarType m_scalar_type;
-        std::variant<std::monostate, FixedShape, Tensor> m_shape;
+        ShapeVector m_shape;
     };
 
     ScalarType DeduceScalarType(Span<const ScalarType> i_operand_types);

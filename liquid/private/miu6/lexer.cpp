@@ -24,12 +24,37 @@ namespace liquid
 
                 return i_source.length();
             }
+
+            bool IsUtf8CodeUnit(char i_char)
+            {
+                return static_cast<unsigned char>(i_char) >= 0x80;
+            }
+
+            bool IsSpace(char i_char)
+            {
+                return !IsUtf8CodeUnit(i_char) && std::isspace(i_char);
+            }
+
+            bool IsDigit(char i_char)
+            {
+                return !IsUtf8CodeUnit(i_char) && std::isdigit(i_char);
+            }
+
+            bool IsAlpha(char i_char)
+            {
+                return IsUtf8CodeUnit(i_char) || std::isalpha(i_char);
+            }
+
+            bool IsAlphaNum(char i_char)
+            {
+                return IsUtf8CodeUnit(i_char) || std::isalnum(i_char);
+            }
         }
 
         std::string_view Lexer::TryParseSpaces(std::string_view & io_source)
         {
             const char * beginning = io_source.data();
-            while(!io_source.empty() && std::isspace(io_source[0]))
+            while(!io_source.empty() && IsSpace(io_source[0]))
                 io_source = io_source.substr(1);
             return std::string_view(beginning, io_source.data() - beginning);
         }
@@ -62,14 +87,13 @@ namespace liquid
 
         bool Lexer::TryParseString(std::string_view & io_source, std::string_view i_what)
         {
-            if (io_source.length() >= i_what.length() &&
-                io_source.substr(0, i_what.length()) == i_what)
+            if (StartsWith(io_source, i_what))
             {
                 io_source = io_source.substr(i_what.length());
                 return true;
             }
-            else
-                return false;
+
+            return false;
         }
 
         std::optional<Real> Lexer::TryParseReal(std::string_view & io_source)
@@ -86,7 +110,7 @@ namespace liquid
 
         std::optional<Integer> Lexer::TryParseInteger(std::string_view & io_source)
         {
-            size_t const digits = CountIf(io_source, isdigit);
+            size_t const digits = CountIf(io_source, IsDigit);
             if(digits == 0)
                 return {};
 
@@ -111,15 +135,10 @@ namespace liquid
 
         std::optional<std::string_view> Lexer::TryParseName(std::string_view & io_source)
         {
-            size_t length = 0;
-            if (length < io_source.size() 
-                && ( std::isalpha(io_source[length]) || io_source[length] == '_') )
+            size_t const length = CountIf(io_source, IsAlphaNum);
+            if(length > 0 && IsAlpha(io_source[0]))
             {
-                do {
-                    length++;
-                } while(length < io_source.size()
-                    && (std::isalnum(io_source[length]) || io_source[length] == '_') );
-                auto name = io_source.substr(0, length);
+                auto const name = io_source.substr(0, length);
                 io_source = io_source.substr(length);
                 return name;
             }

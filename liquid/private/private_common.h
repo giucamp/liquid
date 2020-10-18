@@ -83,6 +83,23 @@ namespace liquid
         return result;
     }
 
+    inline bool StartsWith(std::string_view i_source, std::string_view i_prefix)
+    {
+        return i_source.length() >= i_prefix.length() &&
+            i_source.substr(0, i_prefix.length()) == i_prefix;
+    }
+
+    class SilentPanicContext
+    {
+    public:
+
+        SilentPanicContext();
+        ~SilentPanicContext();
+
+        SilentPanicContext(const SilentPanicContext &) = delete;
+        SilentPanicContext & operator = (const SilentPanicContext &) = delete;
+    };
+
     #define LIQUID_ASSERT(expr) if(!(expr)) Panic("Assert failure: " #expr);
 
     #define LIQUID_EXPECTS(expr) ::liquid::Expects(nullptr, expr, #expr)

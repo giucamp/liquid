@@ -20,7 +20,19 @@ namespace liquid
 
     namespace detail
     {
-        thread_local bool g_silent_panic = false;
+        thread_local int64_t g_silent_panic_count;
+    }
+
+    SilentPanicContext::SilentPanicContext()
+    {
+        detail::g_silent_panic_count++;
+    }
+
+    SilentPanicContext::~SilentPanicContext()
+    {
+        --detail::g_silent_panic_count;
+        if(detail::g_silent_panic_count < 0)
+            Panic("Internak error: g_silent_panic_count is ", detail::g_silent_panic_count);
     }
 
     void Expects(const char * i_topic, const Tensor & i_bool_tensor, const char * i_cpp_source_code)
@@ -75,26 +87,17 @@ namespace liquid
                 std::string("ExpectsPanic - ") + i_cpp_source_code;
         };
 
-        if(detail::g_silent_panic)
-            Panic(GetMessageHeader(), ", recursion is not allowed");
-
         std::string panic_message;
         bool got_error = false;
         try
         {
-            detail::g_silent_panic = true;
+            SilentPanicContext slient_panic;
             i_function();
-            detail::g_silent_panic = false;
         }
         catch (const PanicException & i_exc)
         {
-            detail::g_silent_panic = false;
             panic_message = i_exc.what();
             got_error = true;
-        }
-        catch (...)
-        {
-            detail::g_silent_panic = false;
         }
 
         if(!got_error)
@@ -117,26 +120,17 @@ namespace liquid
                 std::string("ExpectsPanic - ") + i_miu6_source_code;
         };
 
-        if(detail::g_silent_panic)
-            Panic(GetMessageHeader(), ", recursion is not allowed");
-
         std::string panic_message;
         bool got_error = false;
         try
         {
-            detail::g_silent_panic = true;
+            SilentPanicContext slient_panic;
             Tensor tensor(i_miu6_source_code);
-            detail::g_silent_panic = false;
         }
         catch (const PanicException & i_exc)
         {
-            detail::g_silent_panic = false;
             panic_message = i_exc.what();
             got_error = true;
-        }
-        catch (...)
-        {
-            detail::g_silent_panic = false;
         }
 
         if(!got_error)
@@ -170,7 +164,7 @@ namespace liquid
 
     void Panic(const std::string & i_error)
     {
-        if(!detail::g_silent_panic)
+        if(detail::g_silent_panic_count <= 0)
         {
             std::cerr << i_error << std::endl;
 

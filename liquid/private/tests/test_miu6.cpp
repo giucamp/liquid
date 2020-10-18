@@ -56,7 +56,8 @@ namespace liquid
 
         Expects("real x * 0 * real y == 0"); 
 
-        Expects(u8"rank of [[ cos real θ  -sin θ ][ sin θ       cos θ  ]] is 2");
+        Expects(u8"[[ cos real[] θ     -sin θ ] "
+                u8" [ sin θ            cos θ  ]] is real[2 2]");
 
         // to do: implement softmax
         // https://timvieira.github.io/blog/post/2014/02/11/exp-normalize-trick/

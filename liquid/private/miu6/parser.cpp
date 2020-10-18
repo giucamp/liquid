@@ -87,7 +87,7 @@ namespace liquid
                 else if(auto const value = std::get_if<Bool>(&token->m_value))
                     return Tensor(*value);
                 else
-                    Panic(i_lexer, "unrecognized literal type");
+                    Panic("unrecognized literal type");
             }
             else if(i_lexer.TryAccept(SymbolId::LeftBracket))
             {
@@ -99,7 +99,7 @@ namespace liquid
                 // list operator ()
                 std::vector<Tensor> list = ParseExpressionList(i_lexer, i_scope, SymbolId::RightParenthesis);
                 if(list.size() != 1)
-                    Panic(i_lexer, "expected a list with a sigle element");
+                    Panic("expected a list with a sigle element");
                 return list[0];
             }
             else if (i_lexer.TryAccept(SymbolId::LeftBrace))
@@ -107,7 +107,7 @@ namespace liquid
                 // scope operator {}
                 std::vector<Tensor> list = ParseExpressionList(i_lexer, i_scope->MakeInner(), SymbolId::RightBrace);
                 if(list.size() != 1)
-                    Panic(i_lexer, "expected a list with a sigle element");
+                    Panic("expected a list with a sigle element");
                 return list[0];
             }
             else if(i_lexer.TryAccept(SymbolId::If))
@@ -201,17 +201,23 @@ namespace liquid
                 {
                     /* 'is' is special because the second operand is a type.
                        Clinton's law: "it depends on what the meaning of 'is' is" */
-                    auto scalar_type = TryParseScalarType(i_lexer);
-                    if(!scalar_type)
-                        Panic(i_lexer, " expected scalar type");
+                    auto const scalar_type_opt = TryParseScalarType(i_lexer);
+                    auto const shape_vector_opt = TryParseExpression(i_lexer, i_scope, 0);
+                    if(!scalar_type_opt && !shape_vector_opt)
+                        Panic("expected tensor type");
                     
-                    result = Is(result, *scalar_type);
+                    ScalarType const scalar_type = scalar_type_opt ? 
+                        *scalar_type_opt : ScalarType::Any;
+                    TensorType::ShapeVector const shape_vector = shape_vector_opt ?
+                        *shape_vector_opt : TensorType::ShapeVector{};
+
+                    result = Is(result, TensorType(scalar_type, shape_vector));
                 }
                 else
                 {
                     auto right = TryParseLeftExpression(i_lexer, i_scope);
                     if(!right)
-                        Panic(i_lexer, " expected right operand for ", GetSymbolName(operator_token.m_symbol_id));
+                        Panic("expected right operand for ", GetSymbolName(operator_token.m_symbol_id));
 
                     while (ShouldParseDeeper(i_lexer.GetCurrentToken(), operator_token))
                     {
@@ -270,7 +276,7 @@ namespace liquid
             case SymbolId::Or:
                 return i_left || i_right;
             default:
-                Panic(i_lexer, " ApplyBinaryOperator - symbol ", GetSymbolName(i_op), " is not a binary operator");
+                Panic("ApplyBinaryOperator - symbol ", GetSymbolName(i_op), " is not a binary operator");
             }
         }
 
@@ -279,7 +285,7 @@ namespace liquid
             if(auto expression = TryParseExpression(i_lexer, i_scope, i_min_precedence))
                 return *expression;
             else
-                Panic(i_lexer, " expected an expression");
+                Panic("expected an expression");
         }
 
         }; // class Parser
@@ -287,13 +293,29 @@ namespace liquid
         Tensor ParseExpression(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
         {
             Lexer lexer(i_source);
-            Tensor const result = Parser::ParseExpression(lexer, i_scope->MakeInner(), 0);
+            try
+            {
+                /* prevent panic to break or log, we do it in the catch block showing
+                    the current location in the source code */
+                SilentPanicContext silent_panic;
+                
+                Tensor const result = Parser::ParseExpression(lexer, i_scope->MakeInner(), 0);
 
-            if(!lexer.IsSourceOver())
-                Panic(lexer, " expected end of source, ", 
-                    GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+                // all the source must be consumed
+                if(!lexer.IsSourceOver())
+                    Panic("expected end of source, ", 
+                        GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
 
-            return result;
+                return result;
+            }
+            catch(const std::exception & i_exc)
+            {
+                Panic(lexer, i_exc.what());
+            }
+            catch(...)
+            {
+                Panic(lexer, "unspecified error");
+            }
         }
         
         /*std::shared_ptr<const Scope> ParseScope(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
