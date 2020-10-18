@@ -22,7 +22,7 @@ A variable declaration is an expression that introduce a possibly named vector w
 The name in the declaration may be omitted, in which case the variable is unnamed.
 
 Some corollaries:
-real a * real b is real: multipltying two real  gives a real
+`real a * int b is real`: the product of an int and a real is a real
 
 Liquid deduces tensor types
 
@@ -55,6 +55,6 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1NzUwODkxMTUsLTE2MzYxOTkxNTVdfQ
+eyJoaXN0b3J5IjpbLTE1MjA2OTM2OTksLTE2MzYxOTkxNTVdfQ
 ==
 -->
