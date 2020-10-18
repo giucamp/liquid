@@ -5,13 +5,12 @@ Liquid is a work in progress, and currently it's not functional. A working cpu-o
 
 ## Tensor Types
 *scalar_type* ← `real`|`int`|`bool`|`any`
-*tensor_type*  ← *scalar_type* *shape_vector*
-*tensor_type*  ← *scalar_type*
+*tensor_type*  ← *scalar_type* [*shape_vector*]
 
 A tensor type is composed by a scalar type (real, int, bool or any) and a shape vector (any tensor expression with rank 1). If the scalar type is any the type is dynamic. If the shape vector is omitted the tensor is shapeless.
 
-`int [3, 4]`: integral matrix type (shape is `[2]` )
-`bool [3, 4, 5, 6]` bool tensor with rank 4
+`int [3, 4]`: integral matrix (rank is `[2]` )
+`bool [3, 4, 5, 6]` bool tensor (rank is 4)
 `any [3]` dynamic vector with 3 elements
 `real[]` real scalar (rank is 0)
 `any` dynamic shapeless tensor
@@ -19,7 +18,7 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 ## Variable declaration
 
 *variable_expr*  ← *tensor_type*
-A variable declaration is an expression
+A variable declaration is an expression that in
 Liquid deduces tensor types
 
 ## Corollaries
@@ -51,6 +50,6 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIwNjQ1MjAzNTcsLTE2MzYxOTkxNTVdfQ
+eyJoaXN0b3J5IjpbLTExMDAwMTQyMzYsLTE2MzYxOTkxNTVdfQ
 ==
 -->
