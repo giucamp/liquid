@@ -74,6 +74,20 @@ namespace liquid
         }
     }
 
+    const FixedShape & TensorType::GetFixedShape() const
+    { 
+        if(!HasFixedShape())
+            Panic("TensorType::GetFixedShape - ", *this, ": not a fixed shape");
+        return std::get<FixedShape>(m_shape);
+    }
+
+    const Tensor & TensorType::GetVariableShape() const
+    {
+        if(!HasVariableShape())
+            Panic("TensorType::GetFixedShape - ", *this, ": not a variable shape");
+        return std::get<Tensor>(m_shape);
+    }
+
     bool TensorType::operator == (const TensorType& i_other) const
     {
         if (m_scalar_type != i_other.m_scalar_type)

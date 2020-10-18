@@ -48,9 +48,22 @@ namespace liquid
 
         bool Has(Flags i_flags) const { return liquid::HasFlags(m_flags, i_flags); }
 
-        /* a regular n-ary operator is associative, commutative, and has a single
-            variadic operand in all overloads. 'add', 'mul', 'and' and 'or' are
-            regular n-ary, whilst 'if' is not. */
+        /* An operator is regular n-ary iff it is associative, commutative, and has
+            a single variadic operand in all overloads. 'add', 'mul', 'and' and 'or'
+            are regular n-ary, whilst 'if' and 'not' are not. 
+        
+            Regular n-ary operators have an identity element, which is computed by
+            invoking the operator with no operands. For example: add() == 0,
+            mul() == 1, and() == true, or() == false.
+
+            Some common canonicalizaions are applied to regular n-ary operators:
+            - directly nested expressions with the same operator are flattened:
+                op(x... op(y...) z...) -> op(x... y... z...)
+            - partial constant propagation: all constant operands are removed, 
+                merged together by applying the operator on them, and then if the
+                merged value is not the identity element, it gets appendend as operand.
+            - operands are sorted using a deterministic but unspecified criterium
+        */
         bool IsRegularNAry() const;
 
         Operator & AddFlags(Flags i_flags);
@@ -105,6 +118,17 @@ namespace liquid
         }
         
             // canonicalization
+
+        /* In math you can express the same thing in a countless number of ways. For example
+           'real x * 2' and 'x + x' are the same thing. But we are not interested in spelling, 
+           but  rather in semantics, and we consider x*2 and x+x the same thing.
+           So we transform expresssions in a way that if they have the same semantics, the also 
+           have the same syntactic tree. This transformation is arbitrary: for example we can sort
+           the operands of a regural n-ary operator (see IsRegularNAry) to transform any 'b+a' to 
+           'a+b', so that 'a+b == b+a' can be reduced to 'true' simply by comparing syntactic trees.
+           This transformation is called canonicalization, and it's a best effort: we may have an
+           f(x) and a g(x) that are always equal, but we may not have a canonicalization that proves
+           it. */
         
         using CanonicalizeFunction = std::optional<Tensor>(*)(const Tensor & i_source);
 
@@ -127,7 +151,8 @@ namespace liquid
 
             // identity element
 
-        Operator & SetIdentityElement(const TensorValue & i_value);
+        const std::optional<TensorValue> & GetIdentityValue() const { return m_identity_value; }
+
 
             // attachment compare
 
@@ -205,7 +230,18 @@ namespace liquid
         TensorValue Evaluate(const Overload & i_overload, const TensorType & i_result_type,
             Span<const Tensor> i_operands, const std::any & i_attachment) const;
 
+        TensorValue Evaluate(const Overload & i_overload, const TensorType & i_result_type,
+            Span<const TensorValue> i_operands, const std::any & i_attachment) const;
+
         static std::vector<TensorValue> ToValues(Span<const Tensor> i_tensors);
+
+        void EnforceIdentityValue();
+
+        // common canonicalizations for commutative-associative operators
+        void CA_SortOperands(std::vector<Tensor> & i_operands) const;
+        void CA_Flatten(std::vector<Tensor> & i_operands) const;
+        void CA_PartialConstantPropagation(std::vector<Tensor> & i_operands,
+            const std::any & i_attachment) const;
 
     private:
         std::string const m_name;
@@ -219,6 +255,6 @@ namespace liquid
         GradientOfOperandFunction m_gradient_of_input_func = {};
         AttachmentComparer m_attachment_comparer = {};
         AttachmentHasher m_attachment_hasher = {};
-        std::optional<TensorValue> m_identity_element;
+        std::optional<TensorValue> m_identity_value;
     };
 }

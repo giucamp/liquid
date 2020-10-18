@@ -16,6 +16,8 @@ namespace liquid
         std::cout << "Test Add...";
         const char topic[] = "Add";
 
+        Expects(topic, "1 + real x == 1 + x");
+
         Expects(topic, "2 + 3 == 5");
         Expects(topic, "2 + 3 + 2 == 7");
         Expects(topic, "add() == 0");

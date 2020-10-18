@@ -33,7 +33,7 @@ namespace liquid
 
         // parses a space-separated or comma-separated list of expressions
         static std::vector<Tensor> ParseExpressionList(Lexer & i_lexer, 
-            const std::shared_ptr<const Scope> & i_scope, SymbolId i_terminator_symbol)
+            const std::shared_ptr<Scope> & i_scope, SymbolId i_terminator_symbol)
         {
             std::vector<Tensor> result;
             while(!i_lexer.TryAccept(i_terminator_symbol))
@@ -47,7 +47,7 @@ namespace liquid
         /* given an (already parsed) operator, parse a parenthesized argument list,
             or a naked single argument, possibly prefixed by "of" */
         static Tensor ParseInvokeOperator(Lexer & i_lexer, 
-            const std::shared_ptr<const Scope> & i_scope,
+            const std::shared_ptr<Scope> & i_scope,
             const Operator & i_operator)
         {
             if(i_lexer.TryAccept(SymbolId::LeftParenthesis))
@@ -59,11 +59,11 @@ namespace liquid
 
         // tries to parse a complete expression
         static std::optional<Tensor> TryParseExpression(Lexer & i_lexer,
-            const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
+            const std::shared_ptr<Scope> & i_scope, int32_t i_min_precedence)
         {
             if (auto const left_operand = TryParseLeftExpression(i_lexer, i_scope))
             {
-                // combine with any regular binary operator
+                // try to combine with a binary operator
                 auto result = CombineWithOperator(i_lexer, i_scope, 
                     *left_operand, i_min_precedence);
 
@@ -75,7 +75,7 @@ namespace liquid
 
         // tries to parse an expression that may be the left-hand-side of a binary operator
         static std::optional<Tensor> TryParseLeftExpression(Lexer & i_lexer,
-            const std::shared_ptr<const Scope> & i_scope)
+            const std::shared_ptr<Scope> & i_scope)
         {
             if (auto token = i_lexer.TryAccept(SymbolId::Literal))
             {
@@ -89,10 +89,26 @@ namespace liquid
                 else
                     Panic(i_lexer, "unrecognized literal type");
             }
-            else if(auto token = i_lexer.TryAccept(SymbolId::LeftBracket))
+            else if(i_lexer.TryAccept(SymbolId::LeftBracket))
             {
-                // stack operator - creates a tensor
+                // stack operator [] - creates a tensor
                 return Stack(ParseExpressionList(i_lexer, i_scope, SymbolId::RightBracket));
+            }
+            else if (i_lexer.TryAccept(SymbolId::LeftParenthesis))
+            {
+                // list operator ()
+                std::vector<Tensor> list = ParseExpressionList(i_lexer, i_scope, SymbolId::RightParenthesis);
+                if(list.size() != 1)
+                    Panic(i_lexer, "expected a list with a sigle element");
+                return list[0];
+            }
+            else if (i_lexer.TryAccept(SymbolId::LeftBrace))
+            {
+                // scope operator {}
+                std::vector<Tensor> list = ParseExpressionList(i_lexer, i_scope->MakeInner(), SymbolId::RightBrace);
+                if(list.size() != 1)
+                    Panic(i_lexer, "expected a list with a sigle element");
+                return list[0];
             }
             else if(i_lexer.TryAccept(SymbolId::If))
             {
@@ -111,23 +127,6 @@ namespace liquid
 
                 return If(operands);
             }
-            else if (auto token = i_lexer.TryAccept(SymbolId::LeftParenthesis))
-            {
-                // parentheses
-                Tensor expr = ParseExpression(i_lexer, i_scope, 0);
-                i_lexer.Accept(SymbolId::RightParenthesis);
-                return expr;
-            }
-            else if (auto token = i_lexer.TryAccept(SymbolId::LeftBrace))
-            {
-                // scope operator
-                auto const scope = ParseScope(i_lexer, i_scope);
-                i_lexer.Accept(SymbolId::RightBrace);
-                if(scope->GetValues().size() != 1)
-                    Panic(i_lexer, "scope with ", scope->GetValues().size(), 
-                        " values, expected a single-value scope");
-                return scope->GetValues()[0];
-            }
             else if(auto const scalar_type = TryParseScalarType(i_lexer))
             {
                 // variable declaration: both shape and name are optional
@@ -136,25 +135,28 @@ namespace liquid
 
                 // if shape_vector is non-null but not a vector, the following will panic...
                 TensorType const type = shape_vector ? TensorType{*scalar_type, *shape_vector} : *scalar_type;
-                return MakeVariable(type, name ? name->m_chars : "");
+                Tensor variable = MakeVariable(type, name ? name->m_chars : "");
+
+                i_scope->AddVariable(variable);
+                return variable;
             }
 
-            else if (auto token = i_lexer.TryAccept(SymbolId::Not))
+            else if (i_lexer.TryAccept(SymbolId::Not))
             {
                 // not
                 return !ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::Not).m_precedence);
             }
 
             // unary plus\minus
-            else if (auto token = i_lexer.TryAccept(SymbolId::UnaryMinus))
+            else if (i_lexer.TryAccept(SymbolId::UnaryMinus))
                 return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
-            else if (auto token = i_lexer.TryAccept(SymbolId::UnaryPlus))
+            else if (i_lexer.TryAccept(SymbolId::UnaryPlus))
                 return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
 
             // context-sensitive unary-to-binary promotion
-            else if (auto token = i_lexer.TryAccept(SymbolId::BinaryMinus))
+            else if (i_lexer.TryAccept(SymbolId::BinaryMinus))
                 return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
-            else if (auto token = i_lexer.TryAccept(SymbolId::BinaryPlus))
+            else if (i_lexer.TryAccept(SymbolId::BinaryPlus))
                 return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
 
             else if (i_lexer.IsCurrentToken(SymbolId::Name))
@@ -180,7 +182,7 @@ namespace liquid
 
         /* given a left operand, tries to parse a binary expression ignoring operators 
             whoose precedence is less than i_min_precedence */
-        static Tensor CombineWithOperator(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_scope,
+        static Tensor CombineWithOperator(Lexer & i_lexer, const std::shared_ptr<Scope> & i_scope,
             const Tensor & i_left_operand, int32_t i_min_precedence)
         {
             Tensor result = i_left_operand;
@@ -272,7 +274,7 @@ namespace liquid
             }
         }
 
-        static Tensor ParseExpression(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_scope, int32_t i_min_precedence)
+        static Tensor ParseExpression(Lexer & i_lexer, const std::shared_ptr<Scope> & i_scope, int32_t i_min_precedence)
         {
             if(auto expression = TryParseExpression(i_lexer, i_scope, i_min_precedence))
                 return *expression;
@@ -280,19 +282,12 @@ namespace liquid
                 Panic(i_lexer, " expected an expression");
         }
 
-        static std::shared_ptr<const Scope> ParseScope(Lexer & i_lexer, const std::shared_ptr<const Scope> & i_parent_scope)
-        {
-            std::vector<Rule> rules;
-            std::vector<Tensor> values;
-            return i_parent_scope->MakeInner(rules, values);
-        }
-
         }; // class Parser
 
         Tensor ParseExpression(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
         {
             Lexer lexer(i_source);
-            Tensor const result = Parser::ParseExpression(lexer, i_scope, 0);
+            Tensor const result = Parser::ParseExpression(lexer, i_scope->MakeInner(), 0);
 
             if(!lexer.IsSourceOver())
                 Panic(lexer, " expected end of source, ", 
@@ -301,7 +296,7 @@ namespace liquid
             return result;
         }
         
-        std::shared_ptr<const Scope> ParseScope(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
+        /*std::shared_ptr<const Scope> ParseScope(std::string_view i_source, const std::shared_ptr<const Scope> & i_scope)
         {
             Lexer lexer(i_source);
             std::shared_ptr<const Scope> const result = Parser::ParseScope(lexer, i_scope);
@@ -311,7 +306,7 @@ namespace liquid
                     GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
 
             return result;
-        }
+        }*/
 
     } // namespace miu6
 

@@ -33,9 +33,9 @@ namespace liquid
 
         const std::variant<std::monostate, FixedShape, Tensor> & GetShape() const { return m_shape; }
         
-        const FixedShape & GetFixedShape() const { return std::get<FixedShape>(m_shape); }
+        const FixedShape & GetFixedShape() const;
 
-        const Tensor & GetVariableShape() const { return std::get<Tensor>(m_shape); }
+        const Tensor & GetVariableShape() const;
 
         bool operator == (const TensorType & i_other) const;
 

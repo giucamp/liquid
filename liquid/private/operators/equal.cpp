@@ -12,6 +12,14 @@
 
 namespace liquid
 {
+    std::optional<Tensor> EqualCanonicalize(const Tensor & i_source)
+    {
+        const std::vector<Tensor> & operands = i_source.GetExpression()->GetOperands();
+        if(AreIdentical(*operands[0].GetExpression(), *operands[1].GetExpression()))
+            return true;
+        return {};
+    }
+
     TensorType EqualDeduceType( [[maybe_unused]] const std::any & i_attachment,
         [[maybe_unused]] Span<const Tensor> i_operands)
     {
@@ -47,7 +55,8 @@ namespace liquid
             .SetDeduceType(EqualDeduceType)
             .AddOverload(EqualEvaluate<Real>, { { ScalarType::Real, "first" }, { ScalarType::Real, "second" } })
             .AddOverload(EqualEvaluate<Integer>, { { ScalarType::Integer, "first" }, { ScalarType::Integer, "second" } })
-            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } });
+            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } })
+            .SetCanonicalize(EqualCanonicalize);
         return op;
     }
 

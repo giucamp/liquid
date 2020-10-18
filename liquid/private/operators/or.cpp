@@ -32,7 +32,6 @@ namespace liquid
     {
         static auto const op = Operator("or")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
-            .SetIdentityElement(false)
             .AddOverload({ OrEvaluate, { { ScalarType::Bool, "bool_expr" } }, 1 });
         return op;
     }

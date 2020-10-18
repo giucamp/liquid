@@ -17,32 +17,47 @@ namespace liquid
         class ConcreteRoot : public Scope
         {
         public:
-            // for some reason inherited constructors don't work here...
-            ConcreteRoot(const std::shared_ptr<const Scope> & i_parent,
-                Span<const Rule> i_rules, Span<const Tensor> i_values)
-                    : Scope(i_parent, i_rules, i_values) { }
+            ConcreteRoot(const std::shared_ptr<const Scope> & i_parent)
+                : Scope(i_parent) { }
         };
     }
 
     const std::shared_ptr<const Scope> & Scope::Root()
     {
-        static const std::shared_ptr<const Scope> root = std::make_shared<ConcreteRoot>(
-            nullptr, Span<const Rule>{}, Span<const Tensor>{});
+        static const std::shared_ptr<const Scope> root = std::make_shared<ConcreteRoot>(nullptr);
         return root;
     }
 
-    Scope::Scope(const std::shared_ptr<const Scope> & i_parent,
-        Span<const Rule> i_rules, Span<const Tensor> i_values)
-            : m_parent(i_parent), 
-              m_rules(i_rules.begin(), i_rules.end()),
-              m_values(i_values.begin(), i_values.end())
+    Scope::Scope(const std::shared_ptr<const Scope> & i_parent)
+        : m_parent(i_parent)
     {
-        
     }
 
-    std::shared_ptr<const Scope> Scope::MakeInner(Span<const Rule> i_rules, Span<const Tensor> i_values) const
+    std::shared_ptr<Scope> Scope::MakeInner() const
     {
-        return std::make_shared<ConcreteRoot>(shared_from_this(), i_rules, i_values);
+        return std::make_shared<ConcreteRoot>(shared_from_this());
+    }
+
+    void Scope::AddVariable(const Tensor & i_new_variable)
+    {
+        if(!IsVariable(i_new_variable))
+            Panic("Scope::AddVariable", i_new_variable, " is not a variable");
+        std::string const & name = i_new_variable.GetExpression()->GetName();
+        if(!name.empty())
+        {
+            Member const existing = TryLookup(name);
+
+            if(std::holds_alternative<Tensor>(existing))
+                Panic("Scope::AddVariable - duplicate members:\n", 
+                    std::get<Tensor>(existing), " and\n", i_new_variable);
+
+            if(std::holds_alternative<std::reference_wrapper<const Operator>>(existing))
+                Panic("Scope::AddVariable - duplicate members:\n operator ", 
+                    std::get<std::reference_wrapper<const Operator>>(existing).get().GetName(),
+                    " and\n", i_new_variable);
+        }
+            
+        m_declarations.push_back(i_new_variable);
     }
 
     Scope::Member Scope::Lookup(std::string_view i_name) const
@@ -55,11 +70,11 @@ namespace liquid
 
     Scope::Member Scope::TryLookup(std::string_view i_name) const
     {
-        // try to find a value
-        auto const val_it = std::find_if(m_values.begin(), m_values.end(), 
+        // try to find a variable
+        auto const val_it = std::find_if(m_declarations.begin(), m_declarations.end(), 
             [i_name](const Tensor & i_candidate){
                 return i_candidate.GetExpression()->GetName() == i_name; });
-        if(val_it != m_values.end())
+        if(val_it != m_declarations.end())
             return *val_it;
 
         if(m_parent != nullptr)

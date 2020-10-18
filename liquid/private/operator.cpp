@@ -48,6 +48,9 @@ namespace liquid
     Operator & Operator::AddFlags(Flags i_flags)
     {
         m_flags = m_flags | i_flags;
+        
+        EnforceIdentityValue();
+
         return *this;
     }
 
@@ -55,7 +58,10 @@ namespace liquid
     {
         if(!HasFlags(m_flags, Flags::Commutative | Flags::Associative))
             return false;
-            
+
+        if(m_overloads.empty())
+            return false;
+
         for (const Overload & overload : m_overloads)
             if(overload.m_parameters.size() != 1 ||
                 overload.m_variadic_parameters_count != 1)
@@ -70,18 +76,15 @@ namespace liquid
             Panic("Badformed overload");
 
         m_overloads.push_back(i_overload);
+
+        EnforceIdentityValue();
+
         return *this;
     }
 
     Operator & Operator::SetGradientOfOperand(GradientOfOperandFunction i_func)
     {
         m_gradient_of_input_func = i_func;
-        return *this;
-    }
-
-    Operator & Operator::SetIdentityElement(const TensorValue & i_value)
-    {
-        m_identity_element = i_value;
         return *this;
     }
 
@@ -222,25 +225,29 @@ namespace liquid
                 (i_attachment, i_result_type, i_operands);
         }
 
-        auto const operand_values = ToValues(i_operands);
-        
+        return Evaluate(i_overload, i_result_type, ToValues(i_operands), i_attachment);
+    }
+
+    TensorValue Operator::Evaluate(const Overload & i_overload, const TensorType & i_result_type,
+        Span<const TensorValue> i_operands, const std::any & i_attachment) const
+    {
         if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
         {
-            if(operand_values.size() != 1)
-                Panic(m_name, ": evaluate supports only one operand, ", operand_values.size(), " provided");
+            if(i_operands.size() != 1)
+                Panic(m_name, ": evaluate supports only one operand, ", i_operands.size(), " provided");
 
             return std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
-                (i_result_type, operand_values.at(0));
+                (i_result_type, i_operands.at(0));
         }
         else if(std::holds_alternative<EvaluateFunction>(i_overload.m_evaluate))
         {
             return std::get<EvaluateFunction>(i_overload.m_evaluate)
-                (i_result_type, operand_values);
+                (i_result_type, i_operands);
         }
         else if (std::holds_alternative<EvaluateWithAttachmentFunction>(i_overload.m_evaluate))
         {
             return std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
-                (i_attachment, i_result_type, operand_values);
+                (i_attachment, i_result_type, i_operands);
         }
 
         Panic("Operator - internal error - unhandled evaluate function type");
@@ -256,6 +263,72 @@ namespace liquid
                 i_operands, i_attachment));
         }
         return {};
+    }
+
+    void Operator::EnforceIdentityValue()
+    {
+        bool const is_regular_nary = IsRegularNAry();
+        if(is_regular_nary != m_identity_value.has_value())
+        {
+            if(is_regular_nary)
+            {
+                TensorType type(m_overloads[0].m_parameters.at(0).m_type.GetScalarType(), FixedShape::Scalar());
+                m_identity_value = Evaluate(m_overloads[0], type, Span<TensorValue>{}, {});
+            }
+            else
+            {
+                m_identity_value = {};
+            }
+        }
+    }
+
+    void Operator::CA_SortOperands(std::vector<Tensor> & i_operands) const
+    {
+        std::sort(i_operands.begin(), i_operands.end(), [](const Tensor & i_left, const Tensor & i_right)
+            { return i_left.GetExpression()->GetHash() < i_right.GetExpression()->GetHash(); } );
+    }
+
+    void Operator::CA_Flatten(std::vector<Tensor> & i_operands) const
+    {
+        // flatten: add(x... add(y...) z...) -> add(x... y... z...)
+        for(size_t op_index = 0; op_index < i_operands.size(); )
+        {
+            const Tensor & operand = i_operands[op_index];
+            if(operand.GetExpression()->OperatorIs(*this))
+            {
+                i_operands = Concatenate(
+                    Span(i_operands).subspan(0, op_index),
+                    operand.GetExpression()->GetOperands(),
+                    Span(i_operands).subspan(op_index + 1) );
+
+                op_index += operand.GetExpression()->GetOperands().size();
+            }
+            else
+                op_index++;
+        }
+    }
+
+    void Operator::CA_PartialConstantPropagation(std::vector<Tensor> & i_operands,
+        const std::any & i_attachment) const
+    {
+        std::vector<Tensor> constants;
+        for(size_t op_index = 0; op_index < i_operands.size(); )
+        {
+            const Tensor & operand = i_operands[op_index];
+            if(IsConstant(operand))
+            {
+                constants.push_back(operand);
+                i_operands.erase(i_operands.begin() + op_index);
+            }
+            else
+                op_index++;
+        }
+        if(!constants.empty())
+        {
+            auto merged_constant = Invoke(constants, i_attachment);
+            if(!AlwaysEqual(merged_constant, *m_identity_value))
+                i_operands.push_back(merged_constant);
+        }
     }
 
     Tensor Operator::Invoke(std::string_view i_name, std::string_view i_doc,
@@ -274,22 +347,9 @@ namespace liquid
         // common commutative-associative canonicalizations
         if(Has(Flags::Commutative | Flags::Associative))
         {
-            // flatten: add(x... add(y...) z...) -> add(x... y... z...)
-            for(size_t op_index = 0; op_index < operands.size(); op_index++)
-            {
-                const Tensor & operand = operands[op_index];
-                if(operand.GetExpression()->OperatorIs(*this))
-                {
-                    operands = Concatenate(
-                        Span(operands).subspan(0, op_index),
-                        operand.GetExpression()->GetOperands(),
-                        Span(operands).subspan(op_index + 1) );
-                }
-            }
-
-            // sort operands by hash
-            std::sort(operands.begin(), operands.end(), [](const Tensor & i_left, const Tensor & i_right)
-                { return i_left.GetExpression()->GetHash() < i_right.GetExpression()->GetHash(); } );
+            CA_Flatten(operands);
+            CA_PartialConstantPropagation(operands, i_attachment);
+            CA_SortOperands(operands);
         }
 
         Tensor result(std::make_shared<Expression>(

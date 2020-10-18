@@ -19,14 +19,18 @@ namespace liquid
     {
     public:
 
-        using Member = std::variant<std::monostate, Tensor, std::reference_wrapper<const Operator>>;
-
+        // disable copy
         Scope(const Scope &) = delete;
         Scope & operator = (const Scope &) = delete;;
 
+        /* Returns the root scope, which is always empty and unmodifiable */
         static const std::shared_ptr<const Scope> & Root();
 
-        std::shared_ptr<const Scope> MakeInner(Span<const Rule> i_rules, Span<const Tensor> i_values) const;
+        /* Creates a scope that has this as parent. This is the only way to create an instance of Scope. */
+        std::shared_ptr<Scope> MakeInner() const;
+
+        // a member may be a Tensor or an Operator
+        using Member = std::variant< std::monostate, Tensor, std::reference_wrapper<const Operator> >;
 
         std::shared_ptr<const Scope> const & GetParent() const { return m_parent; }
 
@@ -34,18 +38,20 @@ namespace liquid
 
         const std::vector<Tensor> & GetValues() const { return m_values; }
 
+        void AddVariable(const Tensor & i_new_variable);
+
         // never returns a monostate member
         Member Lookup(std::string_view i_name) const;
 
         Member TryLookup(std::string_view i_name) const;
 
     protected:
-        Scope(const std::shared_ptr<const Scope> & i_parent,
-            Span<const Rule> i_rules, Span<const Tensor> i_values);
+        Scope(const std::shared_ptr<const Scope> & i_parent);
 
     private:
         std::vector<Rule> m_rules;
         std::vector<Tensor> m_values;
+        std::vector<Tensor> m_declarations;
         std::shared_ptr<const Scope> const m_parent;
     };
 }

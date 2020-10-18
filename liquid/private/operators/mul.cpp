@@ -60,7 +60,6 @@ namespace liquid
             .SetDoc(g_mul_description, g_mul_return_type)
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
             .SetCanonicalize(MulCanonicalize)
-            .SetIdentityElement(1)
             .AddOverload(MulEvaluate<Real>, { {ScalarType::Real, "factor"} }, 1)
             .AddOverload(MulEvaluate<Integer>, { {ScalarType::Integer, "factor"} }, 1)
             .SetGradientOfOperand(MulGradient);
@@ -79,13 +78,14 @@ namespace liquid
 
     Tensor operator / (const Tensor & i_dividend, const Tensor & i_divisor)
     {
+        /* This may hurt the sensibility of most programmer, but actually it
+           is neecessary for an effective canonicalization. */
         return i_dividend * Pow(i_divisor, -1);
     }
 
     Tensor & operator *= (Tensor & i_first, const Tensor & i_second)
     {
-        i_first = i_first * i_second;
-        return i_first;
+        return i_first = i_first * i_second;
     }
 
     Tensor & operator /= (Tensor & i_dividend, const Tensor & i_divisor)
