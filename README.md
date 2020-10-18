@@ -17,14 +17,14 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 `real[]` real scalar (rank is 0)
 `any` dynamic shapeless tensor
 
-## Variable declaration expression
+## Variable declaration
 
 *variable_expr*  ← *tensor_type*
-
+A variable declaration is an expression
 Liquid deduces tensor types
 
 ## Corollaries
-Corollaries are boolean expressions that evaluates always to true. Usually it involves variable tensors, but liquid 
+Corollaries are boolean expressions that evaluates always to true. A corollary may involve variable tensors, as long as liquid can prove the true-ness of the statement. 
 
 ## Stack Operator [ ]
 *tensor* ← [*tensor**]
@@ -52,5 +52,5 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTcwMjUzMDk4MCwtMTYzNjE5OTE1NV19
+eyJoaXN0b3J5IjpbLTkwNjg1MDM4MywtMTYzNjE5OTE1NV19
 -->
