@@ -15,6 +15,10 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 `real[]` real scalar (rank is 0)
 `any` dynamic shapeless tensor
 
+## 'is' Operator 
+
+The operator 'is' returns a scalar boolean 
+
 ## Variable declaration
 
 *variable_expr*  ← *tensor_type* [*name*]
@@ -23,7 +27,7 @@ The name in the declaration may be omitted, in which case the variable is unname
 
 Some corollaries:
 `real a * int b is real`: the product of an integer and a real is a real. Actually the names a and b are unnecessary here.
-int / int is real: a similar corollary, showing that a q 
+`int / int is real`: a similar corollary, showing that a quotient is always real 
 
 Liquid deduces tensor types
 
@@ -56,6 +60,5 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4NjA3MDE3NTYsLTE2MzYxOTkxNTVdfQ
-==
+eyJoaXN0b3J5IjpbOTU3ODcxNTI2LC0xNjM2MTk5MTU1XX0=
 -->
