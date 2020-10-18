@@ -3,10 +3,9 @@ C++ tensor algebra &amp; compiler
 
 Liquid is a work in progress, and currently it's not functional. A working cpu-only backend is planned for the end of 2020.
 
-
 ## Tensor Types
-*scalar_type* ← `real`|`int`|`bool`|`any`]
-*tensor_type*  ← *scalar_type* *tensor*
+*scalar_type* ← `real`|`int`|`bool`|`any`
+*tensor_type*  ← *scalar_type* *shape_vector*
 *tensor_type*  ← *scalar_type*
 
 A tensor type is composed by a scalar type (real, int, bool or any) and a shape vector (any tensor expression with rank 1). If the scalar type is any the type is dynamic. If the shape vector is omitted the tensor is shapeless.
@@ -52,5 +51,6 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNDc0MDQ2NzIyLC0xNjM2MTk5MTU1XX0=
+eyJoaXN0b3J5IjpbLTIwNjQ1MjAzNTcsLTE2MzYxOTkxNTVdfQ
+==
 -->
