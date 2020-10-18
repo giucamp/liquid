@@ -76,6 +76,11 @@ namespace liquid
             LIQUID_EXPECTS_PANIC(Add(true), "add: could not find an overload matching the argument types: bool[]");
         }
 
+        {
+            Expects("[ log [3 4]"
+                    "  exp [5 6] + 2 ] is real [2, 2]");
+        }
+
         std::cout << "done" << std::endl;
     }
 }
