@@ -18,7 +18,7 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 ## Variable declaration
 
 *variable_expr*  ← *tensor_type*
-A variable declaration is an expression that in
+A variable declaration is an expression that introduce a possibly named vector whose value is not known. In order to evaluate an expression all variable must be substituted with constan 
 Liquid deduces tensor types
 
 ## Corollaries
@@ -50,6 +50,5 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExMDAwMTQyMzYsLTE2MzYxOTkxNTVdfQ
-==
+eyJoaXN0b3J5IjpbNjU2Mzk3NDk0LC0xNjM2MTk5MTU1XX0=
 -->
