@@ -17,8 +17,6 @@ namespace liquid
     template <typename TYPE>
         using EnableIfNumeric = std::enable_if_t<std::is_integral_v<TYPE> || std::is_floating_point_v<TYPE>>;
 
-    // https://timvieira.github.io/blog/post/2014/02/11/exp-normalize-trick/
-
     class Tensor
     {
     public:
@@ -187,9 +185,12 @@ namespace liquid
     Tensor Exp(const Tensor & i_source);
     Tensor Pow(const Tensor & i_base, const Tensor & i_exponent);
     Tensor Square(const Tensor & i_source);
+    Tensor Sin(const Tensor & i_operand);
+    Tensor Cos(const Tensor & i_operand);
 
     Tensor Stack(Span<Tensor const> i_tensors);
 
+    // to implement
     Tensor Substitute(const Tensor & i_where, const Tensor & i_what,
         const Tensor & i_with, const Tensor & i_when = true);
 

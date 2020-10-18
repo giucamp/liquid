@@ -14,6 +14,7 @@ namespace liquid
     extern const Operator & GetOperatorAnd();
     extern const Operator & GetOperatorCast();
     extern const Operator & GetOperatorConstant();
+    extern const Operator & GetOperatorCos();
     extern const Operator & GetOperatorEqual();
     extern const Operator & GetOperatorExp();
     extern const Operator & GetOperatorIf();
@@ -26,6 +27,7 @@ namespace liquid
     extern const Operator & GetOperatorPow();
     extern const Operator & GetOperatorRank();
     extern const Operator & GetOperatorShape();
+    extern const Operator & GetOperatorSin();
     extern const Operator & GetOperatorStack();
     extern const Operator & GetOperatorVariable();
 
@@ -91,6 +93,7 @@ namespace liquid
         AddOperator(GetOperatorAnd());
         AddOperator(GetOperatorCast());
         AddOperator(GetOperatorConstant());
+        AddOperator(GetOperatorCos());
         AddOperator(GetOperatorEqual());
         AddOperator(GetOperatorExp());
         AddOperator(GetOperatorIf());
@@ -103,6 +106,7 @@ namespace liquid
         AddOperator(GetOperatorPow());
         AddOperator(GetOperatorRank());
         AddOperator(GetOperatorShape());
+        AddOperator(GetOperatorSin());
         AddOperator(GetOperatorStack());
         AddOperator(GetOperatorVariable());
     }

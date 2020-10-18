@@ -1,4 +1,4 @@
-
+﻿
 //   Copyright Giuseppe Campana (giu.campana@gmail.com) 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -53,6 +53,13 @@ namespace liquid
         Expects("[[1 3+2][3 4]] * 2 == [[2 10][6 8]]");
 
         Expects("real x * 0 * real y == 0"); 
+
+        Expects("real x * 0 * real y == 0"); 
+
+        Expects(u8"rank of [[ cos real θ  -sin θ ][ sin θ       cos θ  ]] is 2");
+
+        // to do: implement softmax
+        // https://timvieira.github.io/blog/post/2014/02/11/exp-normalize-trick/
 
         std::cout << "done" << std::endl;
     }
