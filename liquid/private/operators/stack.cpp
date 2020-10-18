@@ -23,11 +23,11 @@ namespace liquid
 
             Integer axis = 0;
 
-            std::vector<Integer> dest_dimenions;
-            dest_dimenions.reserve(source_dimensions.size() + 1);
-            dest_dimenions.insert(dest_dimenions.begin(), source_dimensions.begin(), source_dimensions.end());
-            dest_dimenions.insert(dest_dimenions.begin() + axis, NumericCast<Integer>(i_operands.size()) );
-
+            std::vector<Integer> dest_dimenions = Concatenate(
+                Span(source_dimensions).subspan(0, axis),
+                Span{ NumericCast<Integer>(i_operands.size()) },
+                Span(source_dimensions).subspan(axis) );
+            
             return { common_type.GetScalarType(), FixedShape(dest_dimenions) };
         }
         else

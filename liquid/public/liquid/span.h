@@ -145,6 +145,8 @@ namespace liquid
         Span(SOURCE_CONTAINER & i_source_container) -> Span<ContainerElementTypeT<SOURCE_CONTAINER>>;
     template <typename SOURCE_CONTAINER>
         Span(const SOURCE_CONTAINER & i_source_container) -> Span<const ContainerElementTypeT<SOURCE_CONTAINER>>;
+    template <typename ELEMENT_TYPE>
+        Span(std::initializer_list<ELEMENT_TYPE> i_source_container) -> Span<const ELEMENT_TYPE>;
 
     template <typename TYPE>
         std::ostream & operator << (std::ostream & i_ostream, Span<TYPE> i_span)

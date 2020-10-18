@@ -17,11 +17,26 @@ namespace liquid
         // a token is a range of chars recognized by the lexer
         struct Token
         {
+            using Value = std::variant<std::monostate, Real, Integer, Bool>;
+
             SymbolId m_symbol_id = SymbolId::EndOfSource;
-            std::variant<std::monostate, Real, Integer, Bool> m_value;
-            SymbolFlags m_flags = SymbolFlags::None;
-            int32_t m_precedence = -1000;
-            std::string_view m_chars;
+            const Symbol * m_symbol = nullptr;
+            Value m_value;
+            std::string_view m_source_chars;
+
+            Token() = default;
+
+            Token(const Symbol & i_symbol, const Value & i_value = {})
+                : m_symbol_id(i_symbol.m_id), m_symbol(&i_symbol), m_value(i_value) {}
+
+            Token(SymbolId i_symbol_id, const Value & i_value = {})
+                : m_symbol_id(i_symbol_id), m_value(i_value) {}
+
+            bool IsUnaryOperator() const
+                { return m_symbol != nullptr && m_symbol->IsUnaryOperator(); }
+
+            bool IsBinaryOperator() const
+                { return m_symbol != nullptr && m_symbol->IsBinaryOperator(); }
         };
 
         class Lexer

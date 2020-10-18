@@ -135,23 +135,22 @@ namespace liquid
 
                 // if shape_vector is non-null but not a vector, the following will panic...
                 TensorType const type = shape_vector ? TensorType{*scalar_type, *shape_vector} : *scalar_type;
-                Tensor variable = MakeVariable(type, name ? name->m_chars : "");
+                Tensor variable = MakeVariable(type, name ? name->m_source_chars: "");
 
                 i_scope->AddVariable(variable);
                 return variable;
             }
 
-            else if (i_lexer.TryAccept(SymbolId::Not))
+            else if (i_lexer.GetCurrentToken().IsUnaryOperator())
             {
-                // not
-                return !ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::Not).m_precedence);
-            }
+                auto const symbol = i_lexer.GetCurrentToken().m_symbol;
 
-            // unary plus\minus
-            else if (i_lexer.TryAccept(SymbolId::UnaryMinus))
-                return -ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryMinus).m_precedence);
-            else if (i_lexer.TryAccept(SymbolId::UnaryPlus))
-                return ParseExpression(i_lexer, i_scope, FindSymbol(SymbolId::UnaryPlus).m_precedence);
+                i_lexer.Advance();
+
+                auto const applier = std::get<UnaryApplier>(symbol->m_operator_applier);
+                Tensor const operand = ParseExpression(i_lexer, i_scope, symbol->m_precedence);
+                return applier(operand);
+            }
 
             // context-sensitive unary-to-binary promotion
             else if (i_lexer.TryAccept(SymbolId::BinaryMinus))
@@ -161,7 +160,7 @@ namespace liquid
 
             else if (i_lexer.IsCurrentToken(SymbolId::Name))
             {
-                auto const member = i_scope->TryLookup(i_lexer.GetCurrentToken().m_chars);
+                auto const member = i_scope->TryLookup(i_lexer.GetCurrentToken().m_source_chars);
                 if(std::holds_alternative<std::reference_wrapper<const Operator>>(member))
                 {
                     i_lexer.Advance();
@@ -187,8 +186,8 @@ namespace liquid
         {
             Tensor result = i_left_operand;
 
-            while (HasFlags(i_lexer.GetCurrentToken().m_flags, SymbolFlags::BinaryOperator)
-                && i_lexer.GetCurrentToken().m_precedence >= i_min_precedence)
+            while (i_lexer.GetCurrentToken().IsBinaryOperator()
+                && i_lexer.GetCurrentToken().m_symbol->m_precedence >= i_min_precedence)
             {
                 /* now we have the left-hand operatand and the operator.
                    we just need the right-hand operand. */
@@ -222,11 +221,12 @@ namespace liquid
                     while (ShouldParseDeeper(i_lexer.GetCurrentToken(), operator_token))
                     {
                         right = CombineWithOperator(i_lexer, i_scope,
-                            *right, i_lexer.GetCurrentToken().m_precedence);
+                            *right, i_lexer.GetCurrentToken().m_symbol->m_precedence);
                     }
 
-                    result = ApplyBinaryOperator(i_lexer, result, 
-                        operator_token.m_symbol_id, *right);
+                    // apply binary operand
+                    auto const applier = std::get<BinaryApplier>(operator_token.m_symbol->m_operator_applier);
+                    result = applier(result, *right);
                 }
             }
 
@@ -235,49 +235,13 @@ namespace liquid
 
         static bool ShouldParseDeeper(const Token & i_look_ahead, const Token & i_operator)
         {
-            if(!HasFlags(i_look_ahead.m_flags, SymbolFlags::BinaryOperator))
+            if(!i_look_ahead.IsBinaryOperator())
                 return false;
 
-            if(HasFlags(i_look_ahead.m_flags, SymbolFlags::RightAssociativeBinary))
-                return i_look_ahead.m_precedence >= i_operator.m_precedence;
+            if(HasFlags(i_look_ahead.m_symbol->m_flags, SymbolFlags::RightAssociative))
+                return i_look_ahead.m_symbol->m_precedence >= i_operator.m_symbol->m_precedence;
             else
-                return i_look_ahead.m_precedence > i_operator.m_precedence;
-        }
-
-        static Tensor ApplyBinaryOperator(Lexer & i_lexer,
-            const Tensor & i_left, SymbolId i_op, const Tensor & i_right)
-        {
-            switch (i_op)
-            {
-            case SymbolId::BinaryPlus:
-                return i_left + i_right;
-            case SymbolId::BinaryMinus:
-                return i_left - i_right;
-            case SymbolId::Mul:
-                return i_left * i_right;
-            case SymbolId::Div:
-                return i_left / i_right;
-            case SymbolId::Pow:
-                return Pow(i_left, i_right);
-            case SymbolId::Equal:
-                return i_left == i_right;
-            case SymbolId::NotEqual:
-                return i_left != i_right;
-            case SymbolId::Less:
-                return i_left < i_right;
-            case SymbolId::Greater:
-                return i_left > i_right;
-            case SymbolId::LessOrEqual:
-                return i_left <= i_right;
-            case SymbolId::GreaterOrEqual:
-                return i_left >= i_right;
-            case SymbolId::And:
-                return i_left && i_right;
-            case SymbolId::Or:
-                return i_left || i_right;
-            default:
-                Panic("ApplyBinaryOperator - symbol ", GetSymbolName(i_op), " is not a binary operator");
-            }
+                return i_look_ahead.m_symbol->m_precedence > i_operator.m_symbol->m_precedence;
         }
 
         static Tensor ParseExpression(Lexer & i_lexer, const std::shared_ptr<Scope> & i_scope, int32_t i_min_precedence)

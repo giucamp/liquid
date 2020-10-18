@@ -152,7 +152,7 @@ namespace liquid
 
             const char * first_char = io_source.data();
             Token token = TryParseTokenImpl(spaces, io_source);
-            token.m_chars = { first_char, static_cast<size_t>(io_source.data() - first_char) };
+            token.m_source_chars = { first_char, static_cast<size_t>(io_source.data() - first_char) };
             return token;
         }
 
@@ -160,7 +160,7 @@ namespace liquid
         {
             for(const Symbol & symbol : g_alphabet)
             {
-                if(HasFlags(symbol.m_flags, SymbolFlags::BinaryOperator))
+                if(symbol.IsBinaryOperator())
                 {
                     // binary operator - enforce white space symmetry
                     auto new_source = io_source;
@@ -170,7 +170,7 @@ namespace liquid
                         if(WhiteSimmetry(i_prefix_spaces, postfix_spaces))
                         {
                             io_source = new_source;
-                            return { symbol.m_id, {}, symbol.m_flags, symbol.m_precedence };
+                            return { symbol };
                         }
                     }                    
                 }
@@ -178,7 +178,7 @@ namespace liquid
                 {
                     // non-binary operator
                     if(TryParseString(io_source, symbol.m_chars))
-                        return { symbol.m_id, {}, symbol.m_flags, symbol.m_precedence };
+                        return { symbol };
                 }
             }
 
@@ -282,7 +282,7 @@ namespace liquid
 
         std::ostream & operator << (std::ostream & i_dest, const Lexer & i_lexer)
         {
-            const char * at = i_lexer.m_curr_token.m_chars.data();
+            const char * at = i_lexer.m_curr_token.m_source_chars.data();
             Line const line = GetLineAt(i_lexer.m_whole_source, at);
             
             std::string const prefix = "(" + std::to_string(line.m_number) + "): ";
