@@ -1,7 +1,7 @@
 # liquid
 C++ tensor algebra &amp; compiler
 
-Liquid is a work in progress, and currently it's not functional.
+Liquid is a work in progress, and currently it's not functional. A working cpu-only backend is planned for the end of 2020.
 
 
 ## Tensor Types
@@ -52,5 +52,5 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTkwNjg1MDM4MywtMTYzNjE5OTE1NV19
+eyJoaXN0b3J5IjpbNDc0MDQ2NzIyLC0xNjM2MTk5MTU1XX0=
 -->
