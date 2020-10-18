@@ -23,6 +23,8 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 
 Liquid deduces tensor types
 
+## Corollaries
+Corollaries are boolean expressions that evaluates always to true.
 
 ## Stack Operator [ ]
 *tensor* ← [*tensor**]
@@ -50,5 +52,6 @@ if_expression  ← if bool_expression then
 - low-level code is in C++,  high-level code is in miu6 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE2MzYxOTkxNTVdfQ==
+eyJoaXN0b3J5IjpbLTExMjkzMzg5NjksLTE2MzYxOTkxNTVdfQ
+==
 -->
