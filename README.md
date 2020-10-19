@@ -23,7 +23,7 @@ A tensor type is composed by a scalar type (real, int, bool or any) and a shape 
 `any` dynamic shapeless tensor
 
 ## Corollaries
-Corollaries are boolean expressions that evaluate always to true. A corollary may involve variable tensors, as long as liquid can prove the trueness of the statement. 
+Corollaries are boolean expressions that evaluate always to true. A corollary may involve variable tensors, as long as liquid can prove the trueness of the statement. Corollaries listed here are parte of the test program.
 
 ## 'is' Operator 
 *is_expression* ← *expression* `is` *tensor_type*
