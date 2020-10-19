@@ -38,6 +38,7 @@ A variable declaration is an expression that introduce a possibly named vector w
 The name in the declaration may be omitted, in which case the variable is unnamed.
 
 Some corollaries:
+
 `real * 0 * real == 0`: if any factor is zero, the product is zero
 
 `real a * int b is real`: the product of an integer and a real is a real. Actually the names a and b are unnecessary here.
