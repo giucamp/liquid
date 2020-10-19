@@ -7,14 +7,19 @@ Liquid is a work in progress, and currently it's not functional. A working cpu-o
 
 ## Tensor Types
 *scalar_type* ← `real`|`int`|`bool`|`any`
+
 *tensor_type*  ← *scalar_type* [*shape_vector*]
 
 A tensor type is composed by a scalar type (real, int, bool or any) and a shape vector (any tensor expression with rank 1). If the scalar type is any the type is dynamic. If the shape vector is omitted the tensor is shapeless.
 
 `int [3, 4]`: integral matrix (rank is 2)
+
 `bool [3, 4, 5, 6]` bool tensor (rank is 4)
+
 `any [3]` dynamic vector with 3 elements
+
 `real[]` real scalar (rank is 0)
+
 `any` dynamic shapeless tensor
 
 ## Corollaries
@@ -33,10 +38,15 @@ The name in the declaration may be omitted, in which case the variable is unname
 
 Some corollaries:
 `real * 0 * real == 0`: if any factor is zero, the product is zero
+
 `real a * int b is real`: the product of an integer and a real is a real. Actually the names a and b are unnecessary here.
+
 `int / int is real`: a similar corollary, showing that a quotient is always real 
+
 `any is any is bool`: regardless of operands, is always returns a boolean
+
 `(real == real) is bool`: the comparison of tensors returns a bool tensor (not a bool scalar)
+
 `(rank of any) is int[]`: the operator rank gives a scalar integer, regardless of the type of the operand.
 
     
