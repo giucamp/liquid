@@ -54,7 +54,7 @@ Some corollaries:
     
 
 ## Stack Operator [ ]
-*tensor* ← [*tensor**]
+*tensor* ← '['*tensor**']'
 
 The stack operator aggregates a list of tensors with the same rank *r* and with the same shape to a single tensor of rank *r+1*
 
@@ -76,12 +76,11 @@ Some corollaries:
     
     (if [-2 2.] > 0 then 100 else 200) == [200 100]
 
-
 # principles
 - no class hierarchies, no virtual functions
 - write as few code as possible
 - tests are part of documentation
-- low-level code is in C++,  high-level code is in miu6 
+- the frontend is designed to be clear, backends are designed to be fast 
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
