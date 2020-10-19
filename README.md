@@ -33,6 +33,7 @@ Corollaries are boolean expressions that evaluate always to true. A corollary ma
 ## Variable declaration
 
 *variable_expr*  ← *tensor_type* [*name*]
+
 A variable declaration is an expression that introduce a possibly named vector whose value is not known. In order to evaluate an expression all variable must be substituted with constant vector, or the values must be provided to a tensor program compiled by a backend.  
 The name in the declaration may be omitted, in which case the variable is unnamed.
 
@@ -53,6 +54,7 @@ Some corollaries:
 
 ## Stack Operator [ ]
 *tensor* ← [*tensor**]
+
 The stack operator aggregates a list of tensors with the same rank *r* and with the same shape to a single tensor of rank *r+1*
 
 Some corollaries:
