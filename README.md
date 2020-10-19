@@ -45,7 +45,7 @@ Some corollaries:
 
 `int / int is real`: a similar corollary, showing that a quotient is always real 
 
-`any is any is bool`: regardless of operands, is always returns a boolean
+`any is any is bool[]`: regardless of operands, 'is' always returns a boolean scalar
 
 `(real == real) is bool`: the comparison of tensors returns a bool tensor (not a bool scalar)
 
