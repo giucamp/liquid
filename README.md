@@ -1,3 +1,5 @@
+
+
 # liquid
 C++ tensor algebra &amp; compiler
 
@@ -9,15 +11,19 @@ Liquid is a work in progress, and currently it's not functional. A working cpu-o
 
 A tensor type is composed by a scalar type (real, int, bool or any) and a shape vector (any tensor expression with rank 1). If the scalar type is any the type is dynamic. If the shape vector is omitted the tensor is shapeless.
 
-`int [3, 4]`: integral matrix (rank is `[2]` )
+`int [3, 4]`: integral matrix (rank is 2)
 `bool [3, 4, 5, 6]` bool tensor (rank is 4)
 `any [3]` dynamic vector with 3 elements
 `real[]` real scalar (rank is 0)
 `any` dynamic shapeless tensor
 
-## 'is' Operator 
+## Corollaries
+Corollaries are boolean expressions that evaluate always to true. A corollary may involve variable tensors, as long as liquid can prove the trueness of the statement. 
 
-The operator 'is' returns a scalar boolean 
+## 'is' Operator 
+*is_expression* ← *expression* `is` *tensor_type*
+
+'is' operator returns a scalar boolean that is true if the type of the left-hand side expression matches the right-hand side type. 
 
 ## Variable declaration
 
@@ -26,32 +32,37 @@ A variable declaration is an expression that introduce a possibly named vector w
 The name in the declaration may be omitted, in which case the variable is unnamed.
 
 Some corollaries:
+`real * 0 * real == 0`: if any factor is zero, the product is zero
 `real a * int b is real`: the product of an integer and a real is a real. Actually the names a and b are unnecessary here.
 `int / int is real`: a similar corollary, showing that a quotient is always real 
+`any is any is bool`: regardless of operands, is always returns a boolean
+`(real == real) is bool`: the comparison of tensors returns a bool tensor (not a bool scalar)
+`(rank of any) is int[]`: the operator rank gives a scalar integer, regardless of the type of the operand.
 
-Liquid deduces tensor types
-
-## Corollaries
-Corollaries are boolean expressions that evaluates always to true. A corollary may involve variable tensors, as long as liquid can prove the true-ness of the statement. 
+    
 
 ## Stack Operator [ ]
 *tensor* ← [*tensor**]
 The stack operator aggregates a list of tensors with the same rank *r* and with the same shape to a single tensor of rank *r+1*
 
-`[1 2]`: this is a vector, with type int [2] 
-`[[1 2][3,4][3,4]]`: this is a matrix with type int [3, 2]
+Some corollaries:
 
-    [[log [3 4]
-      exp([5 6] + 2)]]
+    [1 2] is int[2]
 
-A matrix 
+    [ log[ 3 real[] ]
+      exp[5 6] + 2  ] is real [2, 2]
 
-    [[ cos real θ  -sin θ ]
-     [ sin θ       cos θ  ]]
-^ a rotation matrix
+    [[ cos real[] θ     -sin θ ]
+     [ sin θ             cos θ ]] is real[2 2]
 
 ## if Operator
-if_expression  ← if bool_expression then
+
+Some corollaries:
+
+    (if 5 > 6 then 1 else 2) == 2
+    
+    (if [-2 2.] > 0 then 100 else 200) == [200 100]
+
 
 # principles
 - no class hierarchies, no virtual functions
@@ -59,6 +70,8 @@ if_expression  ← if bool_expression then
 - tests are part of documentation
 - low-level code is in C++,  high-level code is in miu6 
 
+> Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTU3ODcxNTI2LC0xNjM2MTk5MTU1XX0=
+eyJoaXN0b3J5IjpbLTExNTI0MjU1MzUsOTU3ODcxNTI2LC0xNj
+M2MTk5MTU1XX0=
 -->
