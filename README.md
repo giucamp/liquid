@@ -3,7 +3,7 @@
 # liquid
 C++ tensor algebra &amp; compiler
 
-Liquid is a work in progress, and currently it's not functional. A working cpu-only backend is planned for the end of 2020.
+Liquid is a work in progress, and currently it's not functional and totally undocumented. A working cpu-only backend is planned for the end of 2020.
 
 ## Tensor Types
 *scalar_type* ← `real`|`int`|`bool`|`any`
