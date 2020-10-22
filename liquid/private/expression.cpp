@@ -103,6 +103,11 @@ namespace liquid
         }
     }
 
+    bool AreIdentical(const Tensor & i_left, const Tensor & i_right)
+    {
+        return AreIdentical(*i_left.GetExpression(), *i_right.GetExpression());
+    }
+
     bool AreIdentical(const Expression & i_left, const Expression & i_right)
     {
         using namespace detail;

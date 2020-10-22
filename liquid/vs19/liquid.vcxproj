@@ -68,6 +68,7 @@
   <ItemGroup>
     <ClInclude Include="..\private\book.h" />
     <ClInclude Include="..\private\expression.h" />
+    <ClInclude Include="..\private\factorize_polynomial.h" />
     <ClInclude Include="..\private\hash.h" />
     <ClInclude Include="..\private\indices.h" />
     <ClInclude Include="..\private\miu6\lexer.h" />

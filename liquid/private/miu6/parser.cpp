@@ -216,7 +216,7 @@ namespace liquid
                 {
                     auto right = TryParseLeftExpression(i_lexer, i_scope);
                     if(!right)
-                        Panic("expected right operand for ", GetSymbolName(operator_token.m_symbol_id));
+                        Panic("expected right operand for ", GetSymbolChars(operator_token.m_symbol_id));
 
                     while (ShouldParseDeeper(i_lexer.GetCurrentToken(), operator_token))
                     {
@@ -268,7 +268,7 @@ namespace liquid
                 // all the source must be consumed
                 if(!lexer.IsSourceOver())
                     Panic("expected end of source, ", 
-                        GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+                        GetSymbolChars(lexer.GetCurrentToken().m_symbol_id), " found");
 
                 return result;
             }
@@ -289,7 +289,7 @@ namespace liquid
 
             if(!lexer.IsSourceOver())
                 Panic(lexer, " expected end of source, ", 
-                    GetSymbolName(lexer.GetCurrentToken().m_symbol_id), " found");
+                    GetSymbolChars(lexer.GetCurrentToken().m_symbol_id), " found");
 
             return result;
         }*/

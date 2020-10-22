@@ -15,7 +15,7 @@ namespace liquid
     std::optional<Tensor> EqualCanonicalize(const Tensor & i_source)
     {
         const std::vector<Tensor> & operands = i_source.GetExpression()->GetOperands();
-        if(AreIdentical(*operands[0].GetExpression(), *operands[1].GetExpression()))
+        if(AreIdentical(operands[0], operands[1]))
             return true;
         return {};
     }

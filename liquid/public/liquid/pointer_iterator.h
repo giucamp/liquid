@@ -104,7 +104,8 @@ namespace liquid
         struct ContainerElementType { };
     template <typename CONTAINER>
         struct ContainerElementType<CONTAINER, std::void_t<
-        std::decay_t<decltype(*std::begin(std::declval<CONTAINER>()))> > >
+        decltype(*std::begin(std::declval<CONTAINER>())),
+        decltype(std::begin(std::declval<CONTAINER>()) != std::end(std::declval<CONTAINER>())) > >
     { 
         using type = std::decay_t<decltype(*std::begin(std::declval<CONTAINER>()))>;
     };

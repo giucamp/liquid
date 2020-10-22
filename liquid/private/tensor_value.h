@@ -77,16 +77,11 @@ namespace liquid
 
                 // constants
 
-        static const TensorValue & True()
+        template <auto VALUE>
+            static const TensorValue GetConstant()
         {
-            static const TensorValue s_true(true);
-            return s_true;
-        }
-
-        static const TensorValue & False()
-        {
-            static const TensorValue s_false(false);
-            return s_false;
+            static TensorValue s_value(VALUE);
+            return s_value;
         }
 
     private:

@@ -78,8 +78,6 @@ namespace liquid
 
     Tensor operator / (const Tensor & i_dividend, const Tensor & i_divisor)
     {
-        /* This may hurt the sensibility of most programmer, but actually it
-           is neecessary for an effective canonicalization. */
         return i_dividend * Pow(i_divisor, -1);
     }
 

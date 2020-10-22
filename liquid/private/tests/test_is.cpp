@@ -26,12 +26,12 @@ namespace liquid
             Expects(topic, "not real is bool");
 
             Expects(topic, "(real == real) is bool");
-            Expects(topic, "(rank of any) is int");
+            Expects(topic, "(rank of any) is int[]");
             Expects(topic, "(any is real) is bool");
 
             Expects(topic, "real a * int b is real");
             Expects(topic, "int / int is real");
-            Expects(topic, "any is any is bool");
+            Expects(topic, "any is any is bool[]");
 
             // Expects(topic, "real is real or not any is real");
             

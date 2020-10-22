@@ -132,20 +132,27 @@ namespace liquid
             { "is",         SymbolId::Is,                BinaryApplier{},               400 },
         };
 
-        constexpr const Symbol & FindSymbol(SymbolId i_symbol_id)
+        constexpr const Symbol * TryFindSymbol(SymbolId i_symbol_id)
         {
             for(const Symbol & symbol : g_alphabet)
                 if(symbol.m_id == i_symbol_id)
-                    return symbol;
+                    return &symbol;
+
+            return nullptr;
+        }
+
+        constexpr const Symbol & FindSymbol(SymbolId i_symbol_id)
+        {
+            if(auto symbol = TryFindSymbol(i_symbol_id))
+                return *symbol;
 
             Panic("FindSymbol - unrecognized symbol id: ", static_cast<int>(i_symbol_id));
         }
 
-        constexpr std::string_view GetSymbolName(SymbolId i_symbol_id)
+        constexpr std::string_view GetSymbolChars(SymbolId i_symbol_id)
         {
-            for(const Symbol & symbol : g_alphabet)
-                if(symbol.m_id == i_symbol_id)
-                    return symbol.m_chars;
+            if(auto symbol = TryFindSymbol(i_symbol_id))
+                return symbol->m_chars;
 
             switch(i_symbol_id)
             {
@@ -162,7 +169,7 @@ namespace liquid
                 return "<end_of_source>";
 
             default:
-                Panic("GetSymbolName - unrecognized symbol id: ", static_cast<int>(i_symbol_id));
+                Panic("GetSymbolChars - unrecognized symbol id: ", static_cast<int>(i_symbol_id));
             }
             
         }

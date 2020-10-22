@@ -9,6 +9,7 @@
 #include "tensor_value.h"
 #include "tensor_type.h"
 #include "indices.h"
+#include "factorize_polynomial.h"
 
 namespace liquid
 {

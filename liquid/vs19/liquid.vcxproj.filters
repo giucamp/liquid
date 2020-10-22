@@ -78,6 +78,9 @@
     <ClInclude Include="..\private\miu6\alphabet.h">
       <Filter>private\miu6</Filter>
     </ClInclude>
+    <ClInclude Include="..\private\factorize_polynomial.h">
+      <Filter>private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\tensor_value.cpp">

@@ -35,8 +35,12 @@ namespace liquid
         const std::string & GetDoc() const { return m_doc; }
         const TensorType & GetType() const { return m_type; }
         const std::vector<Tensor> & GetOperands() const { return m_operands; }
+        const Tensor & GetOperand(size_t i_operand_index) const { return m_operands.at(i_operand_index); }
         const std::any & GetAttachment() const { return m_attachment; }
         const Hash & GetHash() const { return m_hash; }
+
+        // this is a stub - to be implemented
+        int64_t GetComputationalCostExtimate() const { return 0; }
 
         bool OperatorIs(const Operator & i_op) const { return &m_operator == &i_op; }
 
@@ -60,6 +64,8 @@ namespace liquid
     bool IsVariable(const Tensor & i_tensor);
 
     bool AlwaysEqual(const Tensor & i_tensor, const TensorValue & i_value);
+
+    bool AreIdentical(const Tensor & i_left, const Tensor & i_right);
 
     bool AreIdentical(const Expression & i_left, const Expression & i_right);
 

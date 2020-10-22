@@ -51,6 +51,16 @@ namespace liquid
         return i_dest;
     }
 
+    // Contains - less verbose than using std::find, and does not require <algorithm>
+    template <typename CONTAINER>
+        bool Contains(const CONTAINER & i_container, const ContainerElementTypeT<CONTAINER> & i_value)
+    {
+        for(const auto & element : i_container)
+            if(element == i_value)
+                return true;
+        return false;
+    }
+
     /** Concatenate many containers into a vector. This function does not partecipate in
         overload resolution unless all argument are containers with the same element type. */
     template <

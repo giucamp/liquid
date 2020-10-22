@@ -77,8 +77,9 @@ namespace liquid
         }
 
         {
-            Expects("[ log [3 4]"
-                    "  exp [5 6] + 2 ] is real [2, 2]");
+            Expects("[1 2] is int[2]");
+            Expects("[ log[ 3 real[] ]"
+                    "  exp[5 6] + 2  ] is real [2, 2]");
         }
 
         std::cout << "done" << std::endl;
