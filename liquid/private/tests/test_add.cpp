@@ -6,7 +6,6 @@
 
 #include "private_common.h"
 #include "indices.h"
-#include <numeric>
 #include <iostream>
 
 namespace liquid
@@ -16,11 +15,13 @@ namespace liquid
         std::cout << "Test Add...";
         const char topic[] = "Add";
 
-        Expects(topic, "1 + real x == 1 + x");
+        Expects(topic, "add() == 0");
+        Expects(topic, "add(real a, real b, real c) == a + b + c");
+        Expects(topic, "real a + real b + real c == c + b + a");
+        Expects(topic, "real a + 0 == a");
 
         Expects(topic, "2 + 3 == 5");
         Expects(topic, "2 + 3 + 2 == 7");
-        Expects(topic, "add() == 0");
         Expects(topic, "add(5 6 5) == 16");
         Expects(topic, "add([5 6 5]) == [5 6 5]");
         Expects(topic, "add([5 6 5], 1) == [6 7 6]");

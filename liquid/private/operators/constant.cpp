@@ -38,16 +38,26 @@ namespace liquid
         return GetOperatorConstant().Invoke({}, i_value);
     }
 
+    bool IsConstant(const Expression & i_expression)
+    {
+        return i_expression.OperatorIs(GetOperatorConstant());
+    }
+
+    const TensorValue & GetConstantValue(const Expression & i_expression)
+    {
+        if(!IsConstant(i_expression))
+            Panic("GetConstantValue - not a constant tensor");
+        return std::any_cast<const TensorValue&>(i_expression.GetAttachment());
+    }
+
     bool IsConstant(const Tensor & i_tensor)
     {
-        return i_tensor.GetExpression()->OperatorIs(GetOperatorConstant());
+        return IsConstant(*i_tensor.GetExpression());
     }
 
     const TensorValue & GetConstantValue(const Tensor & i_tensor)
     {
-        if(!IsConstant(i_tensor))
-            Panic("GetConstantValue - not a constant tensor");
-        return std::any_cast<const TensorValue&>(i_tensor.GetExpression()->GetAttachment());
+        return GetConstantValue(*i_tensor.GetExpression());
     }
 
     template Span<const Real> GetConstantStorage(const Tensor & i_tensor);

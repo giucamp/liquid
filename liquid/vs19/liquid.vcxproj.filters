@@ -218,6 +218,9 @@
     <ClCompile Include="..\private\operators\cos.cpp">
       <Filter>private\operators</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\tests\test_mul.cpp">
+      <Filter>private\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />

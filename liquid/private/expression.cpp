@@ -46,10 +46,17 @@ namespace liquid
     {
         bool AreIdenticalImplShallow(const Expression & i_left, const Expression & i_right)
         {
+            if(&i_left.GetOperator() != &i_right.GetOperator())
+                return false;
+
+            /* is both are constants, we compare values, to take account of numerical promotion
+                (otherwise an integer-real constant pair would always compare different). */
+            if(IsConstant(i_left))
+                return GetConstantValue(i_left) == GetConstantValue(i_right);
+
             // we first compare hashes to early reject almost all non-identical expressions
             return
                 i_left.GetHash() == i_right.GetHash() &&
-                &i_left.GetOperator() == &i_right.GetOperator() &&
                 i_left.GetName() == i_right.GetName() &&            
                 i_left.GetType() == i_right.GetType() &&
                 i_left.GetOperands().size() == i_right.GetOperands().size() &&

@@ -54,8 +54,6 @@ namespace liquid
 
         Expects("real x * 0 * real y == 0"); 
 
-        Expects("real x * 0 * real y == 0"); 
-
         Expects("real * 0 * real == 0"); 
 
         Expects(u8"[[ cos real[] θ     -sin θ ] "

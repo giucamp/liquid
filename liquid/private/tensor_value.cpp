@@ -223,17 +223,19 @@ namespace liquid
         bool EqualsImpl(const FixedShape & i_shape, const TensorValue & i_left, const TensorValue & i_right)
     {
         for (Indices indices = i_shape; indices; indices++)
-            if (static_cast<COMMON_TYPE>(indices.At<LEFT_TYPE>(i_left)) != 
-                static_cast<COMMON_TYPE>(indices.At<RIGHT_TYPE>(i_right)) )
-                    return false;
+        {
+            auto const left_scalar = static_cast<COMMON_TYPE>(indices.At<LEFT_TYPE>(i_left));
+            auto const right_scalar = static_cast<COMMON_TYPE>(indices.At<RIGHT_TYPE>(i_right));
+            if (left_scalar != right_scalar)
+                return false;
+        }
         return true;
     }
 
     bool operator == (const TensorValue & i_first, const TensorValue & i_second)
     {
-        if( (i_first.GetScalarType() == ScalarType::Bool) != 
-            (i_second.GetScalarType() == ScalarType::Bool) )
-                return false;
+        if( IsNumeric(i_first.GetScalarType()) != IsNumeric(i_second.GetScalarType()) )
+            return false;
 
         auto const shape = TryBroadcast({i_first.GetShape(), i_second.GetShape()});
         if(!shape)

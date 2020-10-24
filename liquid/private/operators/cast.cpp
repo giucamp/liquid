@@ -74,7 +74,7 @@ namespace liquid
             .AddOverload(CastEvaluate<Integer>, { { ScalarType::Integer, "source" } })
             .SetAttachmentComparer<ScalarType>()
             .SetAttachmentHasher<ScalarType>()
-            .SetCanonicalize(CastCanonicalize);
+            .AddCanonicalize(CastCanonicalize);
         return op;
     }
 

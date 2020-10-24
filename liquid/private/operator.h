@@ -130,9 +130,11 @@ namespace liquid
            f(x) and a g(x) that are always equal, but we may not have a canonicalization that proves
            it. */
         
-        using CanonicalizeFunction = std::optional<Tensor>(*)(const Tensor & i_source);
+        using ReplaceCanonicalizeFunction = std::optional<Tensor>(*)(const Tensor & i_source);
+        using AdjustCanonicalizeFunction = bool (*) (std::vector<Tensor> & i_operand);
+        using CanonicalizeFunction = std::variant<ReplaceCanonicalizeFunction, AdjustCanonicalizeFunction>;
 
-        Operator & SetCanonicalize(CanonicalizeFunction i_func);
+        Operator & AddCanonicalize(CanonicalizeFunction i_func);
 
 
             // eligible for propagation
@@ -243,6 +245,8 @@ namespace liquid
         void CA_PartialConstantPropagation(std::vector<Tensor> & i_operands,
             const std::any & i_attachment) const;
 
+        bool AdjustCanonicalize(std::vector<Tensor> & i_operands, const std::any & i_attachment) const;
+
     private:
         std::string const m_name;
         std::string_view m_doc_description;
@@ -251,7 +255,7 @@ namespace liquid
         DeduceTypeFunction m_deduce_type_func = {};
         EligibleForPropagation m_eligible_for_propagation = {};
         std::vector<Overload> m_overloads = {};
-        CanonicalizeFunction m_canonicalize_func = {};
+        std::vector<CanonicalizeFunction> m_canonicalize_funcs = {};
         GradientOfOperandFunction m_gradient_of_input_func = {};
         AttachmentComparer m_attachment_comparer = {};
         AttachmentHasher m_attachment_hasher = {};

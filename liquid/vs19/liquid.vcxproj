@@ -59,6 +59,7 @@
     <ClCompile Include="..\private\tests\test_if.cpp" />
     <ClCompile Include="..\private\tests\test_indices.cpp" />
     <ClCompile Include="..\private\tests\test_miu6.cpp" />
+    <ClCompile Include="..\private\tests\test_mul.cpp" />
     <ClCompile Include="..\private\tests\test_pow.cpp" />
     <ClCompile Include="..\private\tests\test_scalar_type.cpp" />
     <ClCompile Include="..\private\tests\test_shape.cpp" />

@@ -15,6 +15,11 @@
 
 namespace liquid
 {
+    constexpr bool IsNumeric(ScalarType i_scalar_type)
+    {
+        return i_scalar_type == ScalarType::Integer || i_scalar_type == ScalarType::Real;
+    }
+
     class TensorValue
     {
     public:
@@ -75,15 +80,6 @@ namespace liquid
 
         friend Hash & operator << (Hash & i_dest, const TensorValue & i_source);
 
-                // constants
-
-        template <auto VALUE>
-            static const TensorValue GetConstant()
-        {
-            static TensorValue s_value(VALUE);
-            return s_value;
-        }
-
     private:
 
         void SetFromInitializer(const TensorInitializer & i_scalars);
@@ -105,4 +101,12 @@ namespace liquid
             SharedArray<const Bool>
         > m_scalars;
     };
+
+    // floating point template arguments are not permitted
+    template <auto VALUE>
+        const TensorValue MakeConstantValue()
+    {
+        static TensorValue s_value(VALUE);
+        return s_value;
+    }
 }

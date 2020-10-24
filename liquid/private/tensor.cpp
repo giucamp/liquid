@@ -97,12 +97,12 @@ namespace liquid
 
     bool Always(const Tensor & i_bool_tensor)
     {
-        return AlwaysEqual(i_bool_tensor, TensorValue::GetConstant<true>());
+        return AlwaysEqual(i_bool_tensor, MakeConstantValue<true>());
     }
 
     bool Never(const Tensor & i_bool_tensor)
     {
-        return AlwaysEqual(i_bool_tensor, TensorValue::GetConstant<false>());
+        return AlwaysEqual(i_bool_tensor, MakeConstantValue<false>());
     }
 
     std::ostream & operator << (std::ostream & i_dest, const Tensor& i_tensor)

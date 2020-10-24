@@ -34,6 +34,7 @@ namespace liquid
         const std::string & GetName() const { return m_name; }
         const std::string & GetDoc() const { return m_doc; }
         const TensorType & GetType() const { return m_type; }
+        ScalarType GetScalarType() const { return m_type.GetScalarType(); }
         const std::vector<Tensor> & GetOperands() const { return m_operands; }
         const Tensor & GetOperand(size_t i_operand_index) const { return m_operands.at(i_operand_index); }
         const std::any & GetAttachment() const { return m_attachment; }
@@ -55,9 +56,16 @@ namespace liquid
         Hash m_hash;
     };
 
+    
     Tensor MakeConstant(const TensorValue & i_value);
 
     const TensorValue & GetConstantValue(const Tensor & i_tensor);
+
+    bool IsConstant(const Expression & i_expression);
+
+    const TensorValue & GetConstantValue(const Expression & i_expression);
+
+
 
     Tensor MakeVariable(const TensorType & i_type, std::string_view i_name);
 
@@ -72,6 +80,13 @@ namespace liquid
     TensorType DeduceType(Span<const Tensor> i_operands);
 
     Tensor Is(const Tensor & i_tensor, const TensorType & i_type);
+
+    template <auto VALUE>
+        const Tensor MakeConstant()
+    {
+        static Tensor s_value = MakeConstant(MakeConstantValue<VALUE>());
+        return s_value;
+    }
 
     inline Hash & operator << (Hash & i_dest, const Expression & i_source)
     {

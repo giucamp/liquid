@@ -20,10 +20,57 @@ namespace liquid
     {
     private:
 
+        /* Given a span of integral or real scalars, return the lowest\hightest 
+            value, if all elements are postive\negative.
+            
+            If all values are positive, returns the lowest value.
+            If all values are negative, returns the highest value.
+            Otherwise (even in case the span is empty) returns zero.
+
+            This function is used to extract a factor from a pow expression
+            with constant exponent. For example:
+                - given pow(x, [2 3]), the factor pow(x, 2) is extracted
+                - given pow(x, [-6 -5]), the factor pow(x, -5) is extracted
+                - given pow(x, [-3 5]), no factor is extracted.
+                
+            To investigate: with a tensor factor cardinality, these constraints 
+            may be removed. */
+        template <typename SCALAR_TYPE>
+            static SCALAR_TYPE GetExponentFloor(Span<SCALAR_TYPE const> i_scalars)
+        {
+            SCALAR_TYPE const zero{};
+            
+            if(i_scalars.empty())
+                return zero;
+
+            if(i_scalars[0] >= zero)
+            {
+                SCALAR_TYPE min = i_scalars[0];
+                for(size_t i = 1; i < i_scalars.size(); i++)
+                {
+                    if(i_scalars[i] < zero)
+                        return zero;
+                    min = std::min(min, i_scalars[i]);
+                }
+                return min;
+            }
+            else
+            {
+                SCALAR_TYPE max = i_scalars[0];
+                for(size_t i = 1; i < i_scalars.size(); i++)
+                {
+                    if(i_scalars[i] >= zero)
+                        return zero;
+                    max = std::max(max, i_scalars[i]);
+                }
+                return max;
+            }
+        }
+
         struct Factor
         {
-            Tensor i_base;
-            TensorValue i_exponent;
+            Tensor m_base;
+            TensorValue m_exponent;
         };
 
         struct Monomial
@@ -31,7 +78,7 @@ namespace liquid
             std::vector<Factor> m_factors;
         };
 
-        static std::vector<Monomial> CanonicalizePolynomial(Span<const Tensor> i_addends)
+        static std::vector<Monomial> MakePolynomial(Span<const Tensor> i_addends)
         {
             std::vector<Monomial> operand_infos;
             operand_infos.reserve(i_addends.size());
@@ -44,10 +91,11 @@ namespace liquid
                     bool found = false;
                     for(Factor & factor : operand_info.m_factors)
                     {
-                        if(AreIdentical(factor.i_base, i_base))
+                        if(AreIdentical(factor.m_base, i_base))
                         {
                             // we just sum the two exponents
-                            factor.i_exponent = GetConstantValue(MakeConstant(factor.i_exponent) + MakeConstant(i_exponent));
+                            factor.m_exponent = GetConstantValue(
+                                MakeConstant(factor.m_exponent) + MakeConstant(i_exponent));
                             found = true;
                             break;
                         }
@@ -95,16 +143,36 @@ namespace liquid
                 }
                 else
                 {
-                    // the exponent is any expression
-                    i_predicate(i_source, TensorValue::GetConstant<1>());
+                    // the exponent is a random expression
+                    i_predicate(i_source, MakeConstantValue<1>());
                 }
             }
             else
             {
                 // not factorizable
-                i_predicate(i_source, TensorValue::GetConstant<1>());
+                i_predicate(i_source, MakeConstantValue<1>());
             }
         }
+
+    public:
+
+        /* std::optional<Tensor> Factorize(Span<const Tensor> i_addends)
+        {
+            struct FactorInfo
+            {
+                std::vector<size_t> m_operand_indices;
+            };
+
+            std::vector<Monomial> const polynomial = MakePolynomial(i_addends);
+
+            for(size_t monomial_index = 0; monomial_index < polynomial.size(); monomial_index++)
+            {
+                for(const auto & factor : polynomial[monomial_index].m_factors)
+                {
+                    
+                }
+            }
+        } */
 
     }; // FactorizePolynomial
 }

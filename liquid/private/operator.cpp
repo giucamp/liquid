@@ -33,9 +33,9 @@ namespace liquid
         return *this;
     }
 
-    Operator & Operator::SetCanonicalize(CanonicalizeFunction i_func)
+    Operator & Operator::AddCanonicalize(CanonicalizeFunction i_func)
     {
-        m_canonicalize_func = i_func;
+        m_canonicalize_funcs.push_back(i_func);
         return *this;
     }
 
@@ -212,7 +212,9 @@ namespace liquid
         else
         {
             return this != &GetOperatorConstant() &&
-                std::all_of(i_operands.begin(), i_operands.end(), IsConstant);
+                std::all_of(i_operands.begin(), i_operands.end(), 
+                    // the cast is necessary to disambiguate the overload of IsConstant
+                    static_cast<bool (*)(const Tensor&)>(IsConstant) );
         }
     }
 
@@ -296,12 +298,14 @@ namespace liquid
             const Tensor & operand = i_operands[op_index];
             if(operand.GetExpression()->OperatorIs(*this))
             {
+                const size_t flattened_operands = operand.GetExpression()->GetOperands().size();
+
                 i_operands = Concatenate(
                     Span(i_operands).subspan(0, op_index),
                     operand.GetExpression()->GetOperands(),
                     Span(i_operands).subspan(op_index + 1) );
 
-                op_index += operand.GetExpression()->GetOperands().size();
+                op_index += flattened_operands;
             }
             else
                 op_index++;
@@ -331,6 +335,26 @@ namespace liquid
         }
     }
 
+    bool Operator::AdjustCanonicalize(std::vector<Tensor> & i_operands, const std::any & i_attachment) const
+    {
+        // common commutative-associative canonicalizations
+        if(Has(Flags::Commutative | Flags::Associative))
+        {
+            CA_Flatten(i_operands);
+            CA_PartialConstantPropagation(i_operands, i_attachment);
+            CA_SortOperands(i_operands);
+        }
+
+        for(const auto & func : m_canonicalize_funcs)
+        {
+            if(auto const func_ptr = std::get_if<AdjustCanonicalizeFunction>(&func))
+                if((**func_ptr)(i_operands))
+                    return true;
+        }
+
+        return false;
+    }
+
     Tensor Operator::Invoke(std::string_view i_name, std::string_view i_doc,
         Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
@@ -344,25 +368,31 @@ namespace liquid
         if(auto constant = TryConstantPropagation(overload, type, operands, i_attachment))
             return *constant;
 
-        // common commutative-associative canonicalizations
-        if(Has(Flags::Commutative | Flags::Associative))
+        for(;;)
         {
-            CA_Flatten(operands);
-            CA_PartialConstantPropagation(operands, i_attachment);
-            CA_SortOperands(operands);
+            if(AdjustCanonicalize(operands, i_attachment))
+                continue;
+
+            if(Has(Flags::Commutative | Flags::Associative) && i_operands.empty() && m_identity_value)
+                return MakeConstant(*m_identity_value);
+
+            if(IsRegularNAry() && operands.size() == 1)
+                return operands[0];
+
+            Tensor result(std::make_shared<Expression>(
+                i_name, i_doc, type, *this, overload, 
+                operands, i_attachment ));
+
+            /* to do: this kind of canonicalizations are recursive, make it iterative */
+            for(const auto & func : m_canonicalize_funcs)
+            {
+                if(auto const func_ptr = std::get_if<ReplaceCanonicalizeFunction>(&func))
+                    if(auto new_expr = (**func_ptr)(result))
+                        return *new_expr;
+            }
+
+            return result;
         }
-
-        Tensor result(std::make_shared<Expression>(
-            i_name, i_doc, type, *this, overload, 
-            operands, i_attachment ));
-
-        if(m_canonicalize_func != nullptr)
-        {
-            if(auto simplified = m_canonicalize_func(result))
-                result = *simplified;
-        }
-
-        return result;
     }
 
     Operator & Operator::SetAttachmentComparer(AttachmentComparer i_attachment_comparer)

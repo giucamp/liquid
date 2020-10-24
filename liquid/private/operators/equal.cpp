@@ -53,10 +53,10 @@ namespace liquid
         static auto const op = Operator("equal")
             .AddFlags(Operator::Flags::Commutative)
             .SetDeduceType(EqualDeduceType)
+            .AddCanonicalize(EqualCanonicalize)
             .AddOverload(EqualEvaluate<Real>, { { ScalarType::Real, "first" }, { ScalarType::Real, "second" } })
             .AddOverload(EqualEvaluate<Integer>, { { ScalarType::Integer, "first" }, { ScalarType::Integer, "second" } })
-            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } })
-            .SetCanonicalize(EqualCanonicalize);
+            .AddOverload(EqualEvaluate<Bool>, { { ScalarType::Bool, "first" }, { ScalarType::Bool, "second" } });
         return op;
     }
 
