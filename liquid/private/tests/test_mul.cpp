@@ -16,14 +16,16 @@ namespace liquid
         const char topic[] = "Mul";
 
         Expects(topic, "mul() == 1");
-        Expects(topic, "mul(mul(real a, real b), real c) == a * b * c");
         Expects(topic, "mul(real a, real b, real c) == a * b * c");
+        Expects(topic, "mul(mul(real a, real b), real c) == a * b * c");
         Expects(topic, "real a * real b * real c == c * b * a");
         Expects(topic, "real a * 0 == 0");
         Expects(topic, "real a * 1 == a");
         Expects(topic, "real a / real b == a * b^-1");
         Expects(topic, "(real a ^ real b) * (a ^ real c) == a^(b + c)");
         Expects(topic, "(real a ^ real b) ^ real c == a^(b * c)");
+        // Expects(topic, "real a / a == 1");
+        // Expects(topic, "real a + a == 2 * a");
 
         Expects(topic, "2 * 3 == 6");
         Expects(topic, "2 * 3 * 2 == 12");

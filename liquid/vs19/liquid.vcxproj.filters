@@ -221,6 +221,12 @@
     <ClCompile Include="..\private\tests\test_mul.cpp">
       <Filter>private\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\factorize_polynomial.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\tensor_to_string.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />

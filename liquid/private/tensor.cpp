@@ -104,10 +104,4 @@ namespace liquid
     {
         return AlwaysEqual(i_bool_tensor, MakeConstantValue<false>());
     }
-
-    std::ostream & operator << (std::ostream & i_dest, const Tensor& i_tensor)
-    {
-        i_dest << "to_do";
-        return i_dest;
-    }
 }

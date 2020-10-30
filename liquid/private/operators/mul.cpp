@@ -92,6 +92,15 @@ namespace liquid
                         continue;
                     }
                 }
+                else if(AreIdentical(base, other_operand))
+                {
+                    // accumulate exponents
+                    new_exponent += 1;
+
+                    i_operands.erase(i_operands.begin() + j);
+                    matches++;
+                    continue;
+                }
                 j++;
             }
 

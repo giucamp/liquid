@@ -221,10 +221,9 @@ namespace liquid
     TensorValue Operator::Evaluate(const Overload & i_overload, const TensorType & i_result_type,
             Span<const Tensor> i_operands, const std::any & i_attachment) const
     {
-        if (std::holds_alternative<EvaluateFromVariablesFunction>(i_overload.m_evaluate))
+        if (auto const func = std::get_if<EvaluateFromVariablesFunction>(&i_overload.m_evaluate))
         {
-            return std::get<EvaluateFromVariablesFunction>(i_overload.m_evaluate)
-                (i_attachment, i_result_type, i_operands);
+            return (*func)(i_attachment, i_result_type, i_operands);
         }
 
         return Evaluate(i_overload, i_result_type, ToValues(i_operands), i_attachment);
@@ -233,23 +232,20 @@ namespace liquid
     TensorValue Operator::Evaluate(const Overload & i_overload, const TensorType & i_result_type,
         Span<const TensorValue> i_operands, const std::any & i_attachment) const
     {
-        if (std::holds_alternative<EvaluateSingleArgument>(i_overload.m_evaluate))
+        if (auto const func = std::get_if<EvaluateSingleArgument>(&i_overload.m_evaluate))
         {
             if(i_operands.size() != 1)
                 Panic(m_name, ": evaluate supports only one operand, ", i_operands.size(), " provided");
 
-            return std::get<EvaluateSingleArgument>(i_overload.m_evaluate)
-                (i_result_type, i_operands.at(0));
+            return (*func)(i_result_type, i_operands.at(0));
         }
-        else if(std::holds_alternative<EvaluateFunction>(i_overload.m_evaluate))
+        else if(auto const func = std::get_if<EvaluateFunction>(&i_overload.m_evaluate))
         {
-            return std::get<EvaluateFunction>(i_overload.m_evaluate)
-                (i_result_type, i_operands);
+            return (*func)(i_result_type, i_operands);
         }
-        else if (std::holds_alternative<EvaluateWithAttachmentFunction>(i_overload.m_evaluate))
+        else if (auto const func = std::get_if<EvaluateWithAttachmentFunction>(&i_overload.m_evaluate))
         {
-            return std::get<EvaluateWithAttachmentFunction>(i_overload.m_evaluate)
-                (i_attachment, i_result_type, i_operands);
+            return (*func)(i_attachment, i_result_type, i_operands);
         }
 
         Panic("Operator - internal error - unhandled evaluate function type");
@@ -376,8 +372,13 @@ namespace liquid
             if(Has(Flags::Commutative | Flags::Associative) && i_operands.empty() && m_identity_value)
                 return MakeConstant(*m_identity_value);
 
-            if(IsRegularNAry() && operands.size() == 1)
-                return operands[0];
+            if(IsRegularNAry())
+            {
+                if(operands.size() == 0)
+                    return MakeConstant(*m_identity_value);
+                if(operands.size() == 1)
+                    return operands[0];
+            }
 
             Tensor result(std::make_shared<Expression>(
                 i_name, i_doc, type, *this, overload, 

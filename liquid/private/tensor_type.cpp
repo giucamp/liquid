@@ -20,10 +20,9 @@ namespace liquid
                 result_type = operand_type;
             else if (result_type != operand_type)
             {
-                if(operand_type == ScalarType::Real 
-                    && result_type == ScalarType::Integer)
+                if(IsNumeric(result_type) && IsNumeric(operand_type))
                 {
-                    // integer to real promotion
+                    // numeric promotion
                     result_type = ScalarType::Real;
                 }
                 else

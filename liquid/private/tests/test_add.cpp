@@ -17,8 +17,11 @@ namespace liquid
 
         Expects(topic, "add() == 0");
         Expects(topic, "add(real a, real b, real c) == a + b + c");
+        Expects(topic, "add(add(real a, real b), real c) == a + b + c");
         Expects(topic, "real a + real b + real c == c + b + a");
         Expects(topic, "real a + 0 == a");
+
+        Expects(topic, "real a + a == 2*a");
 
         Expects(topic, "2 + 3 == 5");
         Expects(topic, "2 + 3 + 2 == 7");

@@ -36,10 +36,18 @@ namespace liquid
         return i_self_gradient;
     }
 
+    std::optional<Tensor> AddCanonicalizeReplace(const Tensor & i_source)
+    {
+        if(auto const factorized = Factorize(i_source.GetExpression()->GetOperands()))
+            return factorized;
+        return {};
+    }
+
     extern const Operator & GetOperatorAdd()
     {
         static auto const op = Operator("add")
             .AddFlags(Operator::Flags::Commutative | Operator::Flags::Associative)
+            .AddCanonicalize(AddCanonicalizeReplace)
             .AddOverload(AddEvaluate<Real>, { {ScalarType::Real, "addend"} }, 1)
             .AddOverload(AddEvaluate<Integer>, { {ScalarType::Integer, "addend"} }, 1)
             .SetGradientOfOperand(AddGradient);

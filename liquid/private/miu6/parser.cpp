@@ -161,16 +161,15 @@ namespace liquid
             else if (i_lexer.IsCurrentToken(SymbolId::Name))
             {
                 auto const member = i_scope->TryLookup(i_lexer.GetCurrentToken().m_source_chars);
-                if(std::holds_alternative<std::reference_wrapper<const Operator>>(member))
+                if(auto const op_ptr = std::get_if<std::reference_wrapper<const Operator>>(&member))
                 {
                     i_lexer.Advance();
-                    return ParseInvokeOperator(i_lexer, i_scope, 
-                        std::get<std::reference_wrapper<const Operator>>(member).get());
+                    return ParseInvokeOperator(i_lexer, i_scope, op_ptr->get());
                 }
-                else if(std::holds_alternative<Tensor>(member))
+                else if(auto tensor_ptr = std::get_if<Tensor>(&member))
                 {
                     i_lexer.Advance();
-                    return std::get<Tensor>(member);
+                    return *tensor_ptr;
                 }
                 else
                     return {};

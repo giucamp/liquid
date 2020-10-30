@@ -78,7 +78,7 @@ namespace liquid
         std::vector<Tensor> result;
         result.reserve(i_where.size());
         for(auto const & where : i_where)
-            result.push_back(SubstituteByPredicate(i_where, replacement_map));
+            result.push_back(detail::SubstituteByPredicateImpl(i_where, replacement_map));
 
         return result;
     }

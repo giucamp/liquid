@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\expression.cpp" />
+    <ClCompile Include="..\private\tensor_to_string.cpp" />
+    <ClCompile Include="..\private\factorize_polynomial.cpp" />
     <ClCompile Include="..\private\indices.cpp" />
     <ClCompile Include="..\private\liquid_common.cpp" />
     <ClCompile Include="..\private\book.cpp" />

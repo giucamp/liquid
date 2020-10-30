@@ -20,6 +20,7 @@ namespace liquid
         return i_scalar_type == ScalarType::Integer || i_scalar_type == ScalarType::Real;
     }
 
+    // tensor value are immutable
     class TensorValue
     {
     public:
@@ -108,5 +109,13 @@ namespace liquid
     {
         static TensorValue s_value(VALUE);
         return s_value;
+    }
+
+    TensorValue Cast(ScalarType i_dest_type, const TensorValue & i_source);
+
+    template <typename DEST_SCALAR_TYPE>
+        TensorValue Cast(const TensorValue & i_source)
+    {
+        return Cast(GetScalarType<DEST_SCALAR_TYPE>(), i_source);
     }
 }

@@ -49,12 +49,12 @@ namespace liquid
             if(&i_left.GetOperator() != &i_right.GetOperator())
                 return false;
 
-            /* is both are constants, we compare values, to take account of numerical promotion
+            /* if both are constants, we compare values, to take account of numerical promotion
                 (otherwise an integer-real constant pair would always compare different). */
             if(IsConstant(i_left))
                 return GetConstantValue(i_left) == GetConstantValue(i_right);
 
-            // we first compare hashes to early reject almost all non-identical expressions
+            // comparing hashes we early-reject almost all non-identical expressions
             return
                 i_left.GetHash() == i_right.GetHash() &&
                 i_left.GetName() == i_right.GetName() &&            

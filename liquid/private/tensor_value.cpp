@@ -263,6 +263,37 @@ namespace liquid
                 types.first, " and ", types.second);
     }
 
+    TensorValue Cast(ScalarType i_dest_type, const TensorValue & i_source)
+    {
+        if(i_dest_type == i_source.GetScalarType())
+            return i_source;
+
+        if(!IsNumeric(i_dest_type))
+            Panic("TensorValue Cast - ", i_dest_type, " is not a numeric type");
+
+        if(!IsNumeric(i_source.GetScalarType()))
+            Panic("TensorValue Cast - ", i_source.GetScalarType(), " is not a numeric type");
+
+        if(i_dest_type == ScalarType::Real)
+        {
+            auto const integers = i_source.GetAs<Integer>();
+            SharedArray<Real> reals(integers.size());
+            for(size_t i = 0; i < integers.size(); i++)
+                reals[i] = NumericCast<Real>(integers[i]);
+            return TensorValue(std::move(reals), i_source.GetShape());
+        }
+        else if(i_dest_type == ScalarType::Integer)
+        {
+            auto const reals = i_source.GetAs<Real>();
+            SharedArray<Integer> integers(reals.size());
+            for(size_t i = 0; i < reals.size(); i++)
+                integers[i] = NumericCast<Integer>(reals[i]);
+            return TensorValue(std::move(integers), i_source.GetShape());
+        }
+        else
+            Panic("TensorValue Cast - unrecognized scalar type: ", i_dest_type);
+    }
+
     Hash & operator << (Hash & i_dest, const TensorValue & i_source)
     {
         i_dest << i_source.m_type;
